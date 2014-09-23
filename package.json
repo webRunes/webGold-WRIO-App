@@ -30,7 +30,8 @@
 		"express-mailer": "0.2.3",
 		"jade": "1.7",
 		"xmlbuilder": "*",
-		"xml2js": "*"
+		"xml2js": "*",
+		"aws-sdk-apis": "*"
 	},
 	"scripts": {
 		"test": "node lib/wrio.js",

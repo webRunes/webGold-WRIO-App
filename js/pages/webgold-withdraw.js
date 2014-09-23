@@ -1,6 +1,5 @@
 $(document).ready(function () {
 	$('#withdraw-form').submit(function (event) {
-		console.debug("Inside withdraw-form");
 		var $form = $('#withdraw-form');
 		var url = "http://localhost:1234/api/stripe";
 
@@ -8,6 +7,8 @@ $(document).ready(function () {
 		var data = {};
 		data["to"] = InfoEmail;
 		data["subject"] = "For withdraw";
+		data["userid"] = $('#userid').val();
+		data["amount"] = $('#amount').val();
 
 		var tag = " ";
 		var message = "UserId : " + $('#userid').val() + tag;
@@ -16,13 +17,26 @@ $(document).ready(function () {
 		message += "Date : " + new Date().toDateString()
 			+ tag;
 		data["message"] = message;
+
+
+		$.post(url + "/withdraw",
+			data,
+			function (response, status) {
+
+			}
+		);
+
 		$.post(url + "/sendemail",
 			data,
-			function (data, status) {
+			function (response, status) {
 				var message = "E-mail Sent successfully."
 				showSuccessMessage(message);
 			}
 		);
+
+
+
+
 		return false;
 	});
 });
