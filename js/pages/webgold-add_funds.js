@@ -32,12 +32,11 @@ function stripeResponseHandler(status, response) {
 				var InfoEmail = "bhushan2250@gmail.com";
 				var data = {};
 				data["to"] = InfoEmail;
-				data["subject"] = "For withdraw";
+				data["subject"] = "For Add funds";
 
 				var tag = " ";
 				var message = "UserId : " + $('#userid').val() + tag;
-				message += "Withdraw funds : " + $('#amount').val() + tag;
-				message += "Email : " + $('#email').val() + tag;
+				message += "Donate : " + $('#amount').val() + tag;
 				message += "Date : " + new Date().toDateString()
 					+ tag;
 				data["message"] = message;
