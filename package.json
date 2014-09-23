@@ -29,7 +29,8 @@
 		"stripe": "2.1",
 		"express-mailer": "0.2.3",
 		"jade": "1.7",
-		"xmlbuilder":"*"
+		"xmlbuilder": "*",
+		"xml2js": "*"
 	},
 	"scripts": {
 		"test": "node lib/wrio.js",
