@@ -22,9 +22,14 @@
   "devDependencies": {
   },
   "dependencies": {
-    "when": "~3.1.0"
+    "express": "~3.17",
+    "when": "~3.1.0",
+    "http" : "~0.0",
+    "mysql" : "~2.5",
+    "stripe" : "2.1"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "node lib/wrio.js",
+    "start": "node lib/wrio.js"
   }
 }
