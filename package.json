@@ -27,11 +27,9 @@
 		"http": "~0.0",
 		"mysql": "~2.5",
 		"stripe": "2.1",
-		"emailjs": "0.3",
-		"moment": "= 1.7.0",
-		"mimelib": "0.2.14",
 		"express-mailer": "0.2.3",
-		"jade": "1.7"
+		"jade": "1.7",
+		"xmlbuilder":"*"
 	},
 	"scripts": {
 		"test": "node lib/wrio.js",
