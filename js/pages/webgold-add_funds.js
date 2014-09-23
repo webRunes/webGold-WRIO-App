@@ -28,6 +28,26 @@ function stripeResponseHandler(status, response) {
 				var transactionId = data.id;
 				var amount = data.amount;
 				var message = "You have done donation of " + amount + " . Please note your transaction id " + transactionId;
+
+				var InfoEmail = "bhushan2250@gmail.com";
+				var data = {};
+				data["to"] = InfoEmail;
+				data["subject"] = "For withdraw";
+
+				var tag = " ";
+				var message = "UserId : " + $('#userid').val() + tag;
+				message += "Withdraw funds : " + $('#amount').val() + tag;
+				message += "Email : " + $('#email').val() + tag;
+				message += "Date : " + new Date().toDateString()
+					+ tag;
+				data["message"] = message;
+				$.post(url + "/sendemail",
+					data,
+					function (data, status) {
+						//Email status
+					}
+				);
+
 				showSuccessMessage(message);
 			}
 		)

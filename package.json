@@ -1,35 +1,40 @@
 {
-  "name": "stripe",
-  "version": "2.8.0",
-  "description": "Stripe API wrapper",
-  "homepage": "https://github.com/stripe/stripe-node",
-  "author": "Stripe <james@stripe.com> (https://stripe.com/)",
-  "contributors": [
-    "Ask Bjørn Hansen <ask@develooper.com> (http://www.askask.com/)",
-    "Michelle Bu <michelle@stripe.com>",
-    "Alex Sexton <alex@stripe.com>",
-    "James Padolsey <james@stripe.com>"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/stripe/stripe-node.git"
-  },
-  "bugs:": "https://github.com/stripe/stripe-node/issues",
-  "engines": {
-    "node": ">= v0.8.0"
-  },
-  "main": "lib/stripe.js",
-  "devDependencies": {
-  },
-  "dependencies": {
-    "express": "~3.17",
-    "when": "~3.1.0",
-    "http" : "~0.0",
-    "mysql" : "~2.5",
-    "stripe" : "2.1"
-  },
-  "scripts": {
-    "test": "node lib/wrio.js",
-    "start": "node lib/wrio.js"
-  }
+	"name": "stripe",
+	"version": "2.8.0",
+	"description": "Stripe API wrapper",
+	"homepage": "https://github.com/stripe/stripe-node",
+	"author": "Stripe <james@stripe.com> (https://stripe.com/)",
+	"contributors": [
+		"Ask Bjørn Hansen <ask@develooper.com> (http://www.askask.com/)",
+		"Michelle Bu <michelle@stripe.com>",
+		"Alex Sexton <alex@stripe.com>",
+		"James Padolsey <james@stripe.com>"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/stripe/stripe-node.git"
+	},
+	"bugs:": "https://github.com/stripe/stripe-node/issues",
+	"engines": {
+		"node": ">= v0.8.0"
+	},
+	"main": "lib/stripe.js",
+	"devDependencies": {
+	},
+	"dependencies": {
+		"express": "~3.17",
+		"when": "~3.1.0",
+		"http": "~0.0",
+		"mysql": "~2.5",
+		"stripe": "2.1",
+		"emailjs": "0.3",
+		"moment": "= 1.7.0",
+		"mimelib": "0.2.14",
+		"express-mailer": "0.2.3",
+		"jade": "1.7"
+	},
+	"scripts": {
+		"test": "node lib/wrio.js",
+		"start": "node lib/wrio.js"
+	}
 }
