@@ -11,6 +11,7 @@
 	"dependencies": {
 		"express": "4.9.4",
 		"npm-helper": "*",
+		"qs": "*",
 		"etag": "*",
 		"on-finished": "*",
 		"proxy-addr": "*",
