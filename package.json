@@ -12,6 +12,7 @@
 		"express": "4.9.4",
 		"npm-helper": "*",
 		"etag": "*",
+		"ms": "*",
 		"depd": "*",
 		"destroy": "*",
 		"finalhandler": "*",
