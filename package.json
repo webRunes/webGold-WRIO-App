@@ -1,6 +1,8 @@
 {
 	"name": "Bhushankumar",
 	"description": "WRIO App Dev",
+	"private": true,
+	"repository": "",
 	"engines": {
 		"node": ">= v0.8.0"
 	},
@@ -9,6 +11,7 @@
 	"dependencies": {
 		"express": "4.9.4",
 		"npm-helper": "*",
+		"etag": "*",
 		"depd": "*",
 		"destroy": "*",
 		"finalhandler": "*",
