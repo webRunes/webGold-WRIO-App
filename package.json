@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"express": "4.9.4",
-		"npm-helper": "*",
+		"media-typer": "*",
 		"qs": "*",
 		"etag": "*",
 		"on-finished": "*",
