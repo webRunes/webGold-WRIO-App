@@ -9,6 +9,7 @@
 	"dependencies": {
 		"express": "4.9.4",
 		"npm-helper": "*",
+		"depd": "*",
 		"finalhandler": "*",
 		"utils-merge": "*",
 		"debug": "*",
