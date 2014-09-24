@@ -9,7 +9,7 @@
 	"devDependencies": {
 	},
 	"dependencies": {
-		"express": "*",
+		"express": "4.9.4",
 		"npm-helper": "*",
 		"etag": "*",
 		"on-finished": "*",
