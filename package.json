@@ -13,6 +13,7 @@
 		"npm-helper": "*",
 		"etag": "*",
 		"on-finished": "*",
+		"proxy-addr": "*",
 		"ms": "*",
 		"depd": "*",
 		"destroy": "*",
