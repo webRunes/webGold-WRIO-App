@@ -7,7 +7,7 @@
 	"devDependencies": {
 	},
 	"dependencies": {
-		"express": "4.0.0-rc2",
+		"express": "4.9.4",
 		"npm-helper": "*",
 		"utils-merge": "*",
 		"debug": "*",
