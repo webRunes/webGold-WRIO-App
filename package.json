@@ -10,6 +10,7 @@
 		"express": "4.9.4",
 		"npm-helper": "*",
 		"depd": "*",
+		"destroy": "*",
 		"finalhandler": "*",
 		"utils-merge": "*",
 		"debug": "*",
