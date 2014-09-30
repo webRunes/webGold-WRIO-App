@@ -1,0 +1,41 @@
+{
+	"name": "Bhushankumar",
+	"description": "WRIO App Dev",
+	"host":"http://telesens.cloudapp.net",
+	"private": true,
+	"repository": "",
+	"engines": {
+		"node": ">= v0.8.0"
+	},
+	"devDependencies": {
+	},
+	"dependencies": {
+		"express": "4.9.4",
+		"media-typer": "*",
+		"qs": "*",
+		"etag": "*",
+		"on-finished": "*",
+		"proxy-addr": "*",
+		"ms": "*",
+		"depd": "*",
+		"destroy": "*",
+		"finalhandler": "*",
+		"utils-merge": "*",
+		"debug": "*",
+		"body-parser": "*",
+		"when": "~3.1.0",
+		"http": "~0.0",
+		"mysql": "~2.5",
+		"stripe": "2.1",
+		"express-mailer": "0.2.3",
+		"jade": "1.7",
+		"xmlbuilder": "*",
+		"xml2js": "*",
+		"nconf": "*",
+		"aws-sdk-apis": "*"
+	},
+	"scripts": {
+		"test": "node lib/wrio.js",
+		"start": "node lib/wrio.js"
+	}
+}

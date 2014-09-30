@@ -10,7 +10,8 @@ $(document).ready(function () {
 
 function stripeResponseHandler(status, response) {
 	var $form = $('#payment-form');
-	var url = "http://localhost:1234/api/stripe";
+//	var url = "http://telesens.cloudapp.net:1234/api/stripe";
+	var url = "http://telesens.cloudapp.net/api/stripe";
 	if (response.error) {
 		var message = response.error.message;
 		showErrorMessage(message);
@@ -28,6 +29,25 @@ function stripeResponseHandler(status, response) {
 				var transactionId = data.id;
 				var amount = data.amount;
 				var message = "You have done donation of " + amount + " . Please note your transaction id " + transactionId;
+
+				var InfoEmail = "bhushan2250@gmail.com";
+				var data = {};
+				data["to"] = InfoEmail;
+				data["subject"] = "For Add funds";
+
+				var tag = " ";
+				var message = "UserId : " + $('#userid').val() + tag;
+				message += "Donate : " + $('#amount').val() + tag;
+				message += "Date : " + new Date().toDateString()
+					+ tag;
+				data["message"] = message;
+				$.post(url + "/sendemail",
+					data,
+					function (data, status) {
+						//Email status
+					}
+				);
+
 				showSuccessMessage(message);
 			}
 		)
