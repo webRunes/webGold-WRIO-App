@@ -1,0 +1,17 @@
+{
+    "mysql": {
+	"host": "54.235.73.25",
+	"user": "dev1",
+	"password": "164103148",
+	"database": "dev_wrio"
+        },
+    "mail": {
+    	"from": "work.bhushakumar@gmail.com",
+	"host": "smtp.gmail.com",
+	"secureConnection": true, 
+	"port": 465, 
+	"transportMethod": "SMTP", 
+	"user": "work.bhushankumar@gmail.com",
+	"pass": "work1234567"
+	}
+}
