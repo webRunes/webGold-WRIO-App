@@ -11,6 +11,7 @@ $(document).ready(function () {
 function stripeResponseHandler(status, response) {
 	var $form = $('#payment-form');
 	var url = "http://localhost:1234/api/stripe";
+	//var url = "http://191.233.76.171:1234/api/stripe";
 	if (response.error) {
 		var message = response.error.message;
 		showErrorMessage(message);
