@@ -4,9 +4,9 @@
 	"user": "dev1",
 	"password": "164103148",
 	"database": "dev_wrio"
-        },
+    },
     "mail": {
-    	"from": "work.bhushakumar@gmail.com",
+    "from": "work.bhushankumar@gmail.com",
 	"host": "smtp.gmail.com",
 	"secureConnection": true, 
 	"port": 465, 

@@ -1,5 +1,4 @@
 .idea
-
 #ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
@@ -28,8 +27,10 @@ obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
+express
 /node_modules
 /node_modules/*/node-modules/
 /node_modules/*/node
 /node_modules/*/node_modules
 node_modules/**/node_modules
+node_module/

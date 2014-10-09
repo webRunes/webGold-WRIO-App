@@ -39,6 +39,17 @@ var connection = mysql.createConnection({
 var mailer = require('express-mailer');
 
 mailer.extend(app, {
+<<<<<<< HEAD
+	from: 'work.bhushankumar@gmail.com',
+	host: 'smtp.gmail.com', // hostname
+	secureConnection: true, // use SSL
+	port: 465, // port for secure SMTP
+	transportMethod: 'SMTP', // default is SMTP. Accepts anything that nodemailer accepts
+	auth: {
+		user: 'work.bhushankumar@gmail.com',
+		pass: 'work1234567'
+	}
+=======
         from: nconf.get('mail:from'),
         host: nconf.get('mail:host'), // hostname
         secureConnection: nconf.get('mail:secureConnection'), // use SSL
@@ -48,12 +59,13 @@ mailer.extend(app, {
                 user: nconf.get('mail:user'),
                 pass: nconf.get('mail:pass')
         }
+>>>>>>> 72c3232971e1b69558d6cbbf914b8e787f37f3d5
 });
 // console.log(nconf.get('mail:from') + " " + nconf.get('mail:host') + " " + nconf.get('mail:secureConnection') + " " + nconf.get('mail:port') + " " + nconf.get('mail:transportMethod') + " " + nconf.get('mail:user') + " " + nconf.get('mail:pass'));
 
 // Add headers
 app.use(function (request, response, next) {
-	//console.log(request);
+	console.log(request);
 	// Website you wish to allow to connect
 	response.setHeader('Access-Control-Allow-Origin', 'http://localhost:8081');
 
@@ -105,7 +117,7 @@ app.post(url + '/withdraw', function (request, response) {
 
 app.set('view engine', 'jade');
 app.post(url + '/sendemail', function (request, response) {
-	console.log(request.body)
+	//console.log(request.body)
 	app.mailer.send('email', {
 		to: request.body.to,// REQUIRED. This can be a comma delimited string just like a normal email to field.
 		subject: request.body.subject,      // REQUIRED.
