@@ -31,7 +31,8 @@
 		"xmlbuilder": "*",
 		"xml2js": "*",
 		"nconf": "*",
-		"aws-sdk-apis": "*"
+		"aws-sdk-apis": "*",
+		"supervisor": "*"
 	},
 	"dependencies": {
 		"express": "4.9.4",
@@ -60,7 +61,6 @@
 		"supervisor": "*"
 	},
 	"scripts": {
-		"start": "supervisor lib/wrio.js",
-		"test": "node lib/wrio.js"
+		
 	}
 }
