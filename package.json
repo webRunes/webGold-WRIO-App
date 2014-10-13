@@ -1,13 +1,12 @@
 {
 	"name": "Bhushankumar",
 	"description": "WRIO App Dev",
-	"host":"http://telesens.cloudapp.net",
+	"host": "http://telesens.cloudapp.net",
 	"private": true,
 	"repository": "https://github.com/webRunes/webGold-WRIO-App.git",
 	"main": "lib/wrio.js",
 	"engines": {
 		"node": ">= v0.8.0"
-
 	},
 	"devDependencies": {
 		"express": "4.9.4",
@@ -48,8 +47,8 @@
 		"utils-merge": "*",
 		"debug": "*",
 		"body-parser": "*",
-		"when": "~3.1.0",
 		"http": "~0.0",
+		"when": "~3.1.0",
 		"mysql": "~2.5",
 		"stripe": "2.1",
 		"express-mailer": "0.2.3",
@@ -57,8 +56,11 @@
 		"xmlbuilder": "*",
 		"xml2js": "*",
 		"nconf": "*",
-		"aws-sdk-apis": "*"
+		"aws-sdk-apis": "*",
+		"supervisor": "*"
 	},
 	"scripts": {
+		"start": "supervisor lib/wrio.js",
+		"test": "node lib/wrio.js"
 	}
 }

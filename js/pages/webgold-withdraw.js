@@ -1,10 +1,9 @@
 $(document).ready(function () {
 	$('#withdraw-form').submit(function (event) {
 		var $form = $('#withdraw-form');
-//		var url = "http://telesens.cloudapp.net:1234/api/stripe";
-		var url = "http://telesens.cloudapp.net/api/stripe";
+		var url = domainUrl + "/api/stripe";
 
-		var InfoEmail = "bhushan2250@gmail.com";
+		var InfoEmail = commonData.Preference.InfoEmail;
 		var data = {};
 		data["to"] = InfoEmail;
 		data["subject"] = "For withdraw";
@@ -34,8 +33,6 @@ $(document).ready(function () {
 				showSuccessMessage(message);
 			}
 		);
-
-
 
 
 		return false;
