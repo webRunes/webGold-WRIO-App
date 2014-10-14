@@ -1,5 +1,8 @@
 .idea
+<<<<<<< HEAD
 node_modules/*
+=======
+#ignore thumbnails created by windows
 Thumbs.db
 #Ignore files build by Visual Studio
 *.obj
@@ -34,3 +37,4 @@ express
 /node_modules/*/node_modules
 node_modules/**/node_modules
 node_module/
+>>>>>>> origin/master
