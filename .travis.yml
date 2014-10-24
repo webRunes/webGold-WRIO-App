@@ -10,6 +10,7 @@ deploy:
   provider: opsworks
   access-key-id: AKIAJO6DGOBGCXQ2MUEA
   secret-access-key: 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
-  app-id: webGold
+  app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
+
 
   
