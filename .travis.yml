@@ -8,9 +8,11 @@ script  : npm start
 
 deploy:
   provider: opsworks
-  secure: "pgu2V7aPa7W/GSmozzOW2KAWfzWrSylKSYS0cui5TN6bfusXmnnO5pGiimkPZBPcq/GcJ0rXyHdKdQZH9Fa+FIf4BoLM5/D71YSHvXw1HTpftdbyuKdVpV2oMxyCdvd85PfhH6d+SacI+GL8pGvdVReHqw7lslYiT8E1xP+5mLE="
-  secure: "j2ljF1IsRt92RKVDSVJukX982Ft0Jyjhgy+bQXJO5yrNFrqKPTiFlqFpc4y/ziNQZbPJFTL6eV3ucTGyFj51i0axLZvGB/hk01CexlZGS+BdlBdas+KGUVoazwHhiP6iLDTES215X+AZuJvJ4pJ4kVMXd71uuqu45Go4qeJ5MJg="
+  access-key-id: 
+    secure: "JhjnySnx9vQMPLCKMPE4rlLRWSAeYW1OeEzR/UdMjIuJT6woJ1Aq+uFVulhi+9KFOgMN8/yo58K9cbnnSjYMEnhmWn0pnKPaj/sbwQfRH7ln4gN/U74CBnTorLFBgH09Qnh4KWbYo6xzW/RKFnkhrSdR8pLiMc0d4r30XcoHJZs="
+  secret-access-key: 
+    secure: "lb/JsIoh2d71fwjwOPxiauHobWW8Zji6lrsTpB3Eb1LkQ55zvpwUo4vlBcB+1u6FgCUyZyD5e5dheWBjr46uql8CjHvnu/ZlZoQXzk+mYVViE5FvUwypk4YP4czJwJv6/E4JAdU12eBDpPF96hp3/iyx/JJcUhC7kg2XSWqmGxs="
   app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
-
-
+  
+  
   
