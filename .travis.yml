@@ -8,8 +8,8 @@ script  : npm start
 
 deploy:
   provider: opsworks
-  access-key-id: AKIAJO6DGOBGCXQ2MUEA
-  secret-access-key: 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
+  secure: "MaEo6YR0vqi6Hnzv8hvdqGJIUQQJ9ppdjmYLGup/8GJd9TEvtd+27jRWtfo+x2X7/m3ZNTdqyksv88+zBDhXu235mSGAm2Qi9ECgjyJxt4IfgAbb8C+1VHr8c+6DcGQY3fKIE6l6ltIYKMoesK7b25wuzEzVW+HjzTJFHrCySnA="
+  secure: "kBXRurWhoZkOYO2cdkpeFeFaqeyOr1CRxAevNouw6N1l26GXbBNKFnuUBKxCAdqpBvgESlkcFl3oMJAMQG7554AX9CNC+A2xkJSTdvozgNaV3H0XyUw3wcONjRAIWf/nbshFjRcosLswtln0hcPC/wZuSvQbNlMVcgYYsljiOfI="
   app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
 
 
