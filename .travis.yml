@@ -13,6 +13,5 @@ deploy:
   secret-access-key: 
     secure: "lb/JsIoh2d71fwjwOPxiauHobWW8Zji6lrsTpB3Eb1LkQ55zvpwUo4vlBcB+1u6FgCUyZyD5e5dheWBjr46uql8CjHvnu/ZlZoQXzk+mYVViE5FvUwypk4YP4czJwJv6/E4JAdU12eBDpPF96hp3/iyx/JJcUhC7kg2XSWqmGxs="
   app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
-  
-after_deploy: "ln -s /srv/www/webgold/config.json /srv/www/webgold/current/lib/config.json"
+
   
