@@ -22,10 +22,4 @@ deploy:
     upload-dir: webGold-WRIO-App
     local-dir: Widget
     acl: public_read
-    on:
-      repo: webRunes/webGold-WRIO-App
-      branch: ''
-      
 
-
-  
