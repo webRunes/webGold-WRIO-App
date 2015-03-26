@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/webRunes/webGold-WRIO-App.svg?branch=master)](https://travis-ci.org/webRunes/webGold-WRIO-App)
+
 #webGold <sup>[WRIO](http://wr.io) App</sup>
 (coming soon)
 
