@@ -1,0 +1,118 @@
+<!-- template.html -->
+<html>
+<head>
+    <title>Hello React</title>
+    <script src="http://adodson.com/hello.js/dist/hello.all.js"></script>
+    <script src="http://fb.me/react-0.12.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+    <script src="js/pages/blog-post.js"></script>
+</head>
+<body>
+<div id="donation-widget"></div>
+
+<script type="text/jsx">
+
+    var Donation = React.createClass({
+        render: function () {
+            return (
+                    <div>
+                        <div class="alert alert-warning">
+                            <span id="txtDonationError"></span>
+                        </div>
+                        <form class="margin-bottom" role="form" method="post" id="donation-form">
+
+
+                            <div class="form-group">
+                                <div class="alert alert-success">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    <span id="txtDonationSuccess"></span>
+                                </div>
+                                <ul class="leaders">
+                                    <li>
+                                        <span>Current balance&nbsp;</span>
+                                        <span>&nbsp;19 135
+                                            <small class="currency">WRG</small>
+                                            <sup class="currency">76.54
+                                                <span class="currency">USD</span>
+                                            &middot
+                                                <a
+                                                        href="webgold-add_funds.htm">Add funds</a>
+                                            </sup>
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="form-horizontal">
+                                <div class="form-group col-xs-12 col-md-4 col-lg-2">
+                                    <label class="col-sm-2 control-label" for="inputAmount">Donation</label>
+                                </div>
+                                <div class="form-group col-xs-12 col-md-4 col-lg-3 has-error">
+                                    <div class="input-group input-group-sm tooltip-demo">
+                                        <span class="input-group-addon">WRG</span>
+                                        <input type="number" class="form-control" id="transactionWrg" name="transactionWrg" value="10">
+                                            <input type="hidden" name="useridSend" id="useridSend"
+                                                    value="b5947c58-ac7c-4132-9fa5-a386d6e3da4b"/>
+                                            <input type="hidden" name="useridFrom" id="useridFrom"
+                                                    value="f5947c58-ac7c-4132-9fa5-a386d6e3da4C"/>
+
+                                            <span class="input-group-addon" data-toggle="tooltip" data-placement="top"
+                                                    title="The author will receive 82%, which amounts to 8.2 WRG or 0.19 USD. The bigger the donated amount, the bigger the received percentage up to 95%">82%</span>
+                                        </div>
+                                        <div class="help-block">Insufficient funds.
+                                            <a href="webgold-add_funds.htm">Add funds</a>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-xs-12 col-md-4 col-lg-7 has-error">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-addon twitter-limit">72</span>
+                                            <input id="IDtweet_title" name="tweet_title" class="form-control" maxlength="72"
+                                                    placeholder="Title, hashtags or mentions. Max 72 characters" type="text">
+                                            </div>
+                                            <div class="help-block">Max 72 characters</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-xs-12 has-error">
+                                <textarea rows="3" class="form-control" placeholder="Let us know your thoughts! Max 672 characters"></textarea>
+
+                                <div class="help-block">Max 672 characters</div>
+                            </div>
+
+                            <div class="form-group col-xs-12">
+                                <div class="btn-group tooltip-demo">
+                                    <button type="button" class="btn btn-default active">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    Text
+                                    </button>
+                                    <button type="button" class="btn btn-default disabled" data-toggle="tooltip" data-placement="right"
+                                            title="Coming soon">
+                                        <span class="glyphicon glyphicon-camera"></span>
+                                    Photo
+                                    </button>
+                                </div>
+                                <div class="pull-right">
+                                    <div class="pull-right">
+                                        <label class="comment-limit">672</label>
+                                        <button type="submit" class="btn btn-primary">
+                                            <span class="glyphicon glyphicon-ok"></span>
+                                        Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+            );
+        }
+    });
+
+    React.renderComponent(
+            <Donation  />
+            , document.getElementById('donation-widget'));
+</script>
+</body>
+</html>
