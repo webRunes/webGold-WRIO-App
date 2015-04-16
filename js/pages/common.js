@@ -1,8 +1,8 @@
-var domainUrl = window.location.origin
-domainUrl = domainUrl.replace("8081", "1234");
-
+//var domainUrl = window.location.origin
+//domainUrl = domainUrl.replace("8081", "1234");
+var domainUrl = 'http://localhost:1234';
 var commonData = {
-	"Preference": {
-		"InfoEmail": "bhushan2250@gmail.com"
-	}
+    "Preference": {
+        "InfoEmail": "bhushan2250@gmail.com"
+    }
 };
