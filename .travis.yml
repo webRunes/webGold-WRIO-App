@@ -20,6 +20,6 @@ deploy:
       secure: oZLlSoCrrz6s5Ylv/uec+fQTwZFz5a6N3YkmYC4h5dqkW+UrTBHifXGOZACLzjkyXga8/oKXKTHCiKCQ0BnODZyauoTH/qWy7PK1ckvg9QWWyM/w+HAf7mipFC+TeGdI0cEcX2VDsjcVLUuX2sjTPFHl9hKbX1CSpcPfuIA0Ikg=
     bucket: wrio
     upload-dir: webGold-WRIO-App
-    local-dir: Widget
+    local-dir: widget
     acl: public_read
 
