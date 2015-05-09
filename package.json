@@ -1,5 +1,5 @@
 {
-  "name": "Bhushankumar",
+  "name": "webGold-WRIO-App",
   "description": "WRIO App Dev",
   "host": "http://telesens.cloudapp.net",
   "private": true,
@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "express": "4.9.4",
+    "express-session": "*",
+    "cookie-parser": "*",
+    "ejs": "^1.0.0",
     "media-typer": "*",
     "qs": "*",
     "etag": "*",
@@ -30,6 +33,7 @@
     "http": "~0.0",
     "when": "~3.1.0",
     "mysql": "~2.5",
+    "express-mysql-session": "*",
     "stripe": "2.1",
     "express-mailer": "0.2.3",
     "jade": "1.7",

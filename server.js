@@ -1,18 +1,86 @@
 var express = require('express');
 var app = require("./wrio_app.js").init(express);
-var server = require('http').createServer(app).listen(1234);
-var url = '/api/stripe';
 var nconf = require("./wrio_nconf.js").init();
+var server = require('http').createServer(app).listen(nconf.get("server:port"));
+var url = '/api/stripe';
 //Main Files - Don't Change sequence/position.
 
-console.log("Start WRIO RESTFUL Web API");
 var connection = require("./wrio_mysql.js").init(nconf);
+
+// For sending email
 app.set('view engine', 'jade');
 var stripe = require('stripe')(nconf.get('payment:stripe1:secreteKey'));
 
-
 var mailer = require("./wrio_mailer.js").init(app, nconf);
 require("./wrio_transactions.js")(app, nconf, connection);
+
+var session = require('express-session');
+var SessionStore = require('express-mysql-session');
+var cookieParser = require('cookie-parser');
+var wrioLogin = require('./wriologin');
+
+//For app pages
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
+
+MYSQL_HOST = nconf.get("db:host");
+MYSQL_USER = nconf.get("db:user");
+MYSQL_PASSWORD = nconf.get("db:password");
+MYSQL_DB = nconf.get("db:dbname");
+DOMAIN = nconf.get("db:workdomain");
+
+var session_options = {
+    host: MYSQL_HOST,
+    port: 3306,
+    user: MYSQL_USER,
+    password: MYSQL_PASSWORD,
+    database: MYSQL_DB
+};
+
+var cookie_secret = nconf.get("server:cookiesecret");
+var sessionStore = new SessionStore(session_options);
+app.use(cookieParser(cookie_secret));
+app.use(session(
+    {
+        secret: cookie_secret,
+        saveUninitialized: true,
+        store: sessionStore,
+        resave: true,
+        cookie: {
+            secure: false,
+            domain: DOMAIN,
+            maxAge: 1000 * 60 * 24 * 30
+        },
+        key: 'sid'
+    }
+));
+
+
+app.get('/', function (request, response) {
+    console.log(request.sessionID);
+    wrioLogin.loginWithSessionId(request.sessionID, function (err, res) {
+        if (err) {
+            console.log("User not found")
+            response.render('index.ejs', {"error": "Not logged in", "user": undefined});
+        } else {
+            response.render('index.ejs', {"user": res});
+            console.log("User found " + res);
+        }
+    })
+});
+
+
+app.get('/logoff', function (request, response) {
+    console.log("Logoff called");
+    response.clearCookie('sid', {'path': '/', 'domain': DOMAIN});
+    response.redirect('/');
+
+});
+
+app.get('/callback', function (request, response) {
+    console.log("Our callback called");
+    response.render('callback', {});
+});
 
 app.post(url + '/donate', function (request, response) {
     var chargeData = {
@@ -21,6 +89,7 @@ app.post(url + '/donate', function (request, response) {
         card: request.body.stripeToken,
         description: 'Donatation for WRIO'
     }
+    var ssid = request.sessionID;
 
     //console.log(chargeData);
     stripe.charges.create(chargeData, function (error, charge) {
@@ -30,7 +99,7 @@ app.post(url + '/donate', function (request, response) {
             var transactionId = "id" in charge;
             if (transactionId) {
                 var query = 'INSERT INTO webRunes_webGold (TransactionId, Amount , Added, UserId ) values ( ?,?,NOW(),? )';
-                connection.query(query, [charge.id, charge.amount, request.body.userid], function (error, result) {
+                connection.query(query, [charge.id, charge.amount, ssid], function (error, result) {
                 });
             } else {
                 response.json(error.message);
@@ -42,8 +111,9 @@ app.post(url + '/donate', function (request, response) {
 });
 
 app.post(url + '/withdraw', function (request, response) {
+    var ssid = request.sessionID;
     var query = 'INSERT INTO webRunes_webGold_withdraw (Amount , Added, UserId ) values (?,NOW(),? )';
-    connection.query(query, [request.body.amount, request.body.userid], function (error, result) {
+    connection.query(query, [request.body.amount, ssid], function (error, result) {
     });
 });
 app.post(url + '/sendemail', function (request, response) {
@@ -60,4 +130,4 @@ app.post(url + '/sendemail', function (request, response) {
         response.send('Email Sent');
     });
 });
-console.log("Web application opened on 1234 PORT .");
+console.log("Web application opened.");
