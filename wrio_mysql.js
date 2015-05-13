@@ -6,7 +6,7 @@ exports.init = function (nconf) {
         host: nconf.get('db:host'),
         user: nconf.get('db:user'),
         password: nconf.get('db:password'),
-        database: nconf.get('db:database')
+        database: nconf.get('db:dbname')
     });
     return connection;
 };

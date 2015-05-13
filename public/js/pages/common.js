@@ -6,4 +6,4 @@ var commonData = {
         "InfoEmail": "bhushan2250@gmail.com"
     }
 }
-var stripePublisherKey = "pk_test_4TXrc4yeq5wgWdCcsvFPUD9C";
+var stripePublisherKey = "pk_test_ULZHqL27xD6Zd0j3gnro1eY6";
