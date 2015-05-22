@@ -3,7 +3,7 @@
 var domainUrl = 'http://' + window.location.host;
 var commonData = {
     "Preference": {
-        "InfoEmail": "bhushan2250@gmail.com"
+        "InfoEmail": "info@webrunes.com"
     }
 }
 var stripePublisherKey = "pk_test_ULZHqL27xD6Zd0j3gnro1eY6";
