@@ -1,0 +1,219 @@
+<html>
+<head>
+		<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+		<script type="text/javascript">
+
+				// возвращает cookie с именем name, если есть, если нет, то undefined
+				function getCookie(name) {
+						var matches = document.cookie.match(new RegExp(
+							"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+						));
+						return matches ? decodeURIComponent(matches[1]) : undefined;
+				}
+
+				function getLoginUrl() {
+						//var host = window.location.host;
+						//host = host.replace('titter.', 'login.');
+						var host = 'http://login.webrunes.com/';
+						console.log(host);
+						return host;
+				}
+
+				function openAuthPopup() {
+						var loginUrl = getLoginUrl();
+						var callbackurl = window.location.href + 'callback'
+						var newWin = window.open(loginUrl + '/authapi?callback=' + encodeURIComponent(callbackurl), "Login", "height=500,width=700");
+				}
+
+				function logoff() {
+						$.ajax(getLoginUrl() + '/logout');
+				}
+
+				function checkLoggedIn() {
+						console.log(document.cookie);
+						if (!getCookie('sid')) {
+								openAuthPopup();
+						} else {
+								console.log("Cookie exists, aborting");
+						}
+
+				}
+
+				function setWRIOAuthData(sid) {
+						console.log("Got session id " + sid);
+						//document.cookie="sid="+sid;
+						location.reload();
+				}
+
+		</script>
+		<style type="text/css">
+
+
+		</style>
+</head>
+<body>
+
+<div>
+		<div class="form-group">
+				<div class="callout">
+						<h5>Info</h5>
+
+						<p>The maximum purchase and sell amount is temporarily set at 99 999 WRG per day</p>
+
+						<p>You can pay with PayPal or credit card</p>
+				</div>
+				<div class="alert alert-success">
+						<button type="button" class="close" data-dismiss="alert">×</button>
+						<span id="txtPaymentSuccess">Please proceed donation</span>
+				</div>
+				<div class="alert alert-danger">
+						<button type="button" class="close" data-dismiss="alert">×</button>
+						<span id="txtPaymentError">Please proceed donation</span>
+				</div>
+				<ul class="leaders">
+						<li>
+								<span>Current balance&nbsp;</span>
+                                    <span>&nbsp;19 135
+                                        <small class="currency">WRG</small>
+                                        <sup class="currency">76.54 USD</sup>
+                                    </span>
+						</li>
+						<li>
+								<span>Exchange rate&nbsp;</span>
+                                    <span>&nbsp;10 000
+                                        <small class="currency">WRG</small>
+                                    =&nbsp;43
+                                        <small class="currency">USD
+																																								</small>
+                                    </span>
+						</li>
+				</ul>
+		</div>
+
+		<form id="payment-form" method="post">
+				<div class="form-horizontal form-group col-xs-12">
+						<input type="hidden" name="stripeToken" id="stripeToken"/>
+						<input type="hidden" name="userid" id="userid" value="b5947c58-ac7c-4132-9fa5-a386d6e3da4b"/>
+
+						<div class="col-xs-12 col-md-3 col-lg-2">
+								<label class="col-sm-2 control-label" for="amountUSD">Amount</label>
+						</div>
+						<div class="col-xs-12 col-md-4 col-lg-3">
+								<div class="input-group input-group-sm tooltip-demo">
+										<span class="input-group-addon">USD</span>
+										<input type="number" class="form-control" id="amount" name="amount" value="100" min="0">
+								</div>
+								<div class="help-block">Insufficient funds</div>
+						</div>
+						<div class="col-xs-12 col-md-1 col-lg-1 align-center">
+								<label class="control-label">=</label>
+						</div>
+						<div class="col-xs-12 col-md-4 col-lg-3">
+								<div class="input-group input-group-sm">
+										<span class="input-group-addon">WRG</span>
+										<input type="number" class="form-control" id="amountWRG" value="0" min="0">
+								</div>
+								<div class="help-block">Max 99 999 WRG per day</div>
+						</div>
+				</div>
+				<div class="col-xs-12">
+						<div class="col-xs-6 col-md-3 col-lg-2">
+								<label class="col-sm-2 control-label" for="creditCard">Credit Card</label>
+						</div>
+
+						<div class="col-xs-6 col-md-6 col-lg-6">
+								<div class="input-group input-group-sm tooltip-demo">
+										<input type="text" class="form-control" size="50" value="4242424242424242"
+																	id="creditCard"
+																	maxlength="32" data-stripe="number"/>
+								</div>
+								<div class="help-block">Credit Card Number</div>
+						</div>
+
+				</div>
+				<div class="form-horizontal form-group col-xs-12">
+						<div class="col-xs-12 col-md-3 col-lg-2">
+								<label class="col-sm-2 control-label" for="month">Month</label>
+						</div>
+						<div class="col-xs-12 col-md-4 col-lg-3">
+								<div class="input-group input-group-sm tooltip-demo">
+										<select class="select2" data-stripe="exp-month">
+												<option>01</option>
+												<option>02</option>
+												<option>03</option>
+												<option>04</option>
+												<option>05</option>
+												<option>06</option>
+												<option>07</option>
+												<option>08</option>
+												<option>09</option>
+												<option>10</option>
+												<option>11</option>
+												<option value="12" selected="true">12</option>
+										</select>
+								</div>
+								<div class="help-block">MM</div>
+						</div>
+						<div class="col-xs-12 col-md-1 col-lg-1 align-center">
+								<label class="control-label">Year</label>
+						</div>
+						<div class="col-xs-12 col-md-4 col-lg-3">
+								<div class="input-group input-group-sm">
+										<select class="" data-stripe="exp-year" value="2015">
+												<option>2015</option>
+												<option>2016</option>
+												<option>2017</option>
+												<option>2018</option>
+												<option>2019</option>
+												<option>2020</option>
+												<option>2021</option>
+										</select>
+								</div>
+								<div class="help-block">YY</div>
+						</div>
+				</div>
+				<div class="form-horizontal form-group col-xs-12">
+						<div class="col-xs-12 col-md-3 col-lg-2">
+								<label class="col-sm-2 control-label" for="cvv">CVV</label>
+						</div>
+						<div class="col-xs-12 col-md-4 col-lg-3">
+								<div class="input-group input-group-sm tooltip-demo">
+										<input type="text" class="form-control" size="3" value="789" id="txtCVV"
+																	data-stripe="cvc"/>
+								</div>
+								<div class="help-block">CVV</div>
+						</div>
+				</div>
+				<div class="col-xs-12">
+						<div class="form-group col-xs-12">
+								<% if (user) { %>
+								<h4>as <%= user.lastName %>.</h4>
+								<a href="/logoff">Logoff</a>
+								<% } %>
+								<div class="pull-right">
+										<% if (user) { %>
+										<button type="submit" class="btn btn-success">
+												<span class="glyphicon glyphicon-arrow-down"></span>
+												Add funds
+										</button>
+										<% } else { %>
+										<button type="button" onclick="openAuthPopup();" class="btn btn-primary"><span
+													class="glyphicon glyphicon-ok"></span>Login and Donate
+										</button>
+										<% } %>
+								</div>
+						</div>
+
+
+				</div>
+		</form>
+</div>
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript" src="../js/pages/common.js"></script>
+<script type="text/javascript" src="../js/pages/webgold-add-funds.js"></script>
+
+</body>
+</html>
