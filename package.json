@@ -1,9 +1,7 @@
 {
   "name": "webGold-WRIO-App",
-  "description": "WRIO App Dev",
-  "host": "http://telesens.cloudapp.net",
-  "private": true,
-  "repository": "https://github.com/webRunes/webGold-WRIO-App.git",
+  "version": "1.0.0",
+  "description": "https://github.com/webRunes/webGold-WRIO-App/",
   "main": "server.js",
   "scripts": {
     "start": "echo \"Build Completed.\" "
@@ -42,5 +40,15 @@
     "nconf": "*",
     "aws-sdk-apis": "*",
     "supervisor": "*"
-  }
+  },
+   "repository": {
+    "type": "git",
+    "url": "https://github.com/webRunes/webGold-WRIO-App.git"
+  },
+  "author": "webRunes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/webRunes/webGold-WRIO-App/issues"
+  },
+  "homepage": "https://github.com/webRunes/webGold-WRIO-App"
 }
