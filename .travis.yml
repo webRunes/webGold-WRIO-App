@@ -20,7 +20,7 @@ deploy:
       secure: e6CpXbDmuJOZTf/kyurb4bk8kn83pj3Knq9XxmkaqvXFytPlyzV1aJV440Ha+rci5dZn5yktavx6Hl13FGsRRYx7wYKPz8Lh+4BiOqZTT/ZiFAITLffu3e2uSSCrp+cGNi/cIweFSTp0fA8vcoUbMbxfa6d1O4hTiY8DMPvpnjQ=
     secret_access_key:
       secure: oZLlSoCrrz6s5Ylv/uec+fQTwZFz5a6N3YkmYC4h5dqkW+UrTBHifXGOZACLzjkyXga8/oKXKTHCiKCQ0BnODZyauoTH/qWy7PK1ckvg9QWWyM/w+HAf7mipFC+TeGdI0cEcX2VDsjcVLUuX2sjTPFHl9hKbX1CSpcPfuIA0Ikg=
-    bucket: wrio
+    bucket: wrioos.com
     upload-dir: webGold-WRIO-App
     acl: public_read
 
