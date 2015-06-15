@@ -89,28 +89,33 @@ app.post(url + '/donate', function(request, response) {
 						response.render('index.ejs', {"error": "Not logged in", "user": undefined});
 				} else {
 						var chargeData = {
-								amount: request.body.amount,
+								amount: request.body.amount * 100,
 								currency: 'usd',
 								card: request.body.stripeToken,
 								description: 'Donatation for WRIO'
 						}
 						var userId = User.userID;
 						stripe.charges.create(chargeData, function(error, charge) {
-								response.json(charge);
-								var flagCharge = (charge != null);
-								if (flagCharge) {
-										var transactionId = "id" in charge;
-										if (transactionId) {
-												var query = 'INSERT INTO webRunes_webGold (TransactionId, Amount , Added, UserId ) values ( ?,?,NOW(),? )';
-												connection.query(query, [charge.id, charge.amount, userId], function(error, result) {
-														return console.log(error);
-												});
-										} else {
-												return response.json(error.message);
-										}
-								} else {
-										return response.json({"message": "Fail to charge."});
-								}
+							if (error) {
+								console.log("Create charge error: ", error);
+								return response.json(error.message);
+							}
+							response.json(charge);
+							var flagCharge = (charge != null);
+							if (flagCharge) {
+									var transactionId = "id" in charge;
+									if (transactionId) {
+											var query = 'INSERT INTO webRunes_webGold (TransactionId, Amount , Added, UserId ) values ( ?,?,NOW(),? )';
+											var amountInWRG = 100 * charge.amount / nconf.get('payment:WRGExchangeRate');
+											connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
+													return console.log(error);
+											});
+									} else {
+											return response.json(error.message);
+									}
+							} else {
+									return response.json({"message": "Fail to charge."});
+							}
 						});
 				}
 		})
