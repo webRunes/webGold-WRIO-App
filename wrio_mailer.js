@@ -1,18 +1,13 @@
-var exports = module.exports = {};
+var nodemailer = require('nodemailer');
+var nconf = require('./app/server/wrio_nconf.js');
 
-exports.init = function (app, nconf) {
-    var mailer = require('express-mailer');
+var transporter = nodemailer.createTransport({
+    host: 'mail.privateemail.com',
+    port: 26,
+    auth: {
+        user: 'info@webrunes.com',
+        pass: 'dkejd2!df3s'
+    }
+});
 
-    mailer.extend(app, {
-        from: nconf.get('mail:from'),
-        host: nconf.get('mail:host'),
-        secureConnection: nconf.get('mail:secureConnection'),
-        port: nconf.get('mail:port'),
-        transportMethod: nconf.get('mail:transportMethod'),
-        auth: {
-            user: nconf.get('mail:user'),
-            pass: nconf.get('mail:pass')
-        }
-    });
-    return mailer;
-};
+module.exports = transporter;
