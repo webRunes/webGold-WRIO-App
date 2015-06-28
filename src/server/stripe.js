@@ -3,13 +3,22 @@ import wrioLogin from './wriologin';
 import nconf from './wrio_nconf';
 import connection from './wrio_mysql.js';
 import Stripe from 'stripe';
-import mailer from '../../wrio_mailer.js';
+import {sendEmail} from './wrio_mailer.js';
 
 var router = Router(); 
 var stripe = Stripe(nconf.get('payment:stripe1:secreteKey'));
 
 router.post('/add_funds', (request, response) => {
-	response.status(200).send('Success');
+	console.log(request.body);
+	sendEmail({
+		from: 'info@webrunes.com',
+		to: 'alekseykrasikov.hk@gmail.com',
+    	subject: 'WebRunes payment were submited',
+    	html: '<b>Success</b>'
+	}, (err, info) => {
+		
+		response.status(200).send('Success');
+	});
 });
 
 router.post('/donate', function(request, response) {
@@ -58,20 +67,5 @@ router.post('/withdraw', function(request, response) {
 	connection.query(query, [request.body.amount, ssid], function(error, result) {
 	});
 });
-
-/*router.post('/sendemail', function(request, response) {
-	mailer.sendMail({
-		from: 'info@webrunes.com',
-		to: request.body.to,
-		subject: request.body.subject,
-		message: request.body.message
-	}, function(err) {
-		if (err) {
-			response.send('There was an error sending the email');
-			return;
-		}
-		response.send('Email Sent');
-	});
-});*/
 
 export default router;

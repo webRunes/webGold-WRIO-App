@@ -4,10 +4,18 @@ class Amount extends React.Component {
     constructor(props) {
         super(props);
         
+        console.log(5 * 10000 / this.props.exchangeRate);
         this.state = {
-            USD: 0,
-            WRG: 0
+            USD: 5,
+            WRG: 5 * 10000 / this.props.exchangeRate
         };
+    }
+    
+    componentWillReceiveProps(props) {
+        this.setState({
+            USD: this.state.USD,
+            WRG: this.state.USD * 10000 / props.exchangeRate
+        });
     }
     
     onUSDChange(e) {
