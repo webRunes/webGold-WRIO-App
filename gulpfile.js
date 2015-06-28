@@ -7,14 +7,12 @@ var nodemon = require('gulp-nodemon');
 
 gulp.task('babel-server', function() {
     gulp.src('src/index.js')
-        .pipe(babel())
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
         .pipe(gulp.dest('app'));
         
     gulp.src('src/server/**/*.*')
-        .pipe(babel())
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
