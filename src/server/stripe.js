@@ -6,19 +6,28 @@ import Stripe from 'stripe';
 import {sendEmail} from './wrio_mailer.js';
 
 var router = Router(); 
-var stripe = Stripe(nconf.get('payment:stripe1:secreteKey'));
+var stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
 
-router.post('/add_funds', (request, response) => {
-	console.log(request.body);
-	sendEmail({
-		from: 'info@webrunes.com',
-		to: 'alekseykrasikov.hk@gmail.com',
-    	subject: 'WebRunes payment were submited',
-    	html: '<b>Success</b>'
-	}, (err, info) => {
-		
+router.post('/add_funds', async (request, response) => {
+	try {
+		let customer = await stripe.customers.create({
+			email: 'alekseykrasikov.hk@gmail.com'
+		})
+		let charge = await stripe.charges.create({
+			amount: 50,
+			currency: 'usd',
+			customer: customer.id
+		})
+		let info = await sendEmail({
+			from: 'info@webrunes.com',
+			to: 'alekseykrasikov.hk@gmail.com',
+	    	subject: 'WebRunes payment was submited',
+	    	html: '<b>Success</b>'
+		});
 		response.status(200).send('Success');
-	});
+	} catch(e) {
+		console.log('Error:', e.message);
+	}
 });
 
 router.post('/donate', function(request, response) {

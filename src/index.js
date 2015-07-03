@@ -1,13 +1,14 @@
 import express from 'express';
-var app = require("../wrio_app.js").init(express);
-var nconf = require("./server/wrio_nconf.js");
-var server = require('http').createServer(app).listen(nconf.get("server:port"));
+import bodyParser from 'body-parser';
+import nconf from './server/wrio_nconf.js';
 import path from 'path';
-
-import connection from './server/wrio_mysql.js';
 import stripe from './server/stripe';
+import {init} from './server/db';
 
-require("../wrio_transactions.js")(app, nconf, connection);
+var app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 var session = require('express-session');
 var SessionStore = require('express-mysql-session');
@@ -108,4 +109,14 @@ app.get('/callback', function(request, response) {
 app.use('/api/stripe', stripe);
 app.use('/assets', express.static(path.join(__dirname, '/client')));
 
-console.log("Web application opened.");
+
+init()
+	.then(function(db) {
+		console.log('Successfuly connected to Mongo');
+		app.listen(nconf.get("server:port"));
+		console.log("Web application opened.");
+	})
+	.catch(function(err) {
+		console.log(err.message);
+	});
+

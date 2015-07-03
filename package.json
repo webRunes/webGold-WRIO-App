@@ -33,6 +33,7 @@
     "http": "~0.0",
     "jade": "1.7",
     "media-typer": "*",
+    "mongodb": "^2.0.35",
     "ms": "*",
     "mysql": "~2.5",
     "nconf": "*",

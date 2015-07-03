@@ -11,7 +11,9 @@ class CreditCard extends React.Component {
         
         			<div className="col-xs-6 col-sm-4 col-md-6 col-lg-6">
         				<div className="input-group input-group-sm tooltip-demo">
-        					<input type="text" className="form-control" size="50" value="4242424242424242" id="creditCard" maxLength="32" data-stripe="number"/>
+        					<input type="text" className="form-control" 
+        					    size="50" value={ this.props.creditCard } 
+        					    id="creditCard" maxLength="16"/>
         				</div>
         				<div className="help-block">Credit Card Number</div>
         			</div>
@@ -74,5 +76,12 @@ class CreditCard extends React.Component {
         );
     }
 }
+
+CreditCard.defaultProps = {
+    creditCard: 4242424242424242,
+    month: 12,
+    year: 2015,
+    cvv: 789
+};
 
 export default CreditCard;
