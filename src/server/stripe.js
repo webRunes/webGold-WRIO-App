@@ -27,12 +27,15 @@ router.post('/add_funds', async (request, response) => {
 			currency: 'usd',
 			source: token.id
 		});
+		// TODO: set user email
+		/*
 		let info = await sendEmail({
 			from: 'info@webrunes.com',
-			to: 'alekseykrasikov.hk@gmail.com',
+			to: 'useremail@gmail.com',
 	    	subject: 'WebRunes payment was submited',
 	    	html: '<b>Success</b>'
 		});
+		*/
 		response.status(200).send('Success');
 	} catch(e) {
 		console.log('Error:', e.message);

@@ -28,7 +28,9 @@ class AddFunds extends React.Component {
             <div className="col-xs-12">
 				<div className="form-group col-xs-12">
         			<div className="pull-right">
-                        { this.state.user !== null ? <AddFundsButton /> : <LoginButton /> }
+                        { this.state.user !== null ? 
+                            <AddFundsButton /> : 
+                            <LoginButton loginUrl={ this.props.loginUrl } /> }
                     </div>
                 </div>
             </div>
