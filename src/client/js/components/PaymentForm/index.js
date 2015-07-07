@@ -23,7 +23,11 @@ class PaymentForm extends React.Component {
         request
             .post('/api/stripe/add_funds')
             .send({ 
-                amount: parseFloat(form.amount.value)
+                amount: parseFloat(form.amount.value),
+                creditCard: parseFloat(form.creditCard.value),
+                month: parseFloat(form.month.value),
+                year: parseFloat(form.year.value),
+                cvv: parseFloat(form.cvv.value)
             })
             .end((err, res) => {
                 if (err) {

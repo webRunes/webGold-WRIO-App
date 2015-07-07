@@ -1,23 +1,32 @@
 import {Router} from 'express';
-import wrioLogin from './wriologin';
+let wrioLogin = require('./wriologin');
 import nconf from './wrio_nconf';
 import connection from './wrio_mysql.js';
 import Stripe from 'stripe';
+import db from './db';
 import {sendEmail} from './wrio_mailer.js';
 
-var router = Router(); 
-var stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
+const router = Router(); 
+const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
 
 router.post('/add_funds', async (request, response) => {
 	try {
-		let customer = await stripe.customers.create({
-			email: 'alekseykrasikov.hk@gmail.com'
-		})
+		console.log(wrioLogin);
+		let user = await wrioLogin.getLoggedInUser(request.sessionID);
+		console.log(user);
+		let token = await stripe.tokens.create({
+			card: {
+				number: request.body.creditCard,
+				exp_month: request.body.month,
+				exp_year: request.body.year,
+				cvc: request.body.cvv
+			}
+		});
 		let charge = await stripe.charges.create({
-			amount: 50,
+			amount: request.body.amount * 100,
 			currency: 'usd',
-			customer: customer.id
-		})
+			source: token.id
+		});
 		let info = await sendEmail({
 			from: 'info@webrunes.com',
 			to: 'alekseykrasikov.hk@gmail.com',

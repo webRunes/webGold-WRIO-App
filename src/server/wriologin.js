@@ -12,14 +12,14 @@ function deserialize(id, done) {
 
         done(err, rows[0]);
     });
-};
+}
 
-function loginWithSessionId(ssid,done) {
+export function loginWithSessionId(ssid,done) {
     var match = ssid.match(/^[-A-Za-z0-9+/=_]+$/m);
     if (!match) {
         console.log("Wrong ssid");
         done("Error");
-        return
+        return;
     }
     var q = "select * from sessions where session_id =\""+ssid+"\"";
     connection.query(q,function(err,rows){
@@ -54,7 +54,7 @@ function loginWithSessionId(ssid,done) {
     });
 }
 
-function getTwitterCredentials(sessionId,done) {
+export function getTwitterCredentials(sessionId,done) {
 
     loginWithSessionId(sessionId,function callback(err,res) {
         if (err) {
@@ -62,7 +62,7 @@ function getTwitterCredentials(sessionId,done) {
             done(err);
         } else {
             if (res.token && res.tokenSecret) {
-                done(null,{"token":res.token,"tokenSecret":res.tokenSecret})
+                done(null,{"token":res.token,"tokenSecret":res.tokenSecret});
             } else {
                 done("No login with twitter");
             }
@@ -70,5 +70,14 @@ function getTwitterCredentials(sessionId,done) {
     });
 }
 
-module.exports.loginWithSessionId = loginWithSessionId;
-module.exports.getTwitterCredentials = getTwitterCredentials;
+export function getLoggedInUser(ssid) {
+    return new Promise((resolve, reject) => {
+        loginWithSessionId(ssid, (err, res) => {
+            if (err) {
+                return reject(err);
+            }
+            
+            resolve(res);
+        });
+    });
+}

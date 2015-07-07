@@ -12,7 +12,8 @@ class CreditCard extends React.Component {
         			<div className="col-xs-6 col-sm-4 col-md-6 col-lg-6">
         				<div className="input-group input-group-sm tooltip-demo">
         					<input type="text" className="form-control" 
-        					    size="50" value={ this.props.creditCard } 
+        					    name="creditCard" size="50" 
+        					    value={ this.props.creditCard } 
         					    id="creditCard" maxLength="16"/>
         				</div>
         				<div className="help-block">Credit Card Number</div>
@@ -24,7 +25,11 @@ class CreditCard extends React.Component {
         			</div>
         			<div className="col-xs-12 col-sm-4 col-md-4 col-lg-3">
         				<div className="input-group input-group-sm tooltip-demo">
-        					<select className="select2" data-stripe="exp-month">
+        					<select 
+        					    className="select2" 
+        					    name="month"
+        					    data-stripe="exp-month" 
+        					    defaultValue={ this.props.month } >
         						<option>01</option>
         						<option>02</option>
         						<option>03</option>
@@ -36,7 +41,7 @@ class CreditCard extends React.Component {
         						<option>09</option>
         						<option>10</option>
         						<option>11</option>
-        						<option value="12" selected="true">12</option>
+        						<option>12</option>
         					</select>
         				</div>
         				<div className="help-block">MM</div>
@@ -48,14 +53,14 @@ class CreditCard extends React.Component {
         			</div>
         			<div className="col-xs-12 col-sm-4 col-md-4 col-lg-3">
         				<div className="input-group input-group-sm">
-        					<select className="" data-stripe="exp-year" value="2015">
-        							<option>2015</option>
-        							<option>2016</option>
-        							<option>2017</option>
-        							<option>2018</option>
-        							<option>2019</option>
-        							<option>2020</option>
-        							<option>2021</option>
+        					<select name="year" data-stripe="exp-year" defaultValue={ this.props.year }>
+    							<option>2015</option>
+    							<option>2016</option>
+    							<option>2017</option>
+    							<option>2018</option>
+    							<option>2019</option>
+    							<option>2020</option>
+    							<option>2021</option>
         					</select>
         				</div>
         				<div className="help-block">YY</div>
@@ -66,8 +71,10 @@ class CreditCard extends React.Component {
         				<label className="col-sm-12 control-label" htmlFor="cvv">CVV</label>
         			</div>
         			<div className="col-xs-12 col-sm-4 col-md-4 col-lg-3">
-        				<div className="input-group input-group-sm tooltip-demo">
-        					<input type="text" className="form-control" size="3" value="789" id="txtCVV" data-stripe="cvc"/>
+        				<div name="cvv" className="input-group input-group-sm tooltip-demo">
+        					<input 
+        					    type="text" className="form-control" name="cvv"
+        					    size="3" defaultValue={ this.props.cvv } id="txtCVV"/>
         				</div>
         				<div className="help-block">CVV</div>
         			</div>
