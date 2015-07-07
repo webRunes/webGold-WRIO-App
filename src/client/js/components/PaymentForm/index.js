@@ -64,7 +64,7 @@ class PaymentForm extends React.Component {
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
         		<Amount exchangeRate={ this.props.exchangeRate } />
                 <CreditCard />
-            	<AddFunds />
+            	<AddFunds loginUrl={ this.props.loginUrl } />
         	</form>
         );
     }

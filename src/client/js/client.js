@@ -34,7 +34,9 @@ class App extends React.Component {
                         balance={ this.state.balance } 
                         exchangeRate={ this.state.exchangeRate }/> : '' }
                 <Info />
-                <PaymentForm exchangeRate={ this.state.exchangeRate } />
+                <PaymentForm 
+                    exchangeRate={ this.state.exchangeRate } 
+                    loginUrl={ this.state.loginUrl } />
             </div>
         );
     }

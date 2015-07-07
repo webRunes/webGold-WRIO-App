@@ -1,14 +1,8 @@
 import React from 'react';
 
 class LoginButton extends React.Component {
-    getLoginUrl() {
-		var host = 'http://login-wrio-app-am-niceday.c9.io/';
-		console.log(host);
-		return host;
-	}
-    
     openAuthPopup() {
-    	var loginUrl = this.getLoginUrl();
+    	var loginUrl = this.props.loginUrl;
     	var callbackurl = window.location.protocol + '//' + window.location.host + '/callback';
     	window.open(loginUrl + 'authapi?callback=' + encodeURIComponent(callbackurl), "Login", "height=500,width=700");
 	}

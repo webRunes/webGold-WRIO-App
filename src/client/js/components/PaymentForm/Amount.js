@@ -42,9 +42,6 @@ class Amount extends React.Component {
         
         return (
              <div className="form-horizontal form-group col-xs-12">
-    			<input type="hidden" name="stripeToken" id="stripeToken"/>
-    			<input type="hidden" name="userid" id="userid" value="b5947c58-ac7c-4132-9fa5-a386d6e3da4b"/>
-    
     			<div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
 					<label className="col-sm-12 control-label" htmlFor="amountUSD">Amount</label>
     			</div>
