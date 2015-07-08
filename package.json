@@ -43,6 +43,7 @@
     "qs": "*",
     "react": "^0.13.3",
     "stripe": "2.1",
+    "superagent": "^1.2.0",
     "supervisor": "*",
     "utils-merge": "*",
     "vinyl-source-stream": "^1.1.0",
