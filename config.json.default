@@ -1,0 +1,53 @@
+{
+  "db": {
+	"host": "YOUR_HOST_IP",
+	"dbname": "YOUR_DB_NAME",
+	"user": "YOUR_DB_USER",
+	"password": "YOUR_DB_PASS",
+	"workdomain": ".wrioos.com"  // replace .wrioos.com domain with your domain
+  },
+  "mail": {
+    "host": "YOUR_MAIL_HOST",
+    "secureConnection": true,
+    "port": 26,
+    "user": "YOUR_EMAIL_PASS",
+    "pass": "YOUR_MAIL_PASS"
+  },
+  "server": {
+    "cookiesecret": "YOUR_COOKIE_SECRET",
+    "port": 5003
+  },
+  "mainData": [
+    {
+      "wrg": {
+        "start": 0,
+        "end": 10
+      },
+      "percentage": {
+        "start": 75,
+        "end": 80
+      }
+    },
+    {
+      "wrg": {
+        "start": 10,
+        "end": 20
+      },
+      "percentage": {
+        "start": 80,
+        "end": 85
+      }
+    }
+  ],
+  "payment": {
+    "stripe": {
+      "secreteKey": "YOUR_STRIPE_SECRET_KEY"
+    },
+    "stripe1": {
+      "secreteKey": "YOUR_STRIPE_SECRET_KEY"
+    },
+    "WRGExchangeRate": 43
+  },
+  "loginUrl": "http://login-wrio-app-am-niceday.c9.io/"
+}
+
