@@ -1,6 +1,6 @@
 module.exports = function (app, nconf, connection) {
 	var wrgData = nconf.get('mainData');
-	discountDetail = intiData(wrgData);
+	var discountDetail = intiData(wrgData);
 	app.post('/api/transaction', function (request, response) {
 		var userIdSend = request.body.useridSend;
 		var userIdFrom = request.body.useridFrom;
@@ -33,7 +33,7 @@ var intiData = function (wrgData) {
 	 ];
 	 */
 	var discountDetail = {};
-	for (row in wrgData) {
+	for (var row in wrgData) {
 		var data = wrgData[row];
 		var wrg = data['wrg'];
 		var wrgStart = wrg['start'];
