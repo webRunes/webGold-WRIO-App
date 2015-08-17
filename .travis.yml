@@ -16,6 +16,7 @@ deploy:
     app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
     on:
       repo: webRunes/webGold-WRIO-App
+      branch: production
   - provider: s3
     access_key_id:
       secure: e6CpXbDmuJOZTf/kyurb4bk8kn83pj3Knq9XxmkaqvXFytPlyzV1aJV440Ha+rci5dZn5yktavx6Hl13FGsRRYx7wYKPz8Lh+4BiOqZTT/ZiFAITLffu3e2uSSCrp+cGNi/cIweFSTp0fA8vcoUbMbxfa6d1O4hTiY8DMPvpnjQ=
@@ -24,4 +25,5 @@ deploy:
     bucket: wrioos.com
     upload-dir: webGold-WRIO-App
     acl: public_read
-
+    on:
+      branch: production
