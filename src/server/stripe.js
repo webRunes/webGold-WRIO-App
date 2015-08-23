@@ -1,13 +1,13 @@
 import {Router} from 'express';
 let wrioLogin = require('./wriologin');
 import nconf from './wrio_nconf';
-import connection from './wrio_mysql.js';
 import Stripe from 'stripe';
 import db from './db';
 import {sendEmail} from './wrio_mailer.js';
 
 const router = Router(); 
 const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
+
 
 router.post('/add_funds', async (request, response) => {
 	try {
@@ -43,6 +43,7 @@ router.post('/add_funds', async (request, response) => {
 });
 
 router.post('/donate', function(request, response) {
+	var webRunes_webGold = db.collection('webRunes_webGold');
 	wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
 		if (err) {
 			console.log("User not found")
@@ -67,9 +68,16 @@ router.post('/donate', function(request, response) {
 			if (flagCharge) {
 				var transactionId = "id" in charge;
 				if (transactionId) {
-					var query = 'INSERT INTO webRunes_webGold (TransactionId, Amount , Added, UserId ) values ( ?,?,NOW(),? )';
+					//var query = 'INSERT INTO webRunes_webGold (TransactionId, Amount , Added, UserId ) values ( ?,?,NOW(),? )';
 					var amountInWRG = 100 * charge.amount / nconf.get('payment:WRGExchangeRate');
-					connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
+					var obj = {
+						TranactionId: charge.id,
+						Amount: amountInWRG,
+						Added: $currentDate,
+						UserId: userId
+					};
+					webRunes_webGold.insert(obj,function(error) {
+					//connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
 						return console.log(error);
 					});
 				} else {
@@ -83,9 +91,17 @@ router.post('/donate', function(request, response) {
 });
 
 router.post('/withdraw', function(request, response) {
+	var webRunes_webGold_withdraw = db.collection('webRunes_webGold_withdraw');
 	var ssid = request.sessionID;
-	var query = 'INSERT INTO webRunes_webGold_withdraw (Amount , Added, UserId ) values (?,NOW(),? )';
-	connection.query(query, [request.body.amount, ssid], function(error, result) {
+	//var query = 'INSERT INTO webRunes_webGold_withdraw (Amount , Added, UserId ) values (?,NOW(),? )';
+	//connection.query(query, [request.body.amount, ssid], function(error, result) {
+	var obj = {
+		Amount: request.body.amount,
+		Added: $currentDate,
+		UserId: ssid
+	}
+	webRunes_webGold_withdraw.insert(obj,function(error,result) {
+
 	});
 });
 

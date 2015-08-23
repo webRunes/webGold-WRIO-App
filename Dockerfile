@@ -12,4 +12,4 @@ RUN cd /srv/ && npm install # packages are installed globally to not modify titt
 COPY . /srv/www/
 
 EXPOSE 5003
-CMD cd /srv/www/ && rm -fr node_modules && gulp && nodemon server.js
+CMD cd /srv/www/ && rm -fr node_modules && gulp watch
