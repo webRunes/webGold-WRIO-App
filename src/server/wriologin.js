@@ -1,5 +1,8 @@
-import db from './db';
+var db;
 
+export function setDB(db_link) {
+    db = db_link;
+}
 
 // used to deserialize the user
 function deserialize(id, done) {
@@ -82,3 +85,10 @@ export function getLoggedInUser(ssid) {
         });
     });
 }
+
+var obj = {
+    setDB: setDB,
+    loginWithSessionId: loginWithSessionId
+};
+
+export default obj;

@@ -2,12 +2,16 @@ import {Router} from 'express';
 let wrioLogin = require('./wriologin');
 import nconf from './wrio_nconf';
 import Stripe from 'stripe';
-import db from './db';
 import {sendEmail} from './wrio_mailer.js';
 
 const router = Router(); 
 const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
 
+var db;
+
+export function setDB(db_link) {
+	db = db_link;
+}
 
 router.post('/add_funds', async (request, response) => {
 	try {
