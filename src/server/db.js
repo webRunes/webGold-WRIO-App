@@ -1,13 +1,14 @@
 import {MongoClient} from 'mongodb';
 import nconf from './wrio_nconf'; 
 
-let db;
+let db ;
+export default db;
 
 export function init() {
-    let host = nconf.get('db:host');
-    let user = nconf.get('db:mongouser');
-    let password = nconf.get('db:password');
-    let mongodbname = nconf.get('db:mongodbname');    
+    let host = nconf.get('mongo:host');
+    let user = nconf.get('mongo:user');
+    let password = nconf.get('mongo:password');
+    let mongodbname = nconf.get('mongo:dbname');
     
     let url = `mongodb://${user}:${password}@${host}:27017/${mongodbname}`;
     
@@ -16,11 +17,10 @@ export function init() {
             if (err) {
                 return reject(err);  
             }
-            
+
             db = database;
             resolve(db);
         });
     });
 }
 
-export default db;
