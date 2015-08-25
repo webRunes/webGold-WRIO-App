@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
-import stripe from './server/stripe';
+import braintree from './server/braintree';
 import {init} from './server/db';
 import wrioLogin from './server/wriologin'
 import {setDB as setDBStripe} from './server/stripe'
@@ -70,12 +70,19 @@ function setup_routes() {
 				return;
 			}
 
-			response.json({
-				username: res.lastName,
-				loginUrl: nconf.get('loginUrl'),
-				balance: res.balance,
-				exchangeRate: nconf.get('payment:WRGExchangeRate')
-			});
+			if (res) {
+				response.json({
+					username: res.lastName,
+					loginUrl: nconf.get('loginUrl'),
+					balance: res.balance,
+					exchangeRate: nconf.get('payment:WRGExchangeRate')
+				});
+			} else {
+				response.json({
+					error:"not logged in"
+				})
+			}
+
 		});
 	});
 
@@ -103,7 +110,7 @@ function setup_routes() {
 		response.render('callback', {});
 	});
 
-	app.use('/api/stripe', stripe);
+	app.use('/api/braintree/', braintree);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 

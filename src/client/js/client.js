@@ -4,7 +4,21 @@ import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
 
+var clientToken;
+
+$.ajax('/api/braintree/client_token').success(function(res) {
+    console.log("Got client token",res);
+    clientToken = res;
+    braintree.setup(clientToken, "dropin", {
+        container: "payment-form"
+    });
+})
+
+
+
 class App extends React.Component {
+
+
     constructor(props) {
         super(props);
         
@@ -38,6 +52,7 @@ class App extends React.Component {
                     exchangeRate={ this.state.exchangeRate } 
                     loginUrl={ this.state.loginUrl } />
             </div>
+
         );
     }
 }

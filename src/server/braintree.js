@@ -5,7 +5,6 @@ import braintree from 'braintree';
 import {sendEmail} from './wrio_mailer.js';
 
 const router = Router();
-const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
 
 var db;
 
@@ -13,16 +12,47 @@ export function setDB(db_link) {
     db = db_link;
 }
 
+
 var gateway = braintree.connect({
     environment: braintree.Environment.Sandbox,
     merchantId: nconf.get("payment:braintree:merchantId"),
     publicKey: nconf.get("payment:braintree:publicKey"),
     privateKey: nconf.get("payment:braintree:privateKey")
 });
+console.log("Creating braintree object");
+
+router.get("/client_token", function (req, res) {
+    gateway.clientToken.generate({}, function (err, response) {
+        if (err) {
+            console.log("client_token error",err);
+            return;
+        }
+        res.send(response.clientToken);
+    });
+});
+
+router.post("/payment-methods", function (req, res) {
+    var nonce = req.body.payment_method_nonce;
+    console.log("Got nonce", nonce);
+    // Use payment method nonce here
+    gateway.transaction.sale({
+        amount: '10.00',
+        paymentMethodNonce: nonce
+    }, function (err, result) {
+        if (err) {
+            console.log("processing nonce error",err);
+            return;
+        }
+        console.log("processing transaction: ",result);
+
+    });
+});
+
+
 
 router.post('/add_funds', async (request, response) => {
     try {
-        console.log(wrioLogin);
+/*        console.log(wrioLogin);
         let user = await wrioLogin.getLoggedInUser(request.sessionID);
         console.log(user);
         let token = await stripe.tokens.create({
@@ -37,7 +67,7 @@ router.post('/add_funds', async (request, response) => {
             amount: request.body.amount * 100,
             currency: 'usd',
             source: token.id
-        });
+        });*/
         // TODO: set user email
         /*
          let info = await sendEmail({
@@ -57,7 +87,7 @@ router.post('/donate', function(request, response) {
     var webRunes_webGold = db.collection('webRunes_webGold');
     wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
         if (err) {
-            console.log("User not found")
+            console.log("User not found");
             return response.render('index.ejs', {"error": "Not logged in", "user": undefined});
         }
 
@@ -69,7 +99,7 @@ router.post('/donate', function(request, response) {
         }
 
         var userId = User.userID;
-        stripe.charges.create(chargeData, function(error, charge) {
+       /* stripe.charges.create(chargeData, function(error, charge) {
             if (error) {
                 console.log("Create charge error: ", error);
                 return response.json(error.message);
@@ -97,7 +127,7 @@ router.post('/donate', function(request, response) {
             } else {
                 return response.json({"message": "Fail to charge."});
             }
-        });
+        });*/
     });
 });
 
