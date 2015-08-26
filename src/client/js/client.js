@@ -12,7 +12,7 @@ $.ajax('/api/braintree/client_token').success(function(res) {
     braintree.setup(clientToken, "dropin", {
         container: "payment-form"
     });
-})
+});
 
 
 
@@ -48,6 +48,7 @@ class App extends React.Component {
                         balance={ this.state.balance } 
                         exchangeRate={ this.state.exchangeRate }/> : '' }
                 <Info />
+
                 <PaymentForm 
                     exchangeRate={ this.state.exchangeRate } 
                     loginUrl={ this.state.loginUrl } />

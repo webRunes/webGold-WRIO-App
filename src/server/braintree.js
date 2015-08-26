@@ -41,10 +41,11 @@ router.post("/payment-methods", function (req, res) {
     }, function (err, result) {
         if (err) {
             console.log("processing nonce error",err);
+            res.send("Error processing transaction");
             return;
         }
         console.log("processing transaction: ",result);
-
+        res.send("Transaction success");
     });
 });
 

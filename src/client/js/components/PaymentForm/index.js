@@ -63,7 +63,11 @@ class PaymentForm extends React.Component {
                         message={ this.state.alert.message}
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
         		<Amount exchangeRate={ this.props.exchangeRate } />
-                <CreditCard />
+                <form id="checkout" method="post" action="/api/braintree/payment-methods">
+                    <div id="payment-form"></div>
+                    <input type="submit" value="Pay $10" />
+                </form>
+
             	<AddFunds loginUrl={ this.props.loginUrl } />
         	</form>
         );
