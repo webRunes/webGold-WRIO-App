@@ -1,17 +1,11 @@
 import {Router} from 'express';
-let wrioLogin = require('./wriologin');
+import wrioLogin from './wriologin';
 import nconf from './wrio_nconf';
 import braintree from 'braintree';
 import {sendEmail} from './wrio_mailer.js';
+import db from './db'
 
 const router = Router();
-
-var db;
-
-export function setDB(db_link) {
-    db = db_link;
-}
-
 
 var gateway = braintree.connect({
     environment: braintree.Environment.Sandbox,
@@ -85,7 +79,7 @@ router.post('/add_funds', async (request, response) => {
 });
 
 router.post('/donate', function(request, response) {
-    var webRunes_webGold = db.collection('webRunes_webGold');
+    var webRunes_webGold = db.db.collection('webRunes_webGold');
     wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
         if (err) {
             console.log("User not found");
@@ -133,7 +127,7 @@ router.post('/donate', function(request, response) {
 });
 
 router.post('/withdraw', function(request, response) {
-    var webRunes_webGold_withdraw = db.collection('webRunes_webGold_withdraw');
+    var webRunes_webGold_withdraw = db.db.collection('webRunes_webGold_withdraw');
     var ssid = request.sessionID;
     //var query = 'INSERT INTO webRunes_webGold_withdraw (Amount , Added, UserId ) values (?,NOW(),? )';
     //connection.query(query, [request.body.amount, ssid], function(error, result) {

@@ -4,21 +4,23 @@ import nconf from './server/wrio_nconf.js';
 import path from 'path';
 import braintree from './server/braintree';
 import {init} from './server/db';
-import wrioLogin from './server/wriologin'
-import {setDB as setDBStripe} from './server/stripe'
+import {loginWithSessionId} from './server/wriologin'
+
+import session from 'express-session'
+import cookieParser from 'cookie-parser'
+import MongoStore from 'connect-mongo'
 
 var app = express();
-function setup_server(db) {
+app.ready = function () {};
 
+
+function setup_server(db) {
 
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({extended: true}));
 
-	var session = require('express-session');
-
-	var cookieParser = require('cookie-parser');
-	wrioLogin.setDB(db);
-	setDBStripe(db);
+	//wrioLogin.setDB(db);
+	//setDBStripe(db);
 	const BASEDIR_PATH = path.dirname(require.main.filename);
 
 //For app pages
@@ -27,7 +29,7 @@ function setup_server(db) {
 
 	const DOMAIN = nconf.get("db:workdomain");
 
-	var SessionStore = require('connect-mongo')(session);
+	var SessionStore = MongoStore(session);
 	var cookie_secret = nconf.get("server:cookiesecret");
 	app.use(cookieParser(cookie_secret));
 	var sessionStore = new SessionStore({db: db});
@@ -58,7 +60,7 @@ function setup_routes() {
 
 	app.get('/add_funds_data', (request, response) => {
 		console.log("WEBGOLD:Add funds data");
-		wrioLogin.loginWithSessionId(request.sessionID, (err, res) => {
+		loginWithSessionId(request.sessionID, (err, res) => {
 			if (err) {
 				console.log('WEBGOLD:User not found');
 				response.json({
@@ -88,7 +90,7 @@ function setup_routes() {
 
 	app.get('/get_user', function (request, response) {
 		console.log("WEBGOLD:/get_user");
-		wrioLogin.loginWithSessionId(request.sessionID, (err, res) => {
+		loginWithSessionId(request.sessionID, (err, res) => {
 			if (err) {
 				console.log('User not found');
 				return response.sendStatus(404);
@@ -121,8 +123,10 @@ init()
 		console.log("Web application opened.");
 		setup_server(db);
 		setup_routes();
+		app.ready();
 	})
 	.catch(function(err) {
 		console.log('Error while init '+err);
 	});
 
+module.exports = app;

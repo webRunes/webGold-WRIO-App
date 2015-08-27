@@ -1,7 +1,9 @@
 import {MongoClient} from 'mongodb';
 import nconf from './wrio_nconf'; 
 
-let db ;
+let db = {
+    db: {}
+} ;
 export default db;
 
 export function init() {
@@ -18,8 +20,8 @@ export function init() {
                 return reject(err);  
             }
 
-            db = database;
-            resolve(db);
+            db.db = database;
+            resolve(db.db);
         });
     });
 }

@@ -1,4 +1,6 @@
 require("babel/register")({
     stage: 0
 });
-require('./app');
+var app = require('./app');
+
+module.exports = app;
