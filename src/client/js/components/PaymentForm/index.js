@@ -56,18 +56,14 @@ class PaymentForm extends React.Component {
     
     render() {
         return (
-            <form id="payment-form" method="post" onSubmit={ this.addFunds.bind(this) }>
+          <form id="checkout" method="post" action="/api/braintree/payment-methods">
                 { this.state.alert ? 
                     <Alert 
                         type={ this.state.alert.type } 
                         message={ this.state.alert.message}
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
         		<Amount exchangeRate={ this.props.exchangeRate } />
-                <form id="checkout" method="post" action="/api/braintree/payment-methods">
-                    <div id="payment-form"></div>
-                    <input type="submit" value="Pay $10" />
-                </form>
-
+                <div id="payment-form"></div>
             	<AddFunds loginUrl={ this.props.loginUrl } />
         	</form>
         );

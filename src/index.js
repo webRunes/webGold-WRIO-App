@@ -19,8 +19,6 @@ function setup_server(db) {
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({extended: true}));
 
-	//wrioLogin.setDB(db);
-	//setDBStripe(db);
 	const BASEDIR_PATH = path.dirname(require.main.filename);
 
 //For app pages
