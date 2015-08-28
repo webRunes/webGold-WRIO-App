@@ -6,13 +6,19 @@ import request from 'superagent';
 
 var clientToken;
 
-$.ajax('/api/braintree/client_token').success(function(res) {
-    console.log("Got client token",res);
-    clientToken = res;
-    braintree.setup(clientToken, "dropin", {
-        container: "payment-form"
+request.
+    post('/api/braintree/client_token').end(function (err,res) {
+        if (err) {
+            console.log("Can't get braintree client token, aborting");
+            return;
+        }
+        console.log("Got braintree client token");
+        clientToken = res;
+        braintree.setup(clientToken, "dropin", {
+            container: "payment-form"
+        });
     });
-});
+
 
 
 
