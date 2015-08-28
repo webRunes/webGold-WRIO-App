@@ -6,7 +6,7 @@ function deserialize(id, done) {
     var webrunesUsers = db.db.collection('webRunes_Users');
     var sessions = db.db.collection('sessions');
     console.log("Deserializing user by id=" + id);
-    webrunesUsers.findOne(ObjectID(id),function (err,user) {
+    webrunesUsers.findOne(db.ObjectID(id),function (err,user) {
         if (err || !user) {
             console.log("User not found", err);
             done(err);

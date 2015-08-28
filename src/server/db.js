@@ -1,8 +1,10 @@
-import {MongoClient} from 'mongodb';
+import {MongoClient,ObjectID} from 'mongodb';
 import nconf from './wrio_nconf'; 
 
+
 let db = {
-    db: {}
+    db: {},
+    ObjectID: ObjectID
 } ;
 export default db;
 
