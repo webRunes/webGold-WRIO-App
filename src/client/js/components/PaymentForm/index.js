@@ -14,7 +14,8 @@ class PaymentForm extends React.Component {
             alert: null
         }
     }
-    
+
+
     addFunds(e) {
         e.preventDefault();
         
@@ -64,7 +65,7 @@ class PaymentForm extends React.Component {
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
         		<Amount exchangeRate={ this.props.exchangeRate } />
                 <div id="payment-form"></div>
-               <input type="submit" value="Pay $10" />
+
             	<AddFunds loginUrl={ this.props.loginUrl } />
         	</form>
         );
