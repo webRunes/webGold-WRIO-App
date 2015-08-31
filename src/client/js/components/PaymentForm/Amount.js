@@ -1,4 +1,5 @@
 import React from 'react';
+import Actions from '../../stores/PaymentActions'
 
 class Amount extends React.Component {
     constructor(props) {
@@ -9,6 +10,7 @@ class Amount extends React.Component {
             USD: 5,
             WRG: 5 * 10000 / this.props.exchangeRate
         };
+        Actions.changeAmount(this.state);
     }
     
     componentWillReceiveProps(props) {
@@ -21,19 +23,23 @@ class Amount extends React.Component {
     onUSDChange(e) {
         var usd = e.target.value;
         var wrg = usd * 10000 / this.props.exchangeRate;
-        this.setState({
-           USD: usd,
-           WRG: wrg
-        });
+        var amount = {
+            USD: usd,
+            WRG: wrg
+        };
+        this.setState(amount);
+        Actions.changeAmount(amount);
     }
     
     onWRGChange(e) {
         var wrg = e.target.value;
         var usd = wrg * this.props.exchangeRate / 10000;
-        this.setState({
-           USD: usd,
-           WRG: wrg
-        });
+        var amount = {
+            USD: usd,
+            WRG: wrg
+        };
+        this.setState(amount);
+        Actions.changeAmount(amount);
     }
     
     render() {

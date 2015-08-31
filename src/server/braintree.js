@@ -3,9 +3,12 @@ import wrioLogin from './wriologin';
 import nconf from './wrio_nconf';
 import braintree from 'braintree';
 import {sendEmail} from './wrio_mailer.js';
-import db from './db'
+import db from './db';
+import path from 'path';
 
 const router = Router();
+
+const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 var gateway = braintree.connect({
     environment: braintree.Environment.Sandbox,
@@ -25,21 +28,42 @@ router.get("/client_token", function (req, res) {
     });
 });
 
-router.post("/payment-methods", function (req, res) {
+router.post("/payment-methods", async  (req, res) => {
+
+    let user = await wrioLogin.getLoggedInUser(request.sessionID);
+
     var nonce = req.body.payment_method_nonce;
+    var webRunes_webGold = db.db.collection('webRunes_webGold');
+    var amount  = parseFloat(req.body.amount);
+    if (isNaN(amount) || (amount < 0) || !nonce) {
+        res.result(400).send({"error":"bad request"});
+    }
+    if (isNaN(amountWRG) || (amountWRG < 0)) {
+        res.result(400).send({"error":"bad request"});
+    }
     console.log("Got nonce", nonce);
     // Use payment method nonce here
     gateway.transaction.sale({
-        amount: '10.00',
+        amount: amount,
         paymentMethodNonce: nonce
     }, function (err, result) {
         if (err) {
             console.log("processing nonce error",err);
-            res.send("Error processing transaction");
+            res.sendFile(path.join(TEMPLATE_PATH, '/failure.html'));
             return;
         }
         console.log("processing transaction: ",result);
-        res.send("Transaction success");
+        res.sendFile(path.join(TEMPLATE_PATH, '/success.html'));
+        var obj = {
+            TranactionId: charge.id,
+            Amount: amountWRG,
+            Added: $currentDate,
+            UserId: userId
+        };
+        webRunes_webGold.insert(obj,function(error) {
+            //connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
+            return console.log(error);
+        });
     });
 });
 

@@ -15,7 +15,7 @@ export function init() {
     let mongodbname = nconf.get('mongo:dbname');
     
     let url = `mongodb://${user}:${password}@${host}:27017/${mongodbname}`;
-    
+
     return new Promise((resolve, reject) => {
         MongoClient.connect(url, function(err, database) {
             if (err) {

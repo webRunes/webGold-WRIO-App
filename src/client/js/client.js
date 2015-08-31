@@ -4,22 +4,30 @@ import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
 
+
 var clientToken;
 
 request.
-    post('/api/braintree/client_token').end(function (err,res) {
+    get('/api/braintree/client_token').
+    end(function (err,res) {
         if (err) {
             console.log("Can't get braintree client token, aborting");
             return;
         }
         console.log("Got braintree client token");
-        clientToken = res;
+        clientToken = res.text;
         braintree.setup(clientToken, "dropin", {
             container: "payment-form"
         });
     });
 
+function getLoginUrl() {
 
+    var host = window.location.host;
+    host = host.replace('webgold.','login.');
+    return "http://"+host+'/';
+
+}
 
 
 class App extends React.Component {
@@ -29,11 +37,15 @@ class App extends React.Component {
         super(props);
         
         this.state = {
-            username: null
+            username: null,
+            exchangeRate: 10
+
         };
     }
-    
+
+
     componentWillMount() {
+        this.state.loginUrl = getLoginUrl();
         request
             .get('/add_funds_data')
             .end((err, res) => {

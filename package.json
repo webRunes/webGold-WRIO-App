@@ -47,6 +47,7 @@
     "proxy-addr": "*",
     "qs": "*",
     "react": "^0.13.3",
+    "reflux": "^0.2.12",
     "stripe": "2.1",
     "superagent": "^1.2.0",
     "supervisor": "*",

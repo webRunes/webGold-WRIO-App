@@ -13,17 +13,18 @@ import MongoStore from 'connect-mongo'
 var app = express();
 app.ready = function () {};
 
+const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
 
 function setup_server(db) {
 
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({extended: true}));
 
-	const BASEDIR_PATH = path.dirname(require.main.filename);
+
 
 //For app pages
 	app.set('view engine', 'ejs');
-	app.use(express.static(path.join(BASEDIR_PATH, '/')));
+	app.use(express.static(path.join(TEMPLATE_PATH, '/')));
 
 	const DOMAIN = nconf.get("db:workdomain");
 
@@ -49,7 +50,7 @@ function setup_server(db) {
 }
 function setup_routes() {
 	app.get('/', function (request, response) {
-		response.sendFile(path.join(BASEDIR_PATH, '/index.htm'));
+		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
 	});
 
 	app.get('/add_funds', function (request, response) {
