@@ -1,25 +1,24 @@
 import nconf from './wrio_nconf';
 import bitcore from 'bitcore';
+import {Peer} from 'bitcore-p2p';
 
 // Set the network to testnet
 bitcore.Networks.defaultNetwork = bitcore.Networks.testnet;
-
-var privateKey = bitcore.PrivateKey.fromWIF(nconf.get("payment:bitcore:privateKeyWIF"));
+var wif = nconf.get("payment:bitcore:privateKeyWIF");
+var privateKey = bitcore.PrivateKey.fromWIF(wif);
 var address = privateKey.toAddress();
-console.log("GeneratedAdress", adress);
+console.log("GeneratedAdress", address);
 
-var imported = bitcore.PrivateKey.fromWIF(exported);
 
 var paymentInfo = {
-    address: '1DNtTk4PUCGAdiNETAzQFWZiy2fCHtGnPx',
+    address: address,
     amount: 120000 //satoshis
 };
 var uri = new bitcore.URI(paymentInfo).toString();
+console.log("Payment URI:", uri);
 
-console.log(bitcore);
-
-var peer = new bitcore.Peer('5.9.85.34');
+var peer = new Peer({host: '5.9.85.34', network: bitcore.Networks.testnet});
 peer.on('inv', function(message) {
-    // new inventory
+    console.log("Bitcoin connection est.",message);
 });
 peer.connect();
