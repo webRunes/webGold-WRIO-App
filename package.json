@@ -19,6 +19,7 @@
     "aws-sdk-apis": "*",
     "babel": "^5.6.14",
     "babelify": "^6.1.2",
+    "bitcore": "^0.13.1",
     "body-parser": "*",
     "braintree": "^1.28.0",
     "browserify": "^10.2.4",
