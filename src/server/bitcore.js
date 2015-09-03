@@ -2,6 +2,7 @@ import nconf from './wrio_nconf';
 import bitcore from 'bitcore';
 import {Peer} from 'bitcore-p2p';
 
+
 // Set the network to testnet
 bitcore.Networks.defaultNetwork = bitcore.Networks.testnet;
 var wif = nconf.get("payment:bitcore:privateKeyWIF");
