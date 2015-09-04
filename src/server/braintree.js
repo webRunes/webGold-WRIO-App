@@ -44,10 +44,10 @@ router.post("/payment-methods", function  (req, res)  {
         var webRunes_webGold = db.db.collection('webRunes_webGold');
         var amount = parseFloat(req.body.amount);
         if (isNaN(amount) || (amount < 0) || !nonce) {
-            res.result(400).send({"error": "bad request"});
+            res.status(400).send({"error": "bad request"});
         }
         if (isNaN(amountWRG) || (amountWRG < 0)) {
-            res.result(400).send({"error": "bad request"});
+            res.status(400).send({"error": "bad request"});
         }
         console.log("Got nonce", nonce);
         // Use payment method nonce here

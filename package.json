@@ -44,6 +44,7 @@
     "mongodb": "^2.0.35",
     "ms": "*",
     "nconf": "*",
+    "node-uuid": "^1.4.3",
     "nodemailer": "^1.3.4",
     "on-finished": "*",
     "proxy-addr": "*",

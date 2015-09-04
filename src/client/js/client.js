@@ -5,7 +5,11 @@ import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
 
 
-var clientToken;
+/*
+
+*** braintree code commented
+
+ var clientToken;
 
 request.
     get('/api/braintree/client_token').
@@ -20,6 +24,7 @@ request.
             container: "payment-form"
         });
     });
+*/
 
 function getLoginUrl() {
 

@@ -2,7 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
-import braintree from './server/braintree';
+//import braintree from './server/braintree';
+import blockchain from './server/blockchain.info'
 import {init} from './server/db';
 import {loginWithSessionId} from './server/wriologin'
 
@@ -111,7 +112,8 @@ function setup_routes() {
 		response.render('callback', {});
 	});
 
-	app.use('/api/braintree/', braintree);
+	//app.use('/api/braintree/', braintree);
+	app.use('/api/blockchain/',blockchain);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 

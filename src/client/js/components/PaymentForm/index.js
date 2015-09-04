@@ -3,7 +3,8 @@ import Amount from './Amount';
 import CreditCard from './CreditCard';
 import AddFunds from './AddFunds';
 import Alert from './Alert';
-import BrainTreeForm from "./BraintreeForm"
+//import BrainTreeForm from "./BraintreeForm"
+import BincoinForm from './BitcoinForm'
 import PaymentStore from '../../stores/PaymentStore'
 import request from 'superagent';
 
@@ -35,15 +36,20 @@ class PaymentForm extends React.Component {
         e.preventDefault();
         
         var form = e.target;
-        
+
+        /*var stripereq = {
+            amount: parseFloat(form.amount.value),
+            creditCard: parseFloat(form.creditCard.value),
+            month: parseFloat(form.month.value),
+            year: parseFloat(form.year.value),
+            cvv: parseFloat(form.cvv.value)
+        };*/
+
         request
-            .post('/api/stripe/add_funds')
-            .send({ 
+            .post('/api/blockchain/request_payment') // '/api/stripe/add_funds'
+            .send({
                 amount: parseFloat(form.amount.value),
-                creditCard: parseFloat(form.creditCard.value),
-                month: parseFloat(form.month.value),
-                year: parseFloat(form.year.value),
-                cvv: parseFloat(form.cvv.value)
+                amountWRG: parseFloat(form.amountWRG.value)
             })
             .end((err, res) => {
                 if (err) {
@@ -71,17 +77,19 @@ class PaymentForm extends React.Component {
     }
     
     render() {
+        // <form id="checkout" method="post" action="/api/braintree/payment-methods">
+        // <BrainTreeForm />
+        //<input type="hidden" name="amount" value={this.state.amount.USD} />
+        //<input type="hidden" name="amountWRG" value={this.state.amount.WRG} />
         return (
-          <form id="checkout" method="post" action="/api/braintree/payment-methods">
-              <input type="hidden" name="amount" value={this.state.amount.USD} />
-              <input type="hidden" name="amountWRG" value={this.state.amount.WRG} />
+          <form id="checkout" method="post" onSubmit={ this.addFunds.bind(this) }>
+
                 { this.state.alert ? 
                     <Alert 
                         type={ this.state.alert.type } 
                         message={ this.state.alert.message}
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
         		<Amount exchangeRate={ this.props.exchangeRate } />
-                <BrainTreeForm />
             	<AddFunds loginUrl={ this.props.loginUrl } />
         	</form>
         );
