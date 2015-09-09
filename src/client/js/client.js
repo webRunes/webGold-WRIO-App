@@ -3,7 +3,7 @@ import User from './components/User';
 import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
-
+import PaymentHistory from './components/PaymentHistory'
 
 /*
 
@@ -71,7 +71,7 @@ class App extends React.Component {
                         balance={ this.state.balance } 
                         exchangeRate={ this.state.exchangeRate }/> : '' }
                 <Info />
-
+                <PaymentHistory />
                 <PaymentForm 
                     exchangeRate={ this.state.exchangeRate } 
                     loginUrl={ this.state.loginUrl } />

@@ -82,6 +82,7 @@ class PaymentForm extends React.Component {
         //<input type="hidden" name="amount" value={this.state.amount.USD} />
         //<input type="hidden" name="amountWRG" value={this.state.amount.WRG} />
         return (
+
           <form id="checkout" method="post" onSubmit={ this.addFunds.bind(this) }>
 
                 { this.state.alert ? 

@@ -2,7 +2,7 @@ import request from 'superagent';
 import nconf from './wrio_nconf';
 import uuid from 'node-uuid'
 import {Router} from 'express';
-import {loginWithSessionId} from './wriologin';
+import {loginWithSessionId,getLoggedInUser} from './wriologin';
 
 import {init} from './db';
 
@@ -58,12 +58,32 @@ class BlockChain {
 
     }
 
+    get_payment_history(userID) {
+        console.log("getting history"); //   wrioID: userID
+        return new Promise((resolve,reject) => {
+            this.payments.find({
+
+            }).toArray((err,res) => {
+                console.log("got result");
+                if (err) {
+                    reject();
+
+                } else {
+                    resolve(res);
+                }
+
+            })
+        });
+
+    }
+
     request_payment(wrioID)  {
         return new Promise(async (resolve,reject) => {
 
             let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+wrioID;
             let api_request = "https://blockchain.info/ru/api/receive?method=create&address=" + this.receivingAdress + "&callback="+ encodeURIComponent(callback) + '&secret='+ this.secret;
             try {
+
                 console.log("Sending payment request",api_request);
                 var result = await request.post(api_request);
                 if (result.error) {
@@ -103,6 +123,24 @@ router.get('/callback',function(request,response) {
     var blockchain = new BlockChain();
 });
 
+router.post('/payment_history', async (request,response) => {
+
+    try {
+        var userID = getLoggedInUser(request.sessionID);
+
+        var blockchain = new BlockChain();
+        var history = blockchain.get_payment_history(userID);
+        console.log(history);
+        response.send(history);
+
+    } catch (e) {
+        console.log("Caught error: ",e);
+        response.status(403).send({"error":e.toString()});
+    }
+
+
+});
+
 router.post('/request_payment',function(req,response) {
     console.log("Request payment is called");
     loginWithSessionId(req.sessionID, function(err, User) {
@@ -113,6 +151,10 @@ router.post('/request_payment',function(req,response) {
         }
         var blockchain = new BlockChain();
         var userId = User.userID;
+
+        if (!userId) {
+            response().status(400).send({"error":"This user has no userID, exiting"})
+        }
 
         var nonce = req.body.payment_method_nonce;
         var webRunes_webGold = db.db.collection('webRunes_webGold');
