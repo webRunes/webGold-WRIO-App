@@ -7,10 +7,12 @@ import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import {init} from './db';
 
 const router = Router();
+
 /*
 init().then(function(database) {
     var blockchain = new BlockChain();
-    blockchain.request_payment(11).then(function (){
+    blockchain.get_payment_history(11).then(function (res){
+        console.log(res);
         database.close();
     });
 
@@ -30,9 +32,9 @@ function promisify(r) {
 
 class BlockChain {
     constructor(options) {
-        this.receivingAdress ='33d8PRJty5hPb6rCYbYYLF6P72WATJ6C3J';
+        this.receivingAdress = nconf.get("payment:blockchaing:receivingAdress");
         this.payments = db.db.collection('webRunes_webGold');
-        this.secret = 'asdfNzxcAasf99azsgjgkslslsizzz';
+        this.secret = nconf.get("payment:blockchain:secret");
     }
 
     createPaymentRequest(wrioID) {
@@ -61,17 +63,13 @@ class BlockChain {
     get_payment_history(userID) {
         console.log("getting history"); //   wrioID: userID
         return new Promise((resolve,reject) => {
-            this.payments.find({
-
-            }).toArray((err,res) => {
+            this.payments.find({}).toArray((err,res) => {
                 console.log("got result");
                 if (err) {
                     reject();
-
                 } else {
                     resolve(res);
                 }
-
             })
         });
 
@@ -126,11 +124,11 @@ router.get('/callback',function(request,response) {
 router.post('/payment_history', async (request,response) => {
 
     try {
-        var userID = getLoggedInUser(request.sessionID);
+        var userID = await getLoggedInUser(request.sessionID);
 
         var blockchain = new BlockChain();
-        var history = blockchain.get_payment_history(userID);
-        console.log(history);
+        var history = await blockchain.get_payment_history(userID);
+        console.log("History",history);
         response.send(history);
 
     } catch (e) {

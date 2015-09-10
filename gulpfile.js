@@ -6,7 +6,8 @@ var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 
 gulp.task('babel-server', function() {
-    gulp.src('src/index.js')
+    return gulp.src('src/**/*.*')
+        .pipe(babel())
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
@@ -20,7 +21,7 @@ gulp.task('babel-server', function() {
 });
 
 gulp.task('babel-client', function() {
-    browserify({ 
+    return browserify({
             entries: './src/client/js/client.js',
             debug: true 
         })

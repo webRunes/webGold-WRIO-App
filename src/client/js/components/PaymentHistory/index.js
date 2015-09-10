@@ -7,9 +7,9 @@ class PaymentsHistory extends React.Component {
         super(props);
         this.state = {
             data:[
-                {"id":'a343af3434ff33',"amount":"0.3BTC","time":"22232",'status':"waiting payment"},
-                {"id":'a343af3434ff33',"amount":"0.3BTC","time":"22232",'status':"verifying payment"},
-                {"id":'a343af3434ff33',"amount":"0.3BTC","time":"22232",'status':"ok payment"}
+                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"waiting payment"},
+                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"verifying payment"},
+                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"ok payment"}
             ]
         }
 
@@ -24,7 +24,7 @@ class PaymentsHistory extends React.Component {
                return;
            }
             this.setState({
-                data: res
+                data: res.body
             })
         });
 
@@ -49,10 +49,10 @@ class PaymentsHistory extends React.Component {
                     {
                         this.state.data.map(function (item) {
                         return  <tr>
-                            <td>{ item.id }</td>
+                            <td>{ item._id }</td>
                             <td>{ item.amount }</td>
-                            <td>{ item.time }</td>
-                            <td>{ item.status}</td>
+                            <td>{ item.timestamp }</td>
+                            <td>{ item.state}</td>
                         </tr>;
                     })}
 
