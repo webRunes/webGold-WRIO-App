@@ -1,8 +1,9 @@
 import request from 'superagent';
 import nconf from './wrio_nconf';
-import uuid from 'node-uuid'
+import uuid from 'node-uuid';
 import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
+import {dumpError} from './utils';
 
 import {init} from './db';
 
@@ -29,42 +30,73 @@ function promisify(r) {
 }
 
 
+class Invoice {
 
-class BlockChain {
-    constructor(options) {
-        this.receivingAdress = nconf.get("payment:blockchaing:receivingAdress");
-        this.payments = db.db.collection('webRunes_webGold');
-        this.secret = nconf.get("payment:blockchain:secret");
+    constructor () {
+        this.allowed_states = ['invoice_created', 'request_sent','confirmation_received','payment_confirmed'];
+        this.invoice_id = null;
+        this.payments = db.db.collection('webGold_invoices');
     }
 
-    createPaymentRequest(wrioID) {
-
-        let payment = {
+    createInvoice(userID) {
+        var that = this;
+        let invoice_data = {
             _id: uuid.v4(),
-            state: 'request_sent',
-            wrioID: wrioID,
+            state: 'invoice_created',
+            userID: userID,
             timestamp: new Date()
 
         };
-        console.log(payment);
 
         return new Promise((resolve, reject) => {
-            this.payments.insertOne(payment,function(err,res) {
+            this.payments.insertOne(invoice_data,function(err,res) {
                 if (err) {
                     reject(err);
                     return;
                 }
-                resolve(payment._id);
+                that.invoice_id = invoice_data._id;
+                resolve(invoice_data._id);
             });
         });
 
     }
 
-    get_payment_history(userID) {
-        console.log("getting history"); //   wrioID: userID
+    updateInvoiceData(invoice_data) {
+        var that = this;
+        return new Promise((resolve, reject) => {
+            if (this.invoice_id == null) {
+                reject("wrong invoice_id");
+            }
+            this.payments.updateOne({_id:that.invoice_id },{$set: invoice_data},function(err) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(invoice_data._id);
+            });
+        });
+    }
+
+    getInvoice() {
+
+    }
+
+}
+
+class BlockChain {
+    constructor(options) {
+        this.receivingAdress = nconf.get("payment:blockchain:receivingAdress");
+        this.payments = db.db.collection('webGold_invoices');
+        this.secret = nconf.get("payment:blockchain:secret");
+        this.payments = db.db.collection('webGold_invoices');
+    }
+
+
+    getInvoices(userID) {
+        console.log("Getting invoice list for",userID); //   wrioID: userID
         return new Promise((resolve,reject) => {
-            this.payments.find({}).toArray((err,res) => {
-                console.log("got result");
+            this.payments.find({_id:userID}).toArray((err,res) => {
+
                 if (err) {
                     reject();
                 } else {
@@ -78,11 +110,14 @@ class BlockChain {
     request_payment(wrioID)  {
         return new Promise(async (resolve,reject) => {
 
-            let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+wrioID;
-            let api_request = "https://blockchain.info/ru/api/receive?method=create&address=" + this.receivingAdress + "&callback="+ encodeURIComponent(callback) + '&secret='+ this.secret;
-            try {
+           try {
 
-                console.log("Sending payment request",api_request);
+               let invoice = new Invoice();
+               let invoiceID = await invoice.createInvoice(wrioID);
+               let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
+               let api_request = "https://blockchain.info/ru/api/receive?method=create&address=" + this.receivingAdress + "&callback="+ encodeURIComponent(callback);
+
+               console.log("Sending payment request",api_request);
                 var result = await request.post(api_request);
                 if (result.error) {
                     console.log("Error",result.error);
@@ -96,16 +131,23 @@ class BlockChain {
 
                 console.log("Server response:",result.body);
 
-                var respID = await this.createPaymentRequest(wrioID);
+                await invoice.updateInvoiceData({
+                    input_address: result.body.input_address,
+                    destination: result.body.destination,
+                    fee_percent: result.body.fee_percent,
+                    callback: result.body.callback,
+                    'state': 'request_sent'
+                });
 
-                console.log("Registered id", respID);
+
 
                 resolve({
                     adress: result.body.input_address,
                     amount: 0.0
                 });
             } catch(e) {
-                console.log("Blockchaing API request failed",e);
+                console.log("Blockchain API request failed",e);
+                dumpError(e);
                 reject(e)
             }
         });
@@ -127,12 +169,13 @@ router.post('/payment_history', async (request,response) => {
         var userID = await getLoggedInUser(request.sessionID);
 
         var blockchain = new BlockChain();
-        var history = await blockchain.get_payment_history(userID);
+        var history = await blockchain.getInvoices(userID);
         console.log("History",history);
         response.send(history);
 
     } catch (e) {
         console.log("Caught error: ",e);
+        dumpError(e);
         response.status(403).send({"error":e.toString()});
     }
 
@@ -148,10 +191,15 @@ router.post('/request_payment',function(req,response) {
             return response.status(403).render('index.ejs', {"error": "Not logged in", "user": undefined});
         }
         var blockchain = new BlockChain();
-        var userId = User.userID;
+
+        //var userId = User.userID;
+        var userId = User._id;
+
+        console.log("Logged in user:",userId);
 
         if (!userId) {
-            response().status(400).send({"error":"This user has no userID, exiting"})
+            response.status(400).send({"error":"This user has no userID, exiting"})
+            return;
         }
 
         var nonce = req.body.payment_method_nonce;

@@ -7,9 +7,7 @@ class PaymentsHistory extends React.Component {
         super(props);
         this.state = {
             data:[
-                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"waiting payment"},
-                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"verifying payment"},
-                {"_id":'a343af3434ff33',"amount":"0.3BTC","timestamp":"22232",'state':"ok payment"}
+
             ]
         }
 

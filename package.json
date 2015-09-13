@@ -30,6 +30,7 @@
     "depd": "*",
     "destroy": "*",
     "ejs": "^1.0.0",
+    "es6-promise": "^3.0.2",
     "etag": "*",
     "express": "4.9.4",
     "express-mailer": "0.2.3",

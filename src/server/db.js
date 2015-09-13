@@ -1,6 +1,6 @@
 import {MongoClient,ObjectID} from 'mongodb';
 import nconf from './wrio_nconf'; 
-
+import {Promise} from 'es6-promise';
 
 let db = {
     db: {},

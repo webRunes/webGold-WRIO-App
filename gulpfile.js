@@ -6,13 +6,12 @@ var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 
 gulp.task('babel-server', function() {
-    return gulp.src('src/**/*.*')
-        .pipe(babel())
+    gulp.src('src/index.js')
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
         .pipe(gulp.dest('app'));
-        
+
     gulp.src('src/server/**/*.*')
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
@@ -21,6 +20,12 @@ gulp.task('babel-server', function() {
 });
 
 gulp.task('babel-client', function() {
+    gulp.src('src/client/js/3rdparty/*.*')
+    .on('error',function (err) {
+
+        })
+    .pipe(gulp.dest('app/client/3rdparty'));
+
     return browserify({
             entries: './src/client/js/client.js',
             debug: true 

@@ -6,6 +6,7 @@ import Alert from './Alert';
 //import BrainTreeForm from "./BraintreeForm"
 import BincoinForm from './BitcoinForm'
 import PaymentStore from '../../stores/PaymentStore'
+import PaymentData from "./PaymentData"
 import request from 'superagent';
 
 class PaymentForm extends React.Component {
@@ -14,6 +15,7 @@ class PaymentForm extends React.Component {
         
         this.state = {
             alert: null,
+            payment_data: null,
             amount: 0.0
         }
     }
@@ -60,11 +62,13 @@ class PaymentForm extends React.Component {
                         }
                     });
                 }
-                
+
+                var result = JSON.parse(res.text);
+
                 this.setState({
-                    alert: {
-                        type: 'success',
-                        message: res.text 
+                    payment_data: {
+                        amount: result.amount,
+                        adress: result.adress
                     }
                 });
             });
@@ -84,7 +88,10 @@ class PaymentForm extends React.Component {
         return (
 
           <form id="checkout" method="post" onSubmit={ this.addFunds.bind(this) }>
-
+              { this.state.payment_data ? <PaymentData
+                  amount= {this.state.payment_data.amount}
+                  adress= {this.state.payment_data.adress}
+                  /> : '' }
                 { this.state.alert ? 
                     <Alert 
                         type={ this.state.alert.type } 
