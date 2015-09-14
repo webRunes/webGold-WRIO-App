@@ -9,6 +9,8 @@ import PaymentStore from '../../stores/PaymentStore'
 import PaymentData from "./PaymentData"
 import request from 'superagent';
 
+let SATOSHI = 100000000;
+
 class PaymentForm extends React.Component {
     constructor(props) {
         super(props);
@@ -50,7 +52,7 @@ class PaymentForm extends React.Component {
         request
             .post('/api/blockchain/request_payment') // '/api/stripe/add_funds'
             .send({
-                amount: parseFloat(form.amount.value),
+                amount: parseFloat(form.amount.value)*SATOSHI,
                 amountWRG: parseFloat(form.amountWRG.value)
             })
             .end((err, res) => {

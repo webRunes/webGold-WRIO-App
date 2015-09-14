@@ -44,6 +44,8 @@ gulp.task('views', function() {
         .pipe(gulp.dest('app/client/views'));
 });
 
+
+
 gulp.task('nodemon', function() {
     nodemon({
         script: 'server.js',

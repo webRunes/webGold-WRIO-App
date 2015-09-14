@@ -1,5 +1,8 @@
-import React from 'react'
+import React from 'react';
 import request from 'superagent';
+import numeral from 'numeral';
+
+let SATOSHI = 100000000;
 
 class PaymentsHistory extends React.Component {
 
@@ -30,6 +33,8 @@ class PaymentsHistory extends React.Component {
     }
 
     render() {
+
+
         return (
             <div>
                <h1>Pending payments</h1>
@@ -46,10 +51,16 @@ class PaymentsHistory extends React.Component {
                     <tbody>
                     {
                         this.state.data.map(function (item) {
+                            var amount = (item.amount || item.requested_amount)/SATOSHI;
+                            if (isNaN(amount)) {
+                                amount = "Error";
+                            } else {
+                                amount = numeral(amount).format('0.000000000') + " BTC";
+                            }
                         return  <tr>
-                            <td>{ item._id }</td>
-                            <td>{ item.amount }</td>
-                            <td>{ item.timestamp }</td>
+                            <td>{ item.input_address }</td>
+                            <td>{ amount }</td>
+                            <td>{ item.timestamp  }</td>
                             <td>{ item.state}</td>
                         </tr>;
                     })}

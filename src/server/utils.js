@@ -3,6 +3,7 @@
  */
 
 export function dumpError(err) {
+    if (!err) return;
     if (typeof err === 'object') {
         if (err.message) {
             console.log('\nMessage: ' + err.message)
@@ -12,7 +13,5 @@ export function dumpError(err) {
             console.log('====================')
             console.log(err.stack);
         }
-    } else {
-        console.log('dumpError :: argument is not an object');
     }
 }

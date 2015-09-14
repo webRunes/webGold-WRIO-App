@@ -33,7 +33,7 @@ function promisify(r) {
 class Invoice {
 
     constructor () {
-        this.allowed_states = ['invoice_created', 'request_sent','confirmation_received','payment_confirmed'];
+        this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
         this.invoice_id = null;
         this.payments = db.db.collection('webGold_invoices');
     }
@@ -63,6 +63,7 @@ class Invoice {
 
     updateInvoiceData(invoice_data) {
         var that = this;
+        console.log("Updating invoice with", invoice_data);
         return new Promise((resolve, reject) => {
             if (this.invoice_id == null) {
                 reject("wrong invoice_id");
@@ -77,8 +78,27 @@ class Invoice {
         });
     }
 
-    getInvoice() {
+    getInvoice(nonce) {
+        var that=this;
+        console.log(nonce);
 
+        return new Promise((resolve,reject) => {
+
+           this.payments.findOne({_id:nonce},function (err,data) {
+               if (err) {
+                   console.log("Error while searching invoice");
+                   reject(err);
+                   return;
+               }
+               if (!data) {
+                   console.log('No invoice found');
+                   reject('Invoce not found');
+                   return;
+               }
+               that.invoice_id = data._id;
+               resolve(data);
+           })
+        });
     }
 
 }
@@ -95,7 +115,7 @@ class BlockChain {
     getInvoices(userID) {
         console.log("Getting invoice list for",userID); //   wrioID: userID
         return new Promise((resolve,reject) => {
-            this.payments.find({_id:userID}).toArray((err,res) => {
+            this.payments.find({userID:db.ObjectID(userID)}).toArray((err,res) => {
 
                 if (err) {
                     reject();
@@ -107,7 +127,7 @@ class BlockChain {
 
     }
 
-    request_payment(wrioID)  {
+    request_payment(wrioID,amount)  {
         return new Promise(async (resolve,reject) => {
 
            try {
@@ -136,7 +156,8 @@ class BlockChain {
                     destination: result.body.destination,
                     fee_percent: result.body.fee_percent,
                     callback: result.body.callback,
-                    'state': 'request_sent'
+                    'state': 'request_sent',
+                    'requested_amount': amount
                 });
 
 
@@ -154,13 +175,86 @@ class BlockChain {
 
     }
 
-    handle_callback(request) {
+    handle_callback(req,resp) {
+        return new Promise(async (resolve, reject) => {
 
+            try {
+                let secret = decodeURIComponent(req.query.secret);
+                let nonce = req.query.nonce;
+                let invoice_id = req.query.invoice_id;
+                let transaction_hash = req.query.transaction_hash;
+                let input_transaction_hash = req.query.input_transaction_hash;
+                let input_address = req.query.input_address;
+                let value = req.query.value; // value in satoshi
+                let confirmations = req.query.confirmations;
+                console.log("GOT CALLBACK FROM BLOCKCHAIN API: ",req.query);
+
+                if (secret != this.secret) {
+                    resp.status(403).send("");
+                    console.log("ERROR: wrong secret");
+                    return;
+                }
+                if (!nonce) {
+                    resp.status(400).send("");
+                    console.log("ERROR: nonce not provided");
+                    return;
+                }
+
+                if (!invoice_id || !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
+                    resp.status(400).send("");
+                    console.log("ERROR: missing required parameters");
+                    return;
+
+                }
+
+                let invoice = new Invoice();
+                var invoice_data = await invoice.getInvoice(nonce);
+                console.log(invoice_data);
+
+
+                console.log(invoice_data.input_addres, input_address);
+                if (invoice_data.input_address != input_address) {
+                    console.log("Wrong input address");
+                    resp.status(403).send("");
+                    return;
+                }
+
+                await invoice.updateInvoiceData({
+                    amount: value,
+                    invoice_id: invoice_id,
+                    transaction_hash: transaction_hash,
+                    input_transaction_hash: input_transaction_hash,
+                    state: `payment_checking`
+
+                });
+
+                if (confirmations > 5) {
+                    await invoice.updateInvoiceData({
+                       state: "payment_confirmed"
+                    });
+                    resp.status(200).send("*ok*");
+                    return;
+                }
+
+                resp.status(200).send("confirmation_received");
+
+
+            } catch (e) {
+                reject(e)
+            }
+        });
     }
 }
 
-router.get('/callback',function(request,response) {
+router.get('/callback',async (request,response) => {
     var blockchain = new BlockChain();
+    try {
+        await blockchain.handle_callback(request,response);
+    } catch(e) {
+        console.log("Callback failed",e);
+        dumpError(e);
+        response.status(400).send({"error":"API operation failed"});
+    }
 });
 
 router.post('/payment_history', async (request,response) => {
@@ -169,7 +263,7 @@ router.post('/payment_history', async (request,response) => {
         var userID = await getLoggedInUser(request.sessionID);
 
         var blockchain = new BlockChain();
-        var history = await blockchain.getInvoices(userID);
+        var history = await blockchain.getInvoices(userID._id);
         console.log("History",history);
         response.send(history);
 
@@ -198,7 +292,7 @@ router.post('/request_payment',function(req,response) {
         console.log("Logged in user:",userId);
 
         if (!userId) {
-            response.status(400).send({"error":"This user has no userID, exiting"})
+            response.status(400).send({"error":"This user has no userID, exiting"});
             return;
         }
 
@@ -217,7 +311,7 @@ router.post('/request_payment',function(req,response) {
         console.log("Got nonce", nonce);
 
 
-        blockchain.request_payment(userId).then(function (resp) {
+        blockchain.request_payment(userId, amount).then(function (resp) {
             console.log("Resp",resp);
             response.send(resp);
         },function (err) {
