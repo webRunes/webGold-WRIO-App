@@ -186,7 +186,6 @@ class BlockChain {
             try {
                 let secret = decodeURIComponent(req.query.secret);
                 let nonce = req.query.nonce;
-                let invoice_id = req.query.invoice_id;
                 let transaction_hash = req.query.transaction_hash;
                 let input_transaction_hash = req.query.input_transaction_hash;
                 let input_address = req.query.input_address;
@@ -205,7 +204,7 @@ class BlockChain {
                     return;
                 }
 
-                if (!invoice_id || !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
+                if ( !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
                     resp.status(400).send("");
                     console.log("ERROR: missing required parameters");
                     return;
@@ -226,7 +225,6 @@ class BlockChain {
 
                 await invoice.updateInvoiceData({
                     amount: value,
-                    invoice_id: invoice_id,
                     transaction_hash: transaction_hash,
                     input_transaction_hash: input_transaction_hash,
                     state: `payment_checking`
