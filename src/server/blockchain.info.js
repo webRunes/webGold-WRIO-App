@@ -108,6 +108,11 @@ class BlockChain {
         this.receivingAdress = nconf.get("payment:blockchain:receivingAdress");
         this.payments = db.db.collection('webGold_invoices');
         this.secret = nconf.get("payment:blockchain:secret");
+
+        if (!this.receivingAdress || !this.secret) {
+            throw "Blockchain.info configuration is not defined, please edit config.json to fix";
+        }
+
         this.payments = db.db.collection('webGold_invoices');
     }
 
@@ -247,8 +252,8 @@ class BlockChain {
 }
 
 router.get('/callback',async (request,response) => {
-    var blockchain = new BlockChain();
     try {
+        var blockchain = new BlockChain();
         await blockchain.handle_callback(request,response);
     } catch(e) {
         console.log("Callback failed",e);
