@@ -291,7 +291,7 @@ router.post('/request_payment',function(req,response) {
         }
         var blockchain = new BlockChain();
 
-        //var userId = User.userID;
+        //var userId =   User.userID;
         var userId = User._id;
 
         console.log("Logged in user:",userId);
