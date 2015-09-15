@@ -55,7 +55,7 @@ class PaymentsHistory extends React.Component {
                             if (isNaN(amount)) {
                                 amount = "Error";
                             } else {
-                                amount = numeral(amount).format('0.000000000') + " BTC";
+                                amount = numeral(amount).format('0.00000000') + " BTC";
                             }
                         return  <tr>
                             <td>{ item.input_address }</td>

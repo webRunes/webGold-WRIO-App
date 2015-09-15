@@ -30,7 +30,7 @@ function getLoginUrl() {
 
     var host = window.location.host;
     host = host.replace('webgold.','login.');
-    return "http://"+host+'/';
+    return "//"+host+'/';
 
 }
 

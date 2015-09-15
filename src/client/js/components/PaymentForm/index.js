@@ -1,6 +1,6 @@
 import React from 'react';
 import Amount from './Amount';
-import CreditCard from './CreditCard';
+//import CreditCard from './CreditCard';
 import AddFunds from './AddFunds';
 import Alert from './Alert';
 //import BrainTreeForm from "./BraintreeForm"
