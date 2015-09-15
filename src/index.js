@@ -2,32 +2,34 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
-import stripe from './server/stripe';
+//import braintree from './server/braintree';
+import blockchain from './server/blockchain.info'
 import {init} from './server/db';
-import wrioLogin from './server/wriologin'
-import {setDB as setDBStripe} from './server/stripe'
+import {loginWithSessionId} from './server/wriologin'
+
+import session from 'express-session'
+import cookieParser from 'cookie-parser'
+import MongoStore from 'connect-mongo'
 
 var app = express();
-function setup_server(db) {
+app.ready = function () {};
 
+const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
+
+function setup_server(db) {
 
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({extended: true}));
 
-	var session = require('express-session');
 
-	var cookieParser = require('cookie-parser');
-	wrioLogin.setDB(db);
-	setDBStripe(db);
-	const BASEDIR_PATH = path.dirname(require.main.filename);
 
 //For app pages
 	app.set('view engine', 'ejs');
-	app.use(express.static(path.join(BASEDIR_PATH, '/')));
+	app.use(express.static(path.join(TEMPLATE_PATH, '/')));
 
 	const DOMAIN = nconf.get("db:workdomain");
 
-	var SessionStore = require('connect-mongo')(session);
+	var SessionStore = MongoStore(session);
 	var cookie_secret = nconf.get("server:cookiesecret");
 	app.use(cookieParser(cookie_secret));
 	var sessionStore = new SessionStore({db: db});
@@ -49,7 +51,7 @@ function setup_server(db) {
 }
 function setup_routes() {
 	app.get('/', function (request, response) {
-		response.sendFile(path.join(BASEDIR_PATH, '/index.htm'));
+		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
 	});
 
 	app.get('/add_funds', function (request, response) {
@@ -58,7 +60,7 @@ function setup_routes() {
 
 	app.get('/add_funds_data', (request, response) => {
 		console.log("WEBGOLD:Add funds data");
-		wrioLogin.loginWithSessionId(request.sessionID, (err, res) => {
+		loginWithSessionId(request.sessionID, (err, res) => {
 			if (err) {
 				console.log('WEBGOLD:User not found');
 				response.json({
@@ -70,18 +72,25 @@ function setup_routes() {
 				return;
 			}
 
-			response.json({
-				username: res.lastName,
-				loginUrl: nconf.get('loginUrl'),
-				balance: res.balance,
-				exchangeRate: nconf.get('payment:WRGExchangeRate')
-			});
+			if (res) {
+				response.json({
+					username: res.lastName,
+					loginUrl: nconf.get('loginUrl'),
+					balance: res.balance,
+					exchangeRate: nconf.get('payment:WRGExchangeRate')
+				});
+			} else {
+				response.json({
+					error:"not logged in"
+				})
+			}
+
 		});
 	});
 
 	app.get('/get_user', function (request, response) {
 		console.log("WEBGOLD:/get_user");
-		wrioLogin.loginWithSessionId(request.sessionID, (err, res) => {
+		loginWithSessionId(request.sessionID, (err, res) => {
 			if (err) {
 				console.log('User not found');
 				return response.sendStatus(404);
@@ -103,7 +112,8 @@ function setup_routes() {
 		response.render('callback', {});
 	});
 
-	app.use('/api/stripe', stripe);
+	//app.use('/api/braintree/', braintree);
+	app.use('/api/blockchain/',blockchain);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 
@@ -114,8 +124,10 @@ init()
 		console.log("Web application opened.");
 		setup_server(db);
 		setup_routes();
+		app.ready();
 	})
 	.catch(function(err) {
 		console.log('Error while init '+err);
 	});
 
+module.exports = app;

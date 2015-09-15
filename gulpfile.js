@@ -11,7 +11,7 @@ gulp.task('babel-server', function() {
             console.log('Babel server:', err.toString());
         })
         .pipe(gulp.dest('app'));
-        
+
     gulp.src('src/server/**/*.*')
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
@@ -20,7 +20,13 @@ gulp.task('babel-server', function() {
 });
 
 gulp.task('babel-client', function() {
-    browserify({ 
+    gulp.src('src/client/js/3rdparty/*.*')
+    .on('error',function (err) {
+
+        })
+    .pipe(gulp.dest('app/client/3rdparty'));
+
+    return browserify({
             entries: './src/client/js/client.js',
             debug: true 
         })
@@ -37,6 +43,8 @@ gulp.task('views', function() {
     gulp.src('src/client/views/**/*.*')
         .pipe(gulp.dest('app/client/views'));
 });
+
+
 
 gulp.task('nodemon', function() {
     nodemon({

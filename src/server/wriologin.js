@@ -1,15 +1,12 @@
-var db;
+import db from './db'
 
-export function setDB(db_link) {
-    db = db_link;
-}
 
 // used to deserialize the user
 function deserialize(id, done) {
-    var webrunesUsers = db.collection('webRunes_Users');
-    var sessions = db.collection('sessions');
+    var webrunesUsers = db.db.collection('webRunes_Users');
+    var sessions = db.db.collection('sessions');
     console.log("Deserializing user by id=" + id);
-    webrunesUsers.findOne(ObjectID(id),function (err,user) {
+    webrunesUsers.findOne(db.ObjectID(id),function (err,user) {
         if (err || !user) {
             console.log("User not found", err);
             done(err);
@@ -21,7 +18,7 @@ function deserialize(id, done) {
 };
 
 export function loginWithSessionId(ssid, done) {
-    var sessions = db.collection('sessions');
+    var sessions = db.db.collection('sessions');
     var match = ssid.match(/^[-A-Za-z0-9+/=_]+$/m);
     if (!match) {
         console.log("Wrong ssid");
@@ -86,9 +83,10 @@ export function getLoggedInUser(ssid) {
     });
 }
 
+/*
 var obj = {
     setDB: setDB,
     loginWithSessionId: loginWithSessionId
 };
 
-export default obj;
+export default obj;*/

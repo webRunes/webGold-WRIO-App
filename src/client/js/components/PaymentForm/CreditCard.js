@@ -8,12 +8,12 @@ class CreditCard extends React.Component {
         			<div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
         				<label className="col-sm-12 control-label" htmlFor="creditCard">Credit Card</label>
         			</div>
-        
+
         			<div className="col-xs-6 col-sm-4 col-md-6 col-lg-6">
         				<div className="input-group input-group-sm tooltip-demo">
-        					<input type="text" className="form-control" 
-        					    name="creditCard" size="50" 
-        					    value={ this.props.creditCard } 
+        					<input type="text" className="form-control"
+        					    name="creditCard" size="50"
+        					    value={ this.props.creditCard }
         					    id="creditCard" maxLength="16"/>
         				</div>
         				<div className="help-block">Credit Card Number</div>
@@ -25,10 +25,10 @@ class CreditCard extends React.Component {
         			</div>
         			<div className="col-xs-12 col-sm-4 col-md-4 col-lg-3">
         				<div className="input-group input-group-sm tooltip-demo">
-        					<select 
-        					    className="select2" 
+        					<select
+        					    className="select2"
         					    name="month"
-        					    data-stripe="exp-month" 
+        					    data-stripe="exp-month"
         					    defaultValue={ this.props.month } >
         						<option>01</option>
         						<option>02</option>
@@ -72,13 +72,13 @@ class CreditCard extends React.Component {
         			</div>
         			<div className="col-xs-12 col-sm-4 col-md-4 col-lg-3">
         				<div name="cvv" className="input-group input-group-sm tooltip-demo">
-        					<input 
+        					<input
         					    type="text" className="form-control" name="cvv"
         					    size="3" defaultValue={ this.props.cvv } id="txtCVV"/>
         				</div>
         				<div className="help-block">CVV</div>
         			</div>
-        		</div>  
+        		</div>
         	</div>
         );
     }
