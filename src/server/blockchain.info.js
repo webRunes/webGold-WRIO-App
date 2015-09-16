@@ -108,6 +108,11 @@ class BlockChain {
         this.receivingAdress = nconf.get("payment:blockchain:receivingAdress");
         this.payments = db.db.collection('webGold_invoices');
         this.secret = nconf.get("payment:blockchain:secret");
+
+        if (!this.receivingAdress || !this.secret) {
+            throw "Blockchain.info configuration is not defined, please edit config.json to fix";
+        }
+
         this.payments = db.db.collection('webGold_invoices');
     }
 
@@ -181,7 +186,6 @@ class BlockChain {
             try {
                 let secret = decodeURIComponent(req.query.secret);
                 let nonce = req.query.nonce;
-                let invoice_id = req.query.invoice_id;
                 let transaction_hash = req.query.transaction_hash;
                 let input_transaction_hash = req.query.input_transaction_hash;
                 let input_address = req.query.input_address;
@@ -200,7 +204,7 @@ class BlockChain {
                     return;
                 }
 
-                if (!invoice_id || !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
+                if ( !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
                     resp.status(400).send("");
                     console.log("ERROR: missing required parameters");
                     return;
@@ -221,7 +225,6 @@ class BlockChain {
 
                 await invoice.updateInvoiceData({
                     amount: value,
-                    invoice_id: invoice_id,
                     transaction_hash: transaction_hash,
                     input_transaction_hash: input_transaction_hash,
                     state: `payment_checking`
@@ -247,8 +250,8 @@ class BlockChain {
 }
 
 router.get('/callback',async (request,response) => {
-    var blockchain = new BlockChain();
     try {
+        var blockchain = new BlockChain();
         await blockchain.handle_callback(request,response);
     } catch(e) {
         console.log("Callback failed",e);
@@ -286,7 +289,7 @@ router.post('/request_payment',function(req,response) {
         }
         var blockchain = new BlockChain();
 
-        //var userId = User.userID;
+        //var userId =   User.userID;
         var userId = User._id;
 
         console.log("Logged in user:",userId);
