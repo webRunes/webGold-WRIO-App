@@ -1,7 +1,7 @@
 FROM ubuntu:15.04
 MAINTAINER denso.ffff@gmail.com
 
-RUN apt-get update && apt-get install -y nodejs npm mc libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ git
+RUN apt-get update && apt-get install -y nodejs npm mc libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ git  libkrb5-dev
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN npm install -g http-server browserify gulp nodemon

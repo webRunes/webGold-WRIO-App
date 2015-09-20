@@ -7,6 +7,7 @@ import web3 from 'web3'
 import {Promise} from 'es6-promise'
 import {dumpError} from './utils'
 
+
 web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
 
 console.log(web3.eth.accounts);
@@ -37,6 +38,19 @@ class WebGold {
         }); // change to contract address
     }
 
+
+    getEtherBalance(account) {
+        return new Promise((resolve,reject) =>{
+            web3.eth.getBalance(web3.eth.accounts[0], (err,res) => {
+                if (err) {
+                    reject();
+                } else {
+                    resolve(res.toString())
+                }
+            })
+        });
+    }
+
     getBalance(account) {
         return new Promise((resolve, reject) => {
             this.token.coinBalanceOf(account, (err, balance)=> {
@@ -49,8 +63,12 @@ class WebGold {
     }
 
     coinTransfer(from,to,amount) {
+
+
+
         return new Promise((resolve,reject)=> {
-            var event = this.token.CoinTransfer({}, '', function(error, result){
+            console.log("Starting cointransfer");
+           /* var event = this.token.sendCoin.CoinTransfer({}, '', function(error, result){
                 if (error) {
                     console.log("CoinTransfer failed");
                     reject(error);
@@ -58,13 +76,14 @@ class WebGold {
                 }
                 console.log("Coin transfer: " + result.args.amount +
                     " tokens were sent. Balances now are as following: \n Sender:\t" +
-                    result.args.sender + " \t" + token.coinBalanceOf.call(result.args.sender) +
+                    result.args.sender + " \t" + this.token.coinBalanceOf.call(result.args.sender) +
                     " tokens \n Receiver:\t" + result.args.receiver + " \t" +
-                    token.coinBalanceOf.call(result.args.receiver) + " tokens");
+                    this.token.coinBalanceOf.call(result.args.receiver) + " tokens");
                 resolve("Success");
 
-            });
-            token.sendCoin.sendTransaction(to, amount, {from: from}).function((err,result)=>{
+            });*/
+            console.log(this.token.sendCoin);
+            this.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                 if (err) {
                     console.log("sendCoin failed");
                     reject();
@@ -81,10 +100,13 @@ var operate = async () => {
 
     try {
         var webGold = new WebGold();
+
+        console.log(await webGold.getEtherBalance(web3.eth.accounts[0]));
+
         var ballance1 = await webGold.getBalance(web3.eth.accounts[0]);
         var ballance2 = await webGold.getBalance(web3.eth.accounts[1]);
 
-        webGold.coinTransfer(web3.eth.accounts[0],web3.eth.accounts[1],100);
+        //await webGold.coinTransfer(web3.eth.accounts[0],web3.eth.accounts[1],100);
 
         console.log(ballance1.toString(),ballance2.toString());
 

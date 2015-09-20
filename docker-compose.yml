@@ -1,0 +1,7 @@
+webgold:
+  build: .
+  ports:
+   - "5003:5003"
+  volumes:
+   - .:/srv/www/
+
