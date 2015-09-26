@@ -4,6 +4,7 @@ import nconf from './server/wrio_nconf.js';
 import path from 'path';
 //import braintree from './server/braintree';
 import blockchain from './server/blockchain.info'
+import ethereum_route from './server/ethereum-route'
 import {init} from './server/db';
 import {loginWithSessionId} from './server/wriologin'
 
@@ -52,6 +53,9 @@ function setup_server(db) {
 function setup_routes() {
 	app.get('/', function (request, response) {
 		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
+	});
+	app.get('/coinadmin', function (request, response) {
+		response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
 	});
 
 	app.get('/add_funds', function (request, response) {
@@ -114,6 +118,7 @@ function setup_routes() {
 
 	//app.use('/api/braintree/', braintree);
 	app.use('/api/blockchain/',blockchain);
+	app.use('/api/webgold/',ethereum_route);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 

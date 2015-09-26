@@ -4,4 +4,5 @@ webgold:
    - "5003:5003"
   volumes:
    - .:/srv/www/
-
+  command:
+  - "/bin/bash"
