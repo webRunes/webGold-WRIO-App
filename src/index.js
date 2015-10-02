@@ -4,8 +4,12 @@ import nconf from './server/wrio_nconf.js';
 import path from 'path';
 //import braintree from './server/braintree';
 import blockchain from './server/blockchain.info'
+import {BlockChain} from './server/blockchain.info'
+import ethereum_route from './server/ethereum-route'
 import {init} from './server/db';
-import {loginWithSessionId} from './server/wriologin'
+import {loginWithSessionId,getLoggedInUser} from './server/wriologin'
+import WebGold from './server/ethereum'
+import BigNumber from 'bignumber.js';
 
 import session from 'express-session'
 import cookieParser from 'cookie-parser'
@@ -49,43 +53,55 @@ function setup_server(db) {
 		}
 	));
 }
-function setup_routes() {
+function setup_routes(db) {
 	app.get('/', function (request, response) {
 		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
+	});
+	app.get('/coinadmin', function (request, response) {
+		response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
 	});
 
 	app.get('/add_funds', function (request, response) {
 		response.sendFile(__dirname + '/client/views/index.html');
 	});
 
-	app.get('/add_funds_data', (request, response) => {
+	app.get('/add_funds_data', async (request, response) => {
+		var loginUrl =  nconf.get('loginUrl') || ("//login"+nconf.get('server:workdomain')+'/');
+		console.log(loginUrl);
+
 		console.log("WEBGOLD:Add funds data");
-		loginWithSessionId(request.sessionID, (err, res) => {
-			if (err) {
-				console.log('WEBGOLD:User not found');
+
+		try {
+			var user = await getLoggedInUser(request.sessionID);
+
+			if (user) {
+				var bc = new BlockChain();
+				var btc_rate = await bc.get_rates();
+				var wg = new WebGold(db);
+				var bitRate = wg.convertWRGtoBTC(new BigNumber(10000),btc_rate);
 				response.json({
-					username: null,
-					loginUrl: nconf.get('loginUrl'),
-					balance: null,
-					exchangeRate: nconf.get('payment:WRGExchangeRate')
+					username: user.lastName,
+					loginUrl: loginUrl,
+					balance: user.balance,
+					exchangeRate: nconf.get('payment:WRGExchangeRate'),
+					btcExchangeRate: bitRate
 				});
-				return;
 			}
 
-			if (res) {
-				response.json({
-					username: res.lastName,
-					loginUrl: nconf.get('loginUrl'),
-					balance: res.balance,
-					exchangeRate: nconf.get('payment:WRGExchangeRate')
-				});
-			} else {
-				response.json({
-					error:"not logged in"
-				})
-			}
 
-		});
+		} catch(e) {
+			console.log('WEBGOLD:User not found',e);
+			response.json({
+				username: null,
+				loginUrl: loginUrl,
+				balance: null,
+				exchangeRate: nconf.get('payment:WRGExchangeRate')
+			});
+
+		}
+
+
+
 	});
 
 	app.get('/get_user', function (request, response) {
@@ -114,6 +130,7 @@ function setup_routes() {
 
 	//app.use('/api/braintree/', braintree);
 	app.use('/api/blockchain/',blockchain);
+	app.use('/api/webgold/',ethereum_route);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 
@@ -123,7 +140,7 @@ init()
 		app.listen(nconf.get("server:port"));
 		console.log("Web application opened.");
 		setup_server(db);
-		setup_routes();
+		setup_routes(db);
 		app.ready();
 	})
 	.catch(function(err) {
