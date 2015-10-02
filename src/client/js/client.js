@@ -68,7 +68,7 @@ class App extends React.Component {
                     loginUrl: res.body.loginUrl,
                     balance: res.body.balance,
                     exchangeRate: res.body.exchangeRate,
-                    btcExchangeRate: new BigNumber(bitRate).div(SATOSHI)
+                    btcExchangeRate: new BigNumber(res.body.btcExchangeRate).div(SATOSHI)
                 });
                 console.log("BTC exchange rate", this.state.btcExchangeRate.toString());
                 console.log("USD exchange rate", this.state.exchangeRate );
