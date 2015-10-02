@@ -1,30 +1,31 @@
 import React from 'react';
 import Actions from '../../stores/PaymentActions'
+import BigNumer from 'bignumber.js'
 
 class Amount extends React.Component {
     constructor(props) {
         super(props);
         
-        console.log(5 * 10000 / this.props.exchangeRate);
+
         this.state = {
-            USD: 5,
-            WRG: 5 * 10000 / this.props.exchangeRate
+            BTC: new BigNumber(0.1),
+            WRG: new BigNumber(10000).mul("0.1").div(this.props.exchangeRate)
         };
         Actions.changeAmount(this.state);
     }
     
     componentWillReceiveProps(props) {
         this.setState({
-            USD: this.state.USD,
-            WRG: this.state.USD * 10000 / props.exchangeRate
+            BTC: this.state.BTC,
+            WRG: this.state.BTC.div(props.exchangeRate)
         });
     }
     
-    onUSDChange(e) {
-        var usd = e.target.value;
-        var wrg = usd * 10000 / this.props.exchangeRate;
+    onBTCChange(e) {
+        var BTC = new BigNumber(e.target.value);
+        var wrg = BTC.mul(10000).div(this.props.exchangeRate);
         var amount = {
-            USD: usd,
+            BTC: BTC,
             WRG: wrg
         };
         this.setState(amount);
@@ -32,10 +33,10 @@ class Amount extends React.Component {
     }
     
     onWRGChange(e) {
-        var wrg = e.target.value;
-        var usd = wrg * this.props.exchangeRate / 10000;
+        var wrg = new BigNumber(e.target.value);
+        var BTC = wrg.mul(this.props.exchangeRate).div(10000);
         var amount = {
-            USD: usd,
+            BTC: BTC,
             WRG: wrg
         };
         this.setState(amount);
@@ -43,20 +44,20 @@ class Amount extends React.Component {
     }
     
     render() {
-        var usd = this.state.USD;
-        var wrg = this.state.WRG;
+        var BTC = this.state.BTC.toString();
+        var wrg = this.state.WRG.toString();
         
         return (
              <div className="form-horizontal form-group col-xs-12">
     			<div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
-					<label className="col-sm-12 control-label" htmlFor="amountUSD">Amount</label>
+					<label className="col-sm-12 control-label" htmlFor="amountBTC">Amount</label>
     			</div>
     			<div className="col-xs-4 col-sm-4 col-md-4 col-lg-3">
     				<div className="input-group input-group-sm tooltip-demo">
-						<span className="input-group-addon">USD</span>
-						<input type="number" step="any" className="form-control" id="amount" name="amount" value={usd} onChange={ this.onUSDChange.bind(this) } min="0" />
+						<span className="input-group-addon">BTC</span>
+						<input type="number" step="any" className="form-control" id="amount" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
     				</div>
-    				<div className="help-block">Insufficient funds</div>
+    				
     			</div>
     			<div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
 					<label className="control-label">{'='}</label>

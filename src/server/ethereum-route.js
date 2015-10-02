@@ -14,19 +14,21 @@ import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import db from './db';
 const router = Router();
 import WebRunesUsers from './wriouser'
+import nconf from './wrio_nconf';
+
 
 let wei = 1000000000000000000;
-let min_amount = 0.002; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
-async function ensureMinimumEther(webGold,user,dest) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
-    var ethBalance = await webGold.getEtherBalance(user.ethereumWallet);
-    if (ethBalance < min_amount) {
-        console.log("Adding minium ethere amount",ethBalance);
-        await webGold.etherTransfer(dest,min_amount);
-    } else {
-        console.log("Account has minimum ether, cancelling");
-    }
+let masterAccount = nconf.get("payment:ethereum:masterAdr");
+let masterPassword = nconf.get("payment:ethereum:masterPass");
+if (!masterAccount) {
+    throw new Error("Can't get master account address from config.json");
 }
+if (!masterPassword) {
+    throw new Error("Can't get master account password from config.json");
+}
+
 
 
 router.get('/free_wrg',async (request,response) => {  // TODO: remove this method
@@ -39,20 +41,19 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
             throw new Error("Can't parse amount");
         }
 
+        amount *= 100;
+
         var user = await getLoggedInUser(request.sessionID);
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
-            var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-            await webGold.coinTransfer(web3.eth.accounts[0],dest,amount);
-
-            await ensureMinimumEther(webGold,user,dest);
+            await webGold.emit(user.ethereumWallet,amount);
 
             response.send("Successfully sent "+amount);
         } else {
             throw new Error("User has no vaid userID, sorry");
         }
     } catch(e) {
-        console.log("Errro during free_wrg",e);
+        console.log("Errro during free_wrg ",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -69,6 +70,8 @@ router.get('/donate',async (request,response) => {
             throw new Error("Can't parse amount");
         }
 
+        amount *= 100;
+
         var user = await getLoggedInUser(request.sessionID);
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
@@ -78,7 +81,7 @@ router.get('/donate',async (request,response) => {
             await webGold.unlockByWrioID(user.wrioID);
 
             console.log("Prepare for transfer",dest,src,amount);
-            await webGold.coinTransfer(src,dest,amount);
+            await webGold.donate(src,dest,amount);
 
             //await ensureMinimumEther(webGold,user,src);
 
@@ -89,6 +92,7 @@ router.get('/donate',async (request,response) => {
 
     } catch(e) {
         console.log("Errro during donate",e);
+        dumpError(e);
         response.status(403).send("Error");
     }
 
@@ -100,7 +104,7 @@ router.post('/get_ballance',async (request,response) => {
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-            var ballance = await webGold.getBalance(dest);
+            var ballance = await webGold.getBalance(dest) / 100;
             console.log("ballance:",ballance.toString());
             response.send({
                 "ballance": ballance.toString()
@@ -122,14 +126,14 @@ router.get('/coinadmin/master', async (request,response) => {
         if (user.wrioID == "819702772935") { // TODO : change to something more elegant
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
-            var wrgBalance = await webGold.getBalance(web3.eth.accounts[0]);
-            var ethBalance = await webGold.getEtherBalance(web3.eth.accounts[0]);
+            var wrgBalance = await webGold.getBalance(masterAccount);
+            var ethBalance = await webGold.getEtherBalance(masterAccount);
 
             var gasprice = web3.eth.gasPrice;
 
             response.send({
                 "ethBalance": ethBalance / wei,
-                "wrgBalance": wrgBalance,
+                "wrgBalance": wrgBalance/100,
                 "gasPrice": gasprice / wei
             });
         } else {
@@ -137,6 +141,7 @@ router.get('/coinadmin/master', async (request,response) => {
         }
     } catch(e) {
         console.log("Coinadmin error",e);
+        dumpError(e);
         response.status(403).send("Error");
     }
 });
@@ -158,7 +163,7 @@ router.get('/coinadmin/users', async (request,response) => {
                         name: user.lastName,
                         ethWallet: user.ethereumWallet,
                         ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
-                        wrgBalance: await webGold.getBalance(user.ethereumWallet)
+                        wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100
                     });
                 }
             }

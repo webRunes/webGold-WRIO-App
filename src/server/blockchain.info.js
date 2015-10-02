@@ -4,8 +4,10 @@ import uuid from 'node-uuid';
 import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import {dumpError} from './utils';
+import BigNumber from 'bignumber.js';
 
 import {init} from './db';
+import WebGold from './ethereum'
 
 const router = Router();
 
@@ -36,6 +38,7 @@ class Invoice {
         this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
         this.invoice_id = null;
         this.payments = db.db.collection('webGold_invoices');
+
     }
 
     createInvoice(userID) {
@@ -103,7 +106,7 @@ class Invoice {
 
 }
 
-class BlockChain {
+export class BlockChain {
     constructor(options) {
         this.receivingAdress = nconf.get("payment:blockchain:receivingAdress");
         this.payments = db.db.collection('webGold_invoices');
@@ -114,6 +117,10 @@ class BlockChain {
         }
 
         this.payments = db.db.collection('webGold_invoices');
+        this.webgold = new WebGold(db.db);
+        this.get_rates().then((res)=>{
+            console.log("Getting current rates from blockhain API",res.toString());
+        })
     }
 
 
@@ -131,6 +138,26 @@ class BlockChain {
         });
 
     }
+
+    async get_rates() {
+        try {
+
+            let api_request = "https://blockchain.info/ru/ticker";
+
+            console.log("Sending get_rates request",api_request);
+            var result = await request.post(api_request);
+            console.log("USD/BTC = ",result.body.USD.buy);
+
+            return new BigNumber(result.body.USD.buy);
+
+        }
+        catch(e) {
+            console.log("get_rates request failed",e);
+            dumpError(e);
+
+            }
+
+        }
 
     request_payment(wrioID,amount)  {
         return new Promise(async (resolve,reject) => {
@@ -240,6 +267,9 @@ class BlockChain {
                 }
 
                 resp.status(200).send("confirmation_received");
+                var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await get_rates());
+                webgold.emitWRG(wrg);
+                console.log(wrg,"WRG was emitted");
 
 
             } catch (e) {

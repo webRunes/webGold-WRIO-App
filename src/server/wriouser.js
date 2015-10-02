@@ -18,7 +18,7 @@ class WebRunesUsers {
                 }
                 if (!data) {
                     console.log('Db user not found');
-                    reject('Keynotfound');
+                    reject('User not found '+wrioID);
                     return;
                 }
                 resolve(data);
@@ -36,7 +36,7 @@ class WebRunesUsers {
                 }
                 if (!users) {
                     console.log('Db user not found');
-                    reject('Keynotfound');
+                    reject('Users not found');
                     return;
                 }
                 resolve(users);
@@ -54,7 +54,7 @@ class WebRunesUsers {
                 }
                 if (!data) {
                     console.log('Db user not found');
-                    reject('Keynotfound');
+                    reject('User not found '+wrioID);
                     return;
                 }
                 resolve(data);

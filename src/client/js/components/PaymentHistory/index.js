@@ -12,6 +12,7 @@ class PaymentsHistory extends React.Component {
             data:[
 
             ]
+
         }
 
     }
@@ -37,6 +38,8 @@ class PaymentsHistory extends React.Component {
 
         return (
             <div>
+
+
                <h1>Pending payments</h1>
 
                 <table className="table">

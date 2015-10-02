@@ -15,10 +15,25 @@ import HookedWeb3Provider from 'hooked-web3-provider'
 import db from './db';
 import {init} from './db';
 import WebRunesUsers from './wriouser'
+import fs from 'fs';
+import path from 'path'
+import nconf from './wrio_nconf';
+import BigNumber from 'bignumber.js';
 
-//web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545'));
-//web3.setProvider(new web3.providers.HttpProvider('http://192.168.1.14:8545'));
 
+let wei = 1000000000000000000;
+let SATOSHI = 100000000;
+let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+
+
+let masterAccount = nconf.get("payment:ethereum:masterAdr");
+let masterPassword = nconf.get("payment:ethereum:masterPass");
+if (!masterAccount) {
+    throw new Error("Can't get master account address from config.json");
+}
+if (!masterPassword) {
+    throw new Error("Can't get master account password from config.json");
+}
 
 class mongoKeyStore {
     constructor(db) {
@@ -29,16 +44,16 @@ class mongoKeyStore {
         return new Promise((resolve,reject) =>{
             this.accounts.findOne({_id:key},function (err,data) {
                 if (err) {
-                    console.log("Db key search error");
+                    console.log("mongoKeyStore Db key search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
                     console.log('Db key not found');
-                    reject('Keynotfound');
+                    reject('mongoKeyStore keyNotFound '+key);
                     return;
                 }
-                resolve(data);
+                resolve(data.value);
             })
         });
     }
@@ -69,21 +84,13 @@ class mongoKeyStore {
 
 class WebGold {
     constructor(db) {
-        this.contractadress = '0x2ada84514b9955a7c1770bf718d1fbe49e770462';
-        this.token = web3.eth.contract([
-            {
-                constant:false,
-                inputs:[{name:'receiver',type:'address'},
-                {name:'amount',type:'uint256'}],
-                name:'sendCoin',
-                outputs:[{name:'sufficient',type:'bool'}],type:'function'},
-                {constant:true,inputs:[{name:'',type:'address'}],name:'coinBalanceOf',outputs:[{name:'',type:'uint256'}],type:'function'},
-                {inputs:[{name:'supply',type:'uint256'}],type:'constructor'},
-                {anonymous:false,inputs:[{indexed:false,name:'sender',type:'address'},
-                {indexed:false,name:'receiver',type:'address'},
-                {indexed:false,name:'amount',type:'uint256'}],
-                name:'CoinTransfer',type:'event'
-            }])
+
+        this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
+        var abi_file = path.resolve(__dirname, '../../ethereum/token.abi');
+        console.log(abi_file);
+        this.abi = eval(fs.readFileSync(abi_file).toString());
+        console.log(this.abi);
+        this.token = web3.eth.contract(this.abi)
             .at(this.contractadress,(err,res) => {
                 if (err) {
                     throw "Contract init failed";
@@ -97,16 +104,21 @@ class WebGold {
         this.accounts = new Accounts(
             {
                 minPassphraseLength: 6,
-                KeyStore: this.KeyStore
+                KeyStore: this.KeyStore,
+
             });
 
+
         var provider = new HookedWeb3Provider({
-            host: "http://192.168.1.103:8545",
+            host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.accounts
         });
+     //   web3.setProvider(new web3.providers.HttpProvider('http://192.168.1.103:8545')) ;
         web3.setProvider(provider);
 
         this.users = new WebRunesUsers(db);
+
+        this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
     }
 
@@ -175,8 +187,10 @@ class WebGold {
 
     etherTransfer(to,amount) {
         return new Promise((resolve,reject)=> {
-            var sender = web3.eth.accounts[0];
+            var sender = masterAccount;
             var recipient = to;
+
+            this.accounts.unlockAccount(masterAccount,masterPassword);
 
             console.log("Preparing to transfer",amount,"ETH");
 
@@ -187,8 +201,8 @@ class WebGold {
                     reject();
                     return;
                 }
-                console.log("Ether transfer succeeded: ",to, amount,amountWEI);
-                resolve();
+                console.log("Ether transfer succeeded: ",to, amount,amountWEI,result);
+                resolve(result);
             });
         });
     }
@@ -198,36 +212,121 @@ class WebGold {
 
     coinTransfer(from,to,amount) {
 
-
-
         return new Promise((resolve,reject)=> {
             console.log("Starting cointransfer");
-           /* var event = this.token.sendCoin.CoinTransfer({}, '', function(error, result){
-                if (error) {
-                    console.log("CoinTransfer failed");
-                    reject(error);
-                    return;
-                }
-                console.log("Coin transfer: " + result.args.amount +
-                    " tokens were sent. Balances now are as following: \n Sender:\t" +
-                    result.args.sender + " \t" + this.token.coinBalanceOf.call(result.args.sender) +
-                    " tokens \n Receiver:\t" + result.args.receiver + " \t" +
-                    this.token.coinBalanceOf.call(result.args.receiver) + " tokens");
-                resolve("Success");
-
-            });*/
             console.log(this.token.sendCoin);
+
+            this.accounts.unlockAccount(masterAccount,masterPassword);
+
             this.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                 if (err) {
-                    console.log("sendCoin failed");
-                    reject();
+                    console.log("sendCoin failed",err);
+                    reject(err);
                     return;
                 }
                 console.log("sendCoin succeeded",result);
-                resolve();
+                resolve(result);
             });
         });
     }
+
+    /*
+    This function checks if minimum required amount of ether is available for specified account
+     */
+
+    async ensureMinimumEther(dest) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
+        var ethBalance = await this.getEtherBalance(dest)/wei;
+        console.log("Ethere:",ethBalance);
+        if (ethBalance < min_amount) {
+            console.log("Adding minium ethere amount",ethBalance);
+            await this.etherTransfer(dest,min_amount);
+        } else {
+            console.log("Account has minimum ether, cancelling");
+        }
+    }
+
+
+    /*
+     This function emits new WRG for specified WRIOid
+     */
+
+    async emit (dest,amount) {
+        console.log("Emitting new wrg to",dest);
+        await this.coinTransfer(masterAccount,dest,amount);
+        await this.ensureMinimumEther(dest);
+    }
+
+
+    donate(from,to,amount) {
+
+        return new Promise((resolve,reject)=> {
+            console.log("Starting donate cointransfer");
+            console.log(this.token.donate);
+
+            this.accounts.unlockAccount(masterAccount,masterPassword);
+
+            this.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
+                if (err) {
+                    console.log("donate failed",err);
+                    reject(err);
+                    return;
+                }
+                console.log("donate succeeded",result);
+                resolve(result);
+            });
+        });
+    }
+
+
+    /*
+
+    Converts bitcoin sum to WRG
+
+    paramenters:
+
+    btc - bitcoin sum, in satoshi, bignumber
+    btcrate - bitcoin to usd rate, as bignumber
+
+    formulae - WRG = (btc * btcrate * 10000) / WRGExchangeRate
+
+    WRGExchangeRate is taken from config
+
+    return value = WRG
+
+     */
+
+    convertBTCtoWRG(btc,btcrate) {
+
+
+        return btc.times(btcrate).times(10000).div(this.WRGExchangeRate).div(SATOSHI);
+
+    }
+
+    /*
+
+     Converts bitcoin sum to WRG
+
+     paramenters:
+
+     btc - bitcoin sum, in satoshi, bignumber
+     btcrate - bitcoin to usd rate, as bignumber
+
+     formulae - BTC = (wrg * WRGExchangeRate) / (btcrate * 10000)
+
+     WRGExchangeRate is taken from config
+
+     return value = satoshis
+
+     */
+
+    convertWRGtoBTC(wrg,btcrate) {
+
+        var btc = wrg.div(btcrate).div(10000).times(this.WRGExchangeRate).times(SATOSHI);
+        //console.log("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
+        return btc;
+
+    }
+
 
 }
 

@@ -8,6 +8,7 @@ import {dumpError} from './utils'
 import web3 from 'web3'
 import {Promise} from 'es6-promise'
 
+
 var operate = async (db) => {
 
     try {
@@ -21,6 +22,9 @@ var operate = async (db) => {
 
         var ballance1 = await webGold.getBalance(web3.eth.accounts[0]);
         var ballance2 = await webGold.getBalance(dest);
+
+        //webGold.accounts.createUnencryptedAccount();
+        await webGold.accounts.importAccount("0x740f63f535bc86fb87f9482adbec5ca289a2d59e","","");
 
         //await webGold.coinTransfer(web3.eth.accounts[0],dest,1000);
 

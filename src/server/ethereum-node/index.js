@@ -45,6 +45,11 @@ require('browserify-cryptojs/components/aes');
 
 
 
+import web3 from 'web3'
+
+import {dumpError} from '../utils.js'
+
+
 class KeyStoreClass {
     constructor() {
         this.keys = {}
@@ -204,6 +209,7 @@ class Accounts {
 
 
     getAccountPassphrase(accountObject) {
+
         if (this.unlockedAccounts[accountObject.address]) {
             var val = this.unlockedAccounts[accountObject.address];
             delete this.unlockedAccounts[accountObject.address]; // delete passphrase, so cannot be used twice
@@ -214,7 +220,9 @@ class Accounts {
     }
 
     unlockAccount(account,passphrase) {
+
         this.unlockedAccounts[account] = passphrase;
+
     };
 
 
@@ -251,6 +259,59 @@ class Accounts {
      @param {String} passphrase          The passphrase to encrypt the public and private keys.
      @return {Object} an account object with the public and private keys included.
      **/
+
+    createUnencryptedAccount() {
+        var privateKey = new Buffer(randomBytes(64), 'hex');
+        var publicKey = ethUtil.privateToPublic(privateKey);
+        var address = formatAddress(ethUtil.publicToAddress(publicKey).toString('hex'));
+        var accountObject = {
+            address: address,
+            encrypted: false,
+            locked: false,
+            hash: ethUtil.sha3(publicKey.toString('hex') + privateKey.toString('hex')).toString('hex')
+        };
+        console.log("NEW:",privateKey.toString('hex'),publicKey.toString('hex'),accountObject);
+    }
+
+    async importAccount (address, privateKey, passphrase) {
+        var privateKey = new Buffer(privateKey, 'hex');
+        var publicKey = ethUtil.privateToPublic(privateKey);
+        var accountObject = {
+            address: address,
+            encrypted: false,
+            locked: false,
+            hash: ethUtil.sha3(publicKey.toString('hex') + privateKey.toString('hex')).toString('hex')
+        };
+
+        // if passphrrase provided or required, attempt account encryption
+        if (!_.isUndefined(passphrase) && !_.isEmpty(passphrase) || this.options.requirePassphrase) {
+            if (this.isPassphrase(passphrase)) {
+                privateKey = CryptoJS.AES.encrypt(privateKey.toString('hex'), passphrase).toString();
+                publicKey = CryptoJS.AES.encrypt(publicKey.toString('hex'), passphrase).toString();
+                accountObject.encrypted = true;
+                accountObject.locked = true;
+            } else {
+                this.log('The passphrase you tried to use was invalid.');
+                privateKey = privateKey.toString('hex');
+                publicKey = publicKey.toString('hex');
+            }
+        } else {
+            privateKey = privateKey.toString('hex');
+            publicKey = publicKey.toString('hex');
+        }
+
+        // Set account object private and public keys
+        accountObject['private'] = privateKey;
+        accountObject['public'] = publicKey;
+        this.set(address, accountObject);
+
+        this.log('New address created');
+
+        // If option select new is true
+        //if (this.options.selectNew) this.select(accountObject.address);
+
+        return accountObject;
+    }
 
     async newAccount (passphrase) {
         var privateKey = new Buffer(randomBytes(64), 'hex');
@@ -366,7 +427,7 @@ class Accounts {
      **/
 
 
-    importAccount (JSON_data) {
+   /* importAccount (JSON_data) {
         var JSON_data = JSON_data.trim();
         var parsed = JSON.parse(JSON_data);
         var count = 0;
@@ -382,7 +443,7 @@ class Accounts {
         this.log('Imported ' + String(count) + ' accounts');
 
         return count;
-    }
+    }*/
 
 ;
 
@@ -408,6 +469,7 @@ class Accounts {
      **/
 
     hasAddress (address, callback) {
+
         KeyStore.get(address).then(function() {
             callback(null, address);
         }).catch((err)=>{
@@ -430,56 +492,69 @@ class Accounts {
      **/
 
     signTransaction (tx_params, callback) {
+        var accounts = this;
         // Accounts instance
         (async () => { // async function wrapper
+            try {
+                console.log("Signing transaction",tx_params);
+                // Get the account of address set in sendTransaction options, from the accounts stored in browser
+                var account = await accounts.get(tx_params.from);
 
-            var accounts = this;
+                // if the account is encrypted, try to decrypt it
+                if (account.encrypted) {
+                    console.log("Trying to decrypt account....");
+                    account = await accounts.get(tx_params.from, accounts.getAccountPassphrase(account));
+                }
 
-            // Get the account of address set in sendTransaction options, from the accounts stored in browser
-            var account = await accounts.get(tx_params.from);
+                // if account is still locked, quit
+                if (account.locked) {
+                    callback(new Error("Cannot sign transaction. Account locked!"));
+                    return;
+                }
 
-            // if the account is encrypted, try to decrypt it
-            if (account.encrypted) {
-                console.log("Trying to decrypt account....");
-                account = await accounts.get(tx_params.from, accounts.options.request(account));
+                if (!tx_params.gasPrice) {
+                    tx_params.gasPrice = formatHex(new BigNumber(web3.toWei(60, 'gwei')).toString(16));
+                }
+
+                var rawTx = {
+                    nonce: formatHex(ethUtil.stripHexPrefix(tx_params.nonce)),
+                    gasPrice: formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice)),
+                    gasLimit: formatHex(new BigNumber('314159').toString(16)),
+                    value: '00',
+                    data: ''
+                };
+
+                if (tx_params.gasPrice != null) rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));
+
+                if (tx_params.gas != null) rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));
+
+                if (tx_params.to != null) rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));
+
+                if (tx_params.value != null) rawTx.value = formatHex(ethUtil.stripHexPrefix(tx_params.value));
+
+                if (tx_params.data != null) rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));
+
+                // convert string private key to a Buffer Object
+                var privateKey = new Buffer(account['private'], 'hex');
+
+
+                console.log(rawTx);
+
+                // init new transaction object, and sign the transaction
+                var tx = new Tx(rawTx);
+                tx.sign(privateKey);
+
+                //console.log(tx);
+                //console.log(tx.getUpfrontCost());
+                // Build a serialized hex version of the Tx
+                var serializedTx = '0x' + tx.serialize().toString('hex');
+
+                callback(null, serializedTx);
+            } catch (e) {
+                console.log("Error during signtransaction",e);
+                dumpError(e);
+                callback(e);
             }
-
-            // if account is still locked, quit
-            if (account.locked) {
-                callback(new Error("Cannot sign transaction. Account locked!"));
-                return;
-            }
-
-            var rawTx = {
-                nonce: formatHex(ethUtil.stripHexPrefix(tx_params.nonce)),
-                gasPrice: formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice)),
-                gasLimit: formatHex(new BigNumber('3141592').toString(16)),
-                value: '00',
-                data: ''
-            };
-
-            if (tx_params.gasPrice != null) rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));
-
-            if (tx_params.gas != null) rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));
-
-            if (tx_params.to != null) rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));
-
-            if (tx_params.value != null) rawTx.value = formatHex(ethUtil.stripHexPrefix(tx_params.value));
-
-            if (tx_params.data != null) rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));
-
-            // convert string private key to a Buffer Object
-            var privateKey = new Buffer(account['private'], 'hex');
-
-            // init new transaction object, and sign the transaction
-            var tx = new Tx(rawTx);
-            tx.sign(privateKey);
-
-            // Build a serialized hex version of the Tx
-            var serializedTx = '0x' + tx.serialize().toString('hex');
-
-            callback(null, serializedTx);
-
 
         })();
     }
