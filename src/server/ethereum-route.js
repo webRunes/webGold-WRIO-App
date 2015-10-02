@@ -123,7 +123,7 @@ router.post('/get_ballance',async (request,response) => {
 router.get('/coinadmin/master', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
-        if (user.wrioID == "819702772935") { // TODO : change to something more elegant
+        if ((user.wrioID == "819702772935") || (user.wrioID = "713372365175")) { // TODO : change to something more elegant,via config
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrgBalance = await webGold.getBalance(masterAccount);
