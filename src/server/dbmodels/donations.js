@@ -15,11 +15,13 @@ export default class Donations {
 
     }
 
-    create(userID,amount) {
+    create(srcWrioID,destWrioID,amount,feePaid) {
         var that = this;
         let invoice_data = {
+            srcWrioID:srcWrioID,
+            destWrioID:destWrioID,
             amount: amount,
-            userID: userID,
+            feePaid: feePaid,
             timestamp: new Date()
 
 
