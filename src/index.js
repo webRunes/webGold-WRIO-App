@@ -57,7 +57,7 @@ function setup_routes(db) {
 	app.get('/', function (request, response) {
 		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
 	});
-	app.get('/coinadmin*', function (request, response) {
+	app.get('/coinadmin', function (request, response) {
 		response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
 	});
 
