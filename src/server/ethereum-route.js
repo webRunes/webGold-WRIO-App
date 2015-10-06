@@ -16,6 +16,12 @@ const router = Router();
 import WebRunesUsers from './dbmodels/wriouser'
 import nconf from './wrio_nconf';
 
+import Donations from './dbmodels/donations.js'
+import Emissions from './dbmodels/emissions.js'
+import EtherFeeds from './dbmodels/etherfeed.js'
+import PrePayments from './dbmodels/prepay.js'
+
+
 
 let wei = 1000000000000000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
@@ -119,11 +125,17 @@ router.post('/get_balance',async (request,response) => {
 
 });
 
+function auth(id) {
+    if ((id == "819702772935") || (id == "713372365175")) {
+        return true;
+    }
+    return false;
+}
 
 router.get('/coinadmin/master', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
-        if ((user.wrioID == "819702772935") || (user.wrioID = "713372365175")) { // TODO : change to something more elegant,via config
+        if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrgBalance = await webGold.getBalance(masterAccount);
@@ -149,7 +161,7 @@ router.get('/coinadmin/master', async (request,response) => {
 router.get('/coinadmin/users', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
-        if (user.wrioID == "819702772935") { // TODO : change to something more elegant
+        if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrioUsers = new WebRunesUsers(db.db);
@@ -179,6 +191,83 @@ router.get('/coinadmin/users', async (request,response) => {
     }
 });
 
+router.get('/coinadmin/donations', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+        if (auth(user.wrioID)) {
+            console.log("Coinadmin admin detected");
+            var d = new Donations();
+            var donations = await d.getAll();
+
+            response.send(donations);
+        } else {
+            throw new Error("User not admin,sorry");
+        }
+    } catch(e) {
+        console.log("Coinadmin donations error",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
+
+router.get('/coinadmin/etherfeeds', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+        if (auth(user.wrioID)) {
+            console.log("Coinadmin admin detected");
+            var d = new EtherFeeds();
+            var ethFeeds = await d.getAll();
+
+            response.send(ethFeeds);
+        } else {
+            throw new Error("User not admin,sorry");
+        }
+    } catch(e) {
+        console.log("Coinadmin ethFeed error",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
+
+
+router.get('/coinadmin/prepayments', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+        if (auth(user.wrioID)) {
+            console.log("Coinadmin admin detected");
+            var d = new PrePayments();
+            var data = await d.getAll();
+
+            response.send(data);
+        } else {
+            throw new Error("User not admin,sorry");
+        }
+    } catch(e) {
+        console.log("Coinadmin prepayments error",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
+
+
+router.get('/coinadmin/emissions', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+        if (auth(user.wrioID)) {
+            console.log("Coinadmin admin detected");
+            var d = new Emissions();
+            var data = await d.getAll();
+
+            response.send(data);
+        } else {
+            throw new Error("User not admin,sorry");
+        }
+    } catch(e) {
+        console.log("Coinadmin emissions error",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
 
 
 router.post('/get_exchange_rate',async (request,response) => {
