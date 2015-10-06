@@ -59,6 +59,7 @@ class Balances extends React.Component {
 
 
     constructor(props) {
+        console.log("Balances created");
         super(props);
 
         this.state = {
@@ -144,10 +145,9 @@ class NoMatch  extends React.Component {
 console.log(Router,Route);
 React.render((
     <Router>
-        <Route path="/" component={EthereumStats}>
-            <Route path="balances" component={Balances}/>
-            <Route path="*" component={NoMatch}/>
-        </Route>
+        <Route path="/" component={EthereumStats} />
+        
+        <Route path="/balances" component={Balances}/>
     </Router>
 ), document.getElementById('main'));
 
