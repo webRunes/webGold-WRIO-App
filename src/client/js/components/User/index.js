@@ -10,8 +10,8 @@ class User extends React.Component {
             balance: "..."
         }
         this.requestBalance((err,balance) => {
-            var amount = JSON.parse(balance).ballance;
-            console.log("Ethereum ballance", amount);
+            var amount = JSON.parse(balance).balance;
+            console.log("Ethereum balance", amount);
             that.setState({
                 balance: amount
                 });
@@ -19,7 +19,7 @@ class User extends React.Component {
     }
 
     requestBalance(cb) {
-        request.post('/api/webgold/get_ballance').end((err,balance)=> {
+        request.post('/api/webgold/get_balance').end((err,balance)=> {
             if (err) {
                 cb(err);
                 return;
@@ -29,6 +29,7 @@ class User extends React.Component {
     }
 
     render() {
+        var btc = this.props.btcExchangeRate.toString();
         return (
             <div className="form-group">
                 { this.props.username ? 
@@ -47,7 +48,7 @@ class User extends React.Component {
         				<span>Exchange rate</span>
                         <span>
                             10 000<small className="currency">WRG</small>
-                            = { this.props.btcExchangeRate }<small className="currency">BTC</small>
+                            = { btc }<small className="currency">BTC</small>
 
                         </span>
             		</li>
