@@ -14,7 +14,7 @@ import Accounts from './ethereum-node'
 import HookedWeb3Provider from 'hooked-web3-provider'
 import db from './db';
 import {init} from './db';
-import WebRunesUsers from './wriouser'
+import WebRunesUsers from './dbmodels/wriouser'
 import fs from 'fs';
 import path from 'path'
 import nconf from './wrio_nconf';
@@ -252,12 +252,12 @@ class WebGold {
      This function emits new WRG for specified WRIOid
      */
 
-    async emit (dest,amount) {
+    async emit (dest,amount,toWrio) {
         console.log("Emitting new wrg to",dest,"Amount=",amount);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest);
         var feed = new EtherFeed();
-        await feed.createFeed(dest,amount)
+        await feed.create(dest,amount,toWrio);
     }
 
 
