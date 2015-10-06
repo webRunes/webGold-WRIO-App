@@ -5,9 +5,9 @@ import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
 import PaymentHistory from './components/PaymentHistory'
 import EthereumClient from './components/EthereumClient'
+import { Router,Route, Link } from 'react-router'
 
-
-class Admin extends React.Component {
+class EthereumStats extends React.Component {
 
 
     constructor(props) {
@@ -15,11 +15,7 @@ class Admin extends React.Component {
 
         this.state = {
             ethBalance: "",
-            wrgBalance: "",
-
-            data:[
-
-            ]
+            wrgBalance: ""
 
         };
     }
@@ -34,6 +30,49 @@ class Admin extends React.Component {
         })
     }
 
+    componentWillMount() {
+       var that = this;
+       this.requestStats((err,state) => {
+           if (err) {
+               alert('Cant get stats');
+               return;
+           }
+           that.setState(state);
+       });
+    }
+
+    render() {
+        return (
+            <div>
+                <h1>Webgold admin</h1>
+                <h2>Feed account stats</h2>
+                <p> Master account: { this.state.ethBalance } ETH </p>
+                <p> Master account: { this.state.wrgBalance } WRG </p>
+                <p> Gas price: { this.state.gasPrice } WRG </p>
+            </div>
+
+        );
+    }
+}
+
+class Balances extends React.Component {
+
+
+    constructor(props) {
+        console.log("Balances created");
+        super(props);
+
+        this.state = {
+
+            data:[
+
+            ]
+
+        };
+    }
+
+
+
     requestUsers(cb) {
         request.get('/api/webgold/coinadmin/users').end((err,users)=> {
             if (err) {
@@ -46,14 +85,7 @@ class Admin extends React.Component {
 
 
     componentWillMount() {
-       var that = this;
-       this.requestStats((err,state) => {
-           if (err) {
-               alert('Cant get stats');
-               return;
-           }
-           that.setState(state);
-       });
+        var that = this;
 
         this.requestUsers((err,state) => {
             if (err) {
@@ -70,11 +102,6 @@ class Admin extends React.Component {
     render() {
         return (
             <div>
-                <h1>Webgold admin</h1>
-                <h2>Feed account stats</h2>
-                <p> Master account: { this.state.ethBalance } ETH </p>
-                <p> Master account: { this.state.wrgBalance } WRG </p>
-                <p> Gas price: { this.state.gasPrice } WRG </p>
                 <h2>User's balance</h2>
                 <table className="table">
                     <thead>
@@ -107,6 +134,20 @@ class Admin extends React.Component {
     }
 }
 
-React.render(<Admin />, document.getElementById('main'));/**
- * Created by michbil on 26.09.15.
- */
+class NoMatch  extends React.Component {
+    render() {
+        return (<p>Page not found</p>)
+    }
+}
+
+
+
+console.log(Router,Route);
+React.render((
+    <Router>
+        <Route path="/" component={EthereumStats} />
+        
+        <Route path="/balances" component={Balances}/>
+    </Router>
+), document.getElementById('main'));
+

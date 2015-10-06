@@ -19,6 +19,8 @@ import fs from 'fs';
 import path from 'path'
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
+import EtherFeed from './dbmodels/etherfeed.js'
+import Donation from './dbmodels/donations.js'
 
 
 let wei = 1000000000000000000;
@@ -251,9 +253,11 @@ class WebGold {
      */
 
     async emit (dest,amount) {
-        console.log("Emitting new wrg to",dest);
+        console.log("Emitting new wrg to",dest,"Amount=",amount);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest);
+        var feed = new EtherFeed();
+        await feed.createFeed(dest,amount)
     }
 
 
@@ -272,6 +276,11 @@ class WebGold {
                     return;
                 }
                 console.log("donate succeeded",result);
+                var donation = new Donation();
+                donation.create(from,to,amount).then(function (res) {
+                    console.log("Donation saved");
+                });
+
                 resolve(result);
             });
         });

@@ -13,7 +13,7 @@ import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import db from './db';
 const router = Router();
-import WebRunesUsers from './wriouser'
+import WebRunesUsers from './dbmodels/wriouser'
 import nconf from './wrio_nconf';
 
 
@@ -98,22 +98,22 @@ router.get('/donate',async (request,response) => {
 
 });
 
-router.post('/get_ballance',async (request,response) => {
+router.post('/get_balance',async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-            var ballance = await webGold.getBalance(dest) / 100;
-            console.log("ballance:",ballance.toString());
+            var balance = await webGold.getBalance(dest) / 100;
+            console.log("balance:",balance.toString());
             response.send({
-                "ballance": ballance.toString()
+                "balance": balance.toString()
             })
         } else {
             throw new Error("User has no vaid userID, sorry");
         }
     } catch(e) {
-        console.log("Errro during get_ballance",e);
+        console.log("Errro during get_balance",e);
         response.status(403).send("Error");
     }
 

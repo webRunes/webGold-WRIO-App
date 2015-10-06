@@ -21,15 +21,15 @@ gulp.task('babel-server', function() {
 
 gulp.task('babel-client', function() {
     gulp.src('src/client/js/3rdparty/*.*')
-    .on('error',function (err) {
+        .on('error',function (err) {
 
         })
-    .pipe(gulp.dest('app/client/3rdparty'));
+        .pipe(gulp.dest('app/client/3rdparty'));
 
     browserify({
-            entries: './src/client/js/client.js',
-            debug: true 
-        })
+        entries: './src/client/js/client.js',
+        debug: true
+    })
         .transform(babelify)
         .bundle()
         .on('error', function(err) {
@@ -64,7 +64,7 @@ gulp.task('nodemon', function() {
         script: 'server.js',
         ext: 'js',
         ignore: ['src/**']
-    }) 
+    })
         .on('error', function(error) {
             console.log('Nodemon:', event.message);
         });

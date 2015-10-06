@@ -17,8 +17,8 @@ class EthereumClient extends React.Component {
         return (
             <div className="callout">
                 <h5>Ethereum status</h5>
-                <p>WRG ballance:</p>
-                <p>Ethereum ballance:</p>
+                <p>WRG balance:</p>
+                <p>Ethereum balance:</p>
             </div>
         );
     }
