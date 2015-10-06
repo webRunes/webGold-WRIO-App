@@ -7,6 +7,8 @@ import PaymentHistory from './components/PaymentHistory'
 import EthereumClient from './components/EthereumClient'
 import { Router,Route, Link } from 'react-router'
 
+import numeral from 'numeral';
+
 class EthereumStats extends React.Component {
 
 
@@ -418,6 +420,77 @@ class PrePayments extends React.Component {
     }
 }
 
+class Invoices extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            data:[
+
+            ]
+
+        }
+
+    }
+
+    componentDidMount() {
+
+        console.log("Mounted");
+        request.post('/api/coinadmin/invoices').end((err,res) => {
+            if (err || !res) {
+                console.log("Can't get payment history");
+                return;
+            }
+            this.setState({
+                data: res.body
+            })
+        });
+
+
+    }
+
+    render() {
+
+
+        return (
+            <div>
+
+
+                <h1>Pending payments</h1>
+
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>Bitcoin Adress</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        this.state.data.map(function (item) {
+                            var amount = (item.amount || item.requested_amount)/SATOSHI;
+                            if (isNaN(amount)) {
+                                amount = "Error";
+                            } else {
+                                amount = numeral(amount).format('0.00000000') + " BTC";
+                            }
+                            return  <tr>
+                                <td>{ item.input_address }</td>
+                                <td>{ amount }</td>
+                                <td>{ item.timestamp  }</td>
+                                <td>{ item.state}</td>
+                            </tr>;
+                        })}
+
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+}
+
 
 
 console.log(Router,Route);
@@ -429,6 +502,7 @@ React.render((
         <Route path="/prepayments" component={PrePayments}/>
         <Route path="/donations" component={Donations}/>
         <Route path="/emissions" component={Emissions}/>
+        <Route path="/invoices" component={Invoices}/>
 
     </Router>
 ), document.getElementById('main'));

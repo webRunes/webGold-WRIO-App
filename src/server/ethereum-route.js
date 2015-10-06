@@ -20,7 +20,7 @@ import Donations from './dbmodels/donations.js'
 import Emissions from './dbmodels/emissions.js'
 import EtherFeeds from './dbmodels/etherfeed.js'
 import PrePayments from './dbmodels/prepay.js'
-
+import Invoices from "./dbmodels/invoice.js"
 
 
 let wei = 1000000000000000000;
@@ -259,6 +259,25 @@ router.get('/coinadmin/emissions', async (request,response) => {
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var d = new Emissions();
+            var data = await d.getAll();
+
+            response.send(data);
+        } else {
+            throw new Error("User not admin,sorry");
+        }
+    } catch(e) {
+        console.log("Coinadmin emissions error",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
+
+router.get('/coinadmin/invoices', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+        if (auth(user.wrioID)) {
+            console.log("Coinadmin admin detected");
+            var d = new Invoices();
             var data = await d.getAll();
 
             response.send(data);
