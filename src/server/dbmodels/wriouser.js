@@ -1,4 +1,5 @@
 /**
+ * WRIO user db model
  * Created by michbil on 26.09.15.
  */
 
