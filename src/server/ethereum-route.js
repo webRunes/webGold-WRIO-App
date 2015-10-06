@@ -52,7 +52,7 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
         var user = await getLoggedInUser(request.sessionID);
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
-            await webGold.emit(user.ethereumWallet,amount);
+            await webGold.emit(user.ethereumWallet,amount, user.wrioID);
 
             response.send("Successfully sent "+amount);
         } else {
@@ -88,6 +88,9 @@ router.get('/donate',async (request,response) => {
 
             console.log("Prepare for transfer",dest,src,amount);
             await webGold.donate(src,dest,amount);
+
+            var d = new Donatate();
+            await donate.create(user.wrioID,to,amount,0);
 
             //await ensureMinimumEther(webGold,user,src);
 
