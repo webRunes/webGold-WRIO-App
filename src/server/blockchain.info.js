@@ -79,13 +79,13 @@ export class BlockChain {
 
         }
 
-    request_payment(wrioID,amount)  {
+    request_payment(userID,wrioID,amount)  {
         return new Promise(async (resolve,reject) => {
 
            try {
 
                let invoice = new Invoice();
-               let invoiceID = await invoice.createInvoice(wrioID);
+               let invoiceID = await invoice.createInvoice(userID,wrioID);
                let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
                let api_request = "https://blockchain.info/ru/api/receive?method=create&address=" + this.receivingAdress + "&callback="+ encodeURIComponent(callback);
 
@@ -116,7 +116,7 @@ export class BlockChain {
 
                 resolve({
                     adress: result.body.input_address,
-                    amount: 0.0
+                    amount: amount
                 });
             } catch(e) {
                 console.log("Blockchain API request failed",e);
@@ -188,7 +188,7 @@ export class BlockChain {
 
                 resp.status(200).send("confirmation_received");
                 var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await get_rates());
-                webgold.emitWRG(wrg);
+                webgold.emit(wrg);
                 console.log(wrg,"WRG was emitted");
 
 
@@ -241,6 +241,7 @@ router.post('/request_payment',function(req,response) {
 
         //var userId =   User.userID;
         var userId = User._id;
+        var wrioId = User.wrioID;
 
         console.log("Logged in user:",userId);
 
@@ -264,7 +265,7 @@ router.post('/request_payment',function(req,response) {
         console.log("Got nonce", nonce);
 
 
-        blockchain.request_payment(userId, amount).then(function (resp) {
+        blockchain.request_payment(userId, wrioId, amount).then(function (resp) {
             console.log("Resp",resp);
             response.send(resp);
         },function (err) {
