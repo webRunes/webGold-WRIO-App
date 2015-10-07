@@ -89,7 +89,7 @@ router.get('/donate',async (request,response) => {
             console.log("Prepare for transfer",dest,src,amount);
             await webGold.donate(src,dest,amount);
 
-            var d = new Donatate();
+            var donate = new Donations();
             await donate.create(user.wrioID,to,amount,0);
 
             //await ensureMinimumEther(webGold,user,src);

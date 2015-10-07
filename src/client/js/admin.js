@@ -249,11 +249,11 @@ class Donations extends React.Component {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>WRIOID</th>
-                        <th>NAME</th>
-                        <th>ETH ADRESS</th>
-                        <th>ETH BALANCE</th>
-                        <th>WRG BALANCE</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Amount</th>
+                        <th>Timestamp</th>
+                        <th>Success</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -261,11 +261,11 @@ class Donations extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.wrioID }</td>
-                                <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
-                                <td>{ item.ethBalance}</td>
-                                <td>{ item.wrgBalance}</td>
+                                <td>{ item.srcWrioID }</td>
+                                <td>{ item.destWrioID }</td>
+                                <td>{ item.amount  }</td>
+                                <td>{ item.timestamp}</td>
+                                <td></td>
                             </tr>;
                         })}
 
@@ -334,7 +334,7 @@ class EtherFeeds extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.amount / 100}</td>
+                                <td>{ item.amount }</td>
                                 <td>{ item.eth_account }</td>
                                 <td>{ item.timestamp  }</td>
                             </tr>;
