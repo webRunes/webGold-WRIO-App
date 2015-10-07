@@ -259,7 +259,7 @@ class WebGold {
     async emit (dest,amount,toWrio) {
         console.log("Emitting new wrg to",dest,"Amount=",amount);
         await this.coinTransfer(masterAccount,dest,amount);
-        await this.ensureMinimumEther(dest);
+        await this.ensureMinimumEther(dest,toWrio);
         var emission = new Emissions();
         await emission.create(toWrio,amount);
     }
