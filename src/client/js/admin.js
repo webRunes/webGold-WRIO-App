@@ -100,6 +100,7 @@ class Balances extends React.Component {
         return (
             <div>
                 <h2>User's balance</h2>
+
                 <table className="table">
                     <thead>
                     <tr>
@@ -173,14 +174,14 @@ class Emissions extends React.Component {
         return (
             <div>
                 <h2>WRG emission list</h2>
+                <p>List of newly emitted WRG's</p>
                 <table className="table">
                     <thead>
                     <tr>
                         <th>WRIOID</th>
-                        <th>NAME</th>
-                        <th>ETH ADRESS</th>
-                        <th>ETH BALANCE</th>
-                        <th>WRG BALANCE</th>
+                        <th>Amount</th>
+                        <th>Timestamp</th>
+
                     </tr>
                     </thead>
                     <tbody>
@@ -188,11 +189,10 @@ class Emissions extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.wrioID }</td>
-                                <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
-                                <td>{ item.ethBalance}</td>
-                                <td>{ item.wrgBalance}</td>
+                                <td>{ item.userID }</td>
+                                <td>{ item.amount / 100 }</td>
+                                <td>{ item.timestamp  }</td>
+
                             </tr>;
                         })}
 
@@ -263,7 +263,7 @@ class Donations extends React.Component {
                             return  <tr>
                                 <td>{ item.srcWrioID }</td>
                                 <td>{ item.destWrioID }</td>
-                                <td>{ item.amount  }</td>
+                                <td>{ item.amount / 100 }</td>
                                 <td>{ item.timestamp}</td>
                                 <td></td>
                             </tr>;
@@ -390,6 +390,7 @@ class PrePayments extends React.Component {
         return (
             <div>
                 <h2>Pre payment list</h2>
+                <p>List of deferred payments, when user have 0 WRG balance</p>
                 <table className="table">
                     <thead>
                     <tr>

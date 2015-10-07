@@ -239,9 +239,9 @@ class WebGold {
 
     async ensureMinimumEther(dest,toWrio) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
         var ethBalance = await this.getEtherBalance(dest)/wei;
-        console.log("Ethere:",ethBalance);
+        console.log("Ether:",ethBalance);
         if (ethBalance < min_amount) {
-            console.log("Adding minium ethere amount",ethBalance);
+            console.log("Adding minium ether amount",ethBalance);
             await this.etherTransfer(dest,min_amount);
 
             var feed = new EtherFeed();
@@ -280,11 +280,6 @@ class WebGold {
                     return;
                 }
                 console.log("donate succeeded",result);
-                var donation = new Donation();
-                donation.create(from,to,amount).then(function (res) {
-                    console.log("Donation saved");
-                });
-
                 resolve(result);
             });
         });
