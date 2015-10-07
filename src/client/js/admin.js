@@ -8,6 +8,7 @@ import EthereumClient from './components/EthereumClient'
 import { Router,Route, Link } from 'react-router'
 
 import numeral from 'numeral';
+let SATOSHI = 100000000;
 
 class EthereumStats extends React.Component {
 
@@ -436,7 +437,7 @@ class Invoices extends React.Component {
     componentDidMount() {
 
         console.log("Mounted");
-        request.post('/api/coinadmin/invoices').end((err,res) => {
+        request.get('/api/webgold/coinadmin/invoices').end((err,res) => {
             if (err || !res) {
                 console.log("Can't get payment history");
                 return;
@@ -450,17 +451,14 @@ class Invoices extends React.Component {
     }
 
     render() {
-
-
         return (
             <div>
-
-
-                <h1>Pending payments</h1>
+                <h1>Registered invoices</h1>
 
                 <table className="table">
                     <thead>
                     <tr>
+                        <th>Wrio ID</th>
                         <th>Bitcoin Adress</th>
                         <th>Amount</th>
                         <th>Time</th>
@@ -477,6 +475,7 @@ class Invoices extends React.Component {
                                 amount = numeral(amount).format('0.00000000') + " BTC";
                             }
                             return  <tr>
+                                <td> {item.wrioID}</td>
                                 <td>{ item.input_address }</td>
                                 <td>{ amount }</td>
                                 <td>{ item.timestamp  }</td>
@@ -493,7 +492,7 @@ class Invoices extends React.Component {
 
 
 
-console.log(Router,Route);
+//console.log(Router,Route);
 React.render((
     <Router>
         <Route path="/" component={EthereumStats} />

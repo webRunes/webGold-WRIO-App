@@ -20,6 +20,7 @@ import path from 'path'
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
 import EtherFeed from './dbmodels/etherfeed.js'
+import Emissions from './dbmodels/emissions.js'
 import Donation from './dbmodels/donations.js'
 
 
@@ -236,12 +237,15 @@ class WebGold {
     This function checks if minimum required amount of ether is available for specified account
      */
 
-    async ensureMinimumEther(dest) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
+    async ensureMinimumEther(dest,toWrio) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
         var ethBalance = await this.getEtherBalance(dest)/wei;
         console.log("Ethere:",ethBalance);
         if (ethBalance < min_amount) {
             console.log("Adding minium ethere amount",ethBalance);
             await this.etherTransfer(dest,min_amount);
+
+            var feed = new EtherFeed();
+            await feed.create(dest,min_amount,toWrio);
         } else {
             console.log("Account has minimum ether, cancelling");
         }
@@ -256,8 +260,8 @@ class WebGold {
         console.log("Emitting new wrg to",dest,"Amount=",amount);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest);
-        var feed = new EtherFeed();
-        await feed.create(dest,amount,toWrio);
+        var emission = new Emissions();
+        await emission.create(toWrio,amount);
     }
 
 

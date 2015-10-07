@@ -3,6 +3,7 @@
  */
 
 import db from '../db';
+import uuid from 'node-uuid';
 
 export default class Invoice {
 
@@ -13,12 +14,13 @@ export default class Invoice {
 
     }
 
-    createInvoice(userID) {
+    createInvoice(userID,wrioID) {
         var that = this;
         let invoice_data = {
             _id: uuid.v4(),
             state: 'invoice_created',
             userID: userID,
+            wrioID: wrioID,
             timestamp: new Date()
 
         };

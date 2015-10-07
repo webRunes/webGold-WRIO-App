@@ -91,7 +91,7 @@ class PaymentForm extends React.Component {
 
           <form id="checkout" method="post" onSubmit={ this.addFunds.bind(this) }>
               { this.state.payment_data ? <PaymentData
-                  amount= {this.state.payment_data.amount}
+                  amount= {this.state.payment_data.amount / SATOSHI}
                   adress= {this.state.payment_data.adress}
                   /> : '' }
                 { this.state.alert ? 
