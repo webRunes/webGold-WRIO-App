@@ -7,6 +7,9 @@ import PaymentHistory from './components/PaymentHistory'
 import EthereumClient from './components/EthereumClient'
 import { Router,Route, Link } from 'react-router'
 
+import numeral from 'numeral';
+let SATOSHI = 100000000;
+
 class EthereumStats extends React.Component {
 
 
@@ -97,6 +100,7 @@ class Balances extends React.Component {
         return (
             <div>
                 <h2>User's balance</h2>
+
                 <table className="table">
                     <thead>
                     <tr>
@@ -170,14 +174,14 @@ class Emissions extends React.Component {
         return (
             <div>
                 <h2>WRG emission list</h2>
+                <p>List of newly emitted WRG's</p>
                 <table className="table">
                     <thead>
                     <tr>
                         <th>WRIOID</th>
-                        <th>NAME</th>
-                        <th>ETH ADRESS</th>
-                        <th>ETH BALANCE</th>
-                        <th>WRG BALANCE</th>
+                        <th>Amount</th>
+                        <th>Timestamp</th>
+
                     </tr>
                     </thead>
                     <tbody>
@@ -185,11 +189,10 @@ class Emissions extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.wrioID }</td>
-                                <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
-                                <td>{ item.ethBalance}</td>
-                                <td>{ item.wrgBalance}</td>
+                                <td>{ item.userID }</td>
+                                <td>{ item.amount / 100 }</td>
+                                <td>{ item.timestamp  }</td>
+
                             </tr>;
                         })}
 
@@ -246,11 +249,11 @@ class Donations extends React.Component {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>WRIOID</th>
-                        <th>NAME</th>
-                        <th>ETH ADRESS</th>
-                        <th>ETH BALANCE</th>
-                        <th>WRG BALANCE</th>
+                        <th>Source</th>
+                        <th>Destination</th>
+                        <th>Amount</th>
+                        <th>Timestamp</th>
+                        <th>Success</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -258,11 +261,11 @@ class Donations extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.wrioID }</td>
-                                <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
-                                <td>{ item.ethBalance}</td>
-                                <td>{ item.wrgBalance}</td>
+                                <td>{ item.srcWrioID }</td>
+                                <td>{ item.destWrioID }</td>
+                                <td>{ item.amount / 100 }</td>
+                                <td>{ item.timestamp}</td>
+                                <td></td>
                             </tr>;
                         })}
 
@@ -331,7 +334,7 @@ class EtherFeeds extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.amount / 100}</td>
+                                <td>{ item.amount }</td>
                                 <td>{ item.eth_account }</td>
                                 <td>{ item.timestamp  }</td>
                             </tr>;
@@ -387,6 +390,7 @@ class PrePayments extends React.Component {
         return (
             <div>
                 <h2>Pre payment list</h2>
+                <p>List of deferred payments, when user have 0 WRG balance</p>
                 <table className="table">
                     <thead>
                     <tr>
@@ -418,9 +422,78 @@ class PrePayments extends React.Component {
     }
 }
 
+class Invoices extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            data:[
+
+            ]
+
+        }
+
+    }
+
+    componentDidMount() {
+
+        console.log("Mounted");
+        request.get('/api/webgold/coinadmin/invoices').end((err,res) => {
+            if (err || !res) {
+                console.log("Can't get payment history");
+                return;
+            }
+            this.setState({
+                data: res.body
+            })
+        });
 
 
-console.log(Router,Route);
+    }
+
+    render() {
+        return (
+            <div>
+                <h1>Registered invoices</h1>
+
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>Wrio ID</th>
+                        <th>Bitcoin Adress</th>
+                        <th>Amount</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        this.state.data.map(function (item) {
+                            var amount = (item.amount || item.requested_amount)/SATOSHI;
+                            if (isNaN(amount)) {
+                                amount = "Error";
+                            } else {
+                                amount = numeral(amount).format('0.00000000') + " BTC";
+                            }
+                            return  <tr>
+                                <td> {item.wrioID}</td>
+                                <td>{ item.input_address }</td>
+                                <td>{ amount }</td>
+                                <td>{ item.timestamp  }</td>
+                                <td>{ item.state}</td>
+                            </tr>;
+                        })}
+
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+}
+
+
+
+//console.log(Router,Route);
 React.render((
     <Router>
         <Route path="/" component={EthereumStats} />
@@ -429,6 +502,7 @@ React.render((
         <Route path="/prepayments" component={PrePayments}/>
         <Route path="/donations" component={Donations}/>
         <Route path="/emissions" component={Emissions}/>
+        <Route path="/invoices" component={Invoices}/>
 
     </Router>
 ), document.getElementById('main'));

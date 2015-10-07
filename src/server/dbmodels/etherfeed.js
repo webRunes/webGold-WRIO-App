@@ -1,32 +1,33 @@
 /**
  * Created by michbil on 03.10.15.
  */
+// Ether amount, sent to users to perform operations
+
+
 
 import db from '../db';
-import uuid from 'node-uuid';
 
-export default class Invoice {
+export default class EtherFeed {
 
     constructor () {
-        this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
-        this.invoice_id = null;
-        this.payments = db.db.collection('webGold_invoices');
+
+        this.donations = db.db.collection('webGold_EtherFeeds');
 
     }
 
-    createInvoice(userID,wrioID) {
+    create(eth_account,amount,toWrio) {
         var that = this;
         let invoice_data = {
-            _id: uuid.v4(),
-            state: 'invoice_created',
-            userID: userID,
-            wrioID: wrioID,
+            amount: amount,
+            eth_account: eth_account,
+            to_id:toWrio,
             timestamp: new Date()
+
 
         };
 
         return new Promise((resolve, reject) => {
-            this.payments.insertOne(invoice_data,function(err,res) {
+            this.donations.insertOne(invoice_data,function(err,res) {
                 if (err) {
                     reject(err);
                     return;
@@ -38,30 +39,13 @@ export default class Invoice {
 
     }
 
-    updateInvoiceData(invoice_data) {
-        var that = this;
-        console.log("Updating invoice with data ", invoice_data);
-        return new Promise((resolve, reject) =>{
-            if (this.invoice_id == null) {
-                reject("wrong invoice_id");
-            }
-            this.payments.updateOne({_id:that.invoice_id },{$set: invoice_data},function(err) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(invoice_data._id);
-            });
-        });
-    }
-
-    getInvoice(nonce) {
+    get(mask) {
         var that=this;
         console.log(nonce);
 
         return new Promise((resolve,reject) => {
 
-            this.payments.findOne({_id:nonce},function (err,data) {
+            this.donations.findOne(mask,function (err,data) {
                 if (err) {
                     console.log("Error while searching invoice");
                     reject(err);
@@ -79,14 +63,14 @@ export default class Invoice {
     }
     getAll() {
         return new Promise((resolve,reject) =>{
-            this.payments.find({}).toArray(function (err,feeds) {
+            this.donations.find({}).toArray(function (err,feeds) {
                 if (err) {
-                    console.log("Db invoice search error");
+                    console.log("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!feeds) {
-                    console.log('Db invoice not found');
+                    console.log('Db user not found');
                     reject('Users not found');
                     return;
                 }

@@ -3,12 +3,14 @@
  */
 import React from 'react';
 
+let SATOSHI = 100000000;
+
 class BitcoinForm extends React.Component {
     render() {
         return (
             <div>
                 <div>
-                    Payment request created, please pay {this.state.BTC} to adress {this.state.address}
+                    Payment request created, please pay {this.state.BTC} to adress {this.state.address / SATOSHIc}
                 </div>
             </div>
         );
