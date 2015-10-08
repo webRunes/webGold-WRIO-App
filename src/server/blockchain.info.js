@@ -22,6 +22,9 @@ init().then(function(database) {
 });
 */
 
+
+
+
 import db from './db';
 import Invoice from './dbmodels/invoice.js'
 
@@ -160,10 +163,10 @@ export class BlockChain {
 
                 let invoice = new Invoice();
                 var invoice_data = await invoice.getInvoice(nonce);
-                console.log(invoice_data);
+                console.log("Got invoice ID:",invoice_data);
 
 
-                console.log(invoice_data.input_addres, input_address);
+                console.log("Comparing input adress from invoice",invoice_data.input_address, input_address);
                 if (invoice_data.input_address != input_address) {
                     console.log("Wrong input address");
                     resp.status(403).send("");
@@ -182,14 +185,15 @@ export class BlockChain {
                     await invoice.updateInvoiceData({
                        state: "payment_confirmed"
                     });
+                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
+                    this.webgold.emit(wrg);
+                    console.log(wrg,"WRG was emitted");
                     resp.status(200).send("*ok*");
                     return;
                 }
-
+                console.log("**Confirmation recieved",confirmations);
                 resp.status(200).send("confirmation_received");
-                var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await get_rates());
-                webgold.emit(wrg);
-                console.log(wrg,"WRG was emitted");
+
 
 
             } catch (e) {

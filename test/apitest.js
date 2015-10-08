@@ -1,4 +1,4 @@
-var app = require("../server.js");
+var app = require("../server-test.js");
 var request = require('supertest');
 var assert = require('assert');
 var should = require('should');

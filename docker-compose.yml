@@ -1,3 +1,8 @@
+mongo:
+  image: mongo:latest
+  ports:
+  - "27017:27017"
+
 webgold:
   build: .
   ports:
@@ -6,3 +11,5 @@ webgold:
    - .:/srv/www/
   command:
   - "/bin/bash"
+  links:
+  - mongo
