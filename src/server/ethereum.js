@@ -90,9 +90,7 @@ class WebGold {
 
         this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
         var abi_file = path.resolve(__dirname, '../../ethereum/token.abi');
-        console.log(abi_file);
         this.abi = eval(fs.readFileSync(abi_file).toString());
-        console.log(this.abi);
         this.token = web3.eth.contract(this.abi)
             .at(this.contractadress,(err,res) => {
                 if (err) {
@@ -103,7 +101,6 @@ class WebGold {
         }); // change to contract address
 
         this.KeyStore =  new mongoKeyStore(db);
-
         this.accounts = new Accounts(
             {
                 minPassphraseLength: 6,
@@ -116,7 +113,6 @@ class WebGold {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.accounts
         });
-     //   web3.setProvider(new web3.providers.HttpProvider('http://192.168.1.103:8545')) ;
         web3.setProvider(provider);
 
         this.users = new WebRunesUsers(db);

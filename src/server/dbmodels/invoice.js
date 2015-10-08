@@ -8,6 +8,7 @@ import uuid from 'node-uuid';
 export default class Invoice {
 
     constructor () {
+
         this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
         this.invoice_id = null;
         this.payments = db.db.collection('webGold_invoices');

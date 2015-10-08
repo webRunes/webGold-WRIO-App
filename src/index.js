@@ -16,7 +16,7 @@ import cookieParser from 'cookie-parser'
 import MongoStore from 'connect-mongo'
 
 var app = express();
-app.ready = function () {};
+app.ready = () => {};
 
 const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
 
