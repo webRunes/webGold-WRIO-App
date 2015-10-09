@@ -96,7 +96,7 @@ router.get('/donate',async (request,response) => {
 
 
 
-            response.send("Successfully sent sum",amount,"from",src, "to",dest);
+            response.send({"success":true,"dest":dest, "src":src});
         } else {
             throw new Error("User has no vaid userID, sorry");
         }
@@ -104,7 +104,9 @@ router.get('/donate',async (request,response) => {
     } catch(e) {
         console.log("Errro during donate",e);
         dumpError(e);
-        response.status(403).send("Error");
+        if (!e) e = "null";
+        var textResult = e.toString();
+        response.status(403).send({"error":textResult});
     }
 
 });

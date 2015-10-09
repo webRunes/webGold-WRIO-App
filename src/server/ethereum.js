@@ -87,7 +87,7 @@ class mongoKeyStore {
 
 class WebGold {
     constructor(db) {
-
+        var that = this;
         this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
         var abi_file = path.resolve(__dirname, '../../ethereum/token.abi');
         this.abi = eval(fs.readFileSync(abi_file).toString());
@@ -104,7 +104,7 @@ class WebGold {
         this.accounts = new Accounts(
             {
                 minPassphraseLength: 6,
-                KeyStore: this.KeyStore,
+                KeyStore: this.KeyStore
 
             });
 
@@ -118,6 +118,24 @@ class WebGold {
         this.users = new WebRunesUsers(db);
 
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
+
+        var event = this.token.CoinTransfer({}, '', function(error, result){
+            if (error) {
+                console.log("Cointransfer listener error");
+            } else {
+                console.log("Coin transfer: " +
+                    result.args.amount +
+                    " tokens were sent. Balances now are as following: \n Sender:\t" +
+                    result.args.sender + " \t" + that.token.coinBalanceOf.call(result.args.sender) +
+                    " tokens \n Receiver:\t" + result.args.receiver + " \t" +
+                    that.token.coinBalanceOf.call(result.args.receiver) + " tokens" );
+            }
+
+        });
+
+
+
+
 
     }
 
@@ -165,7 +183,7 @@ class WebGold {
         return new Promise((resolve,reject) =>{
             web3.eth.getBalance(account, (err,res) => {
                 if (err) {
-                    reject();
+                    reject("getEtherBalance failed");
                 } else {
                     resolve(res.toString())
                 }
@@ -197,7 +215,7 @@ class WebGold {
             web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
                 if (err) {
                     console.log("etherTransfer failed");
-                    reject();
+                    reject("Ether transfer failed");
                     return;
                 }
                 console.log("Ether transfer succeeded: ",to, amount,amountWEI,result);
@@ -211,22 +229,45 @@ class WebGold {
 
     coinTransfer(from,to,amount) {
 
+        var that = this;
         return new Promise((resolve,reject)=> {
-            console.log("Starting cointransfer");
-            console.log(this.token.sendCoin);
 
-            this.accounts.unlockAccount(masterAccount,masterPassword);
+            function actual_sendcoin() {
+                that.accounts.unlockAccount(masterAccount,masterPassword);
+                that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
+                    if (err) {
+                        console.log("donate failed",err);
+                        reject(err);
+                        return;
+                    }
+                    console.log("donate succeeded",result);
+                    resolve(result);
+                });
+            }
 
-            this.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
+            console.log("Starting sendCoin cointransfer");
+            console.log(this.token.donate);
+
+
+            this.token.sendCoin.call(to, amount, {from: from},(err, callResult) => {
+                console.log("Trying sendcoin pre-transcation execution",err,callResult);
+
                 if (err) {
-                    console.log("sendCoin failed",err);
-                    reject(err);
+                    reject("Failed to perform pre-call");
                     return;
                 }
-                console.log("sendCoin succeeded",result);
-                resolve(result);
+
+                if (callResult) {
+                    console.log('sendCoin preview succeeds so now sendTx...');
+                    actual_sendcoin();
+                }
+                else {
+                    reject("Can't pre check failed, check your balances");
+                }
             });
         });
+
+
     }
 
     /*
@@ -263,20 +304,41 @@ class WebGold {
 
     donate(from,to,amount) {
 
+        var that = this;
         return new Promise((resolve,reject)=> {
+
+            function actual_donate() {
+                that.accounts.unlockAccount(masterAccount,masterPassword);
+                that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
+                    if (err) {
+                        console.log("donate failed",err);
+                        reject(err);
+                        return;
+                    }
+                    console.log("donate succeeded",result);
+                    resolve(result);
+                });
+            }
+
             console.log("Starting donate cointransfer");
             console.log(this.token.donate);
 
-            this.accounts.unlockAccount(masterAccount,masterPassword);
 
-            this.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
+            this.token.donate.call(to, amount, {from: from},(err, callResult) => {
+                console.log("Trying donate pre-transcation execution",err,callResult);
+
                 if (err) {
-                    console.log("donate failed",err);
-                    reject(err);
+                    reject("Failed to perform pre-call");
                     return;
                 }
-                console.log("donate succeeded",result);
-                resolve(result);
+
+                if (callResult) {
+                    console.log('donate preview succeeds so now sendTx...');
+                    actual_donate();
+                }
+                else {
+                    reject("Transaction pre check failed, check your balances");
+                }
             });
         });
     }
