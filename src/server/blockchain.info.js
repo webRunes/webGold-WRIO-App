@@ -141,6 +141,7 @@ export class BlockChain {
                 let input_address = req.query.input_address;
                 let value = req.query.value; // value in satoshi
                 let confirmations = req.query.confirmations;
+                let test = req.query.test;
                 console.log("GOT CALLBACK FROM BLOCKCHAIN API: ",req.query);
 
                 if (secret != this.secret) {
@@ -180,6 +181,12 @@ export class BlockChain {
                     state: `payment_checking`
 
                 });
+
+                if (test) { // if test request, don't do anything with user account
+                    console.log("This is only a test, don't doing anything furthermore");
+                    resp.status(200).send("test_received");
+                    return;
+                }
 
                 if (confirmations > 5) {
                     await invoice.updateInvoiceData({
