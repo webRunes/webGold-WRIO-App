@@ -50,6 +50,7 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
         amount *= 100;
 
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
             await webGold.emit(user.ethereumWallet,amount, user.wrioID);
@@ -66,8 +67,31 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
 
 });
 
+function calc_percent(wrg) {
+    var p;
+    if (wrg === 0) {
+        p = 1
+    } else {
+        p = Math.floor(Math.log10(wrg)+1);
+    }
 
-router.get('/donate',async (request,response) => {
+    var percent = 75 + (p - 1) * 5 + wrg*0.0005;
+    return percent;
+
+}
+
+
+
+/*
+
+    Donate API request
+    parameters to: recipient WRIO-ID
+    amount: amount to donate, in WRG
+    sid: user's session id
+
+ */
+
+router.get('/donate',async (request,response) => { // TODO : add authorization, important !!!!
     try {
         var to = request.query.to;
         var amount = parseInt(request.query.amount);
@@ -75,10 +99,12 @@ router.get('/donate',async (request,response) => {
         if (typeof amount !== "number") {
             throw new Error("Can't parse amount");
         }
+        var sid = request.query.sid || '';
 
         amount *= 100;
 
-        var user = await getLoggedInUser(request.sessionID);
+        var user = await getLoggedInUser(sid);
+        if (!user) throw new Error("User not registered");
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
             var dest = await webGold.getEthereumAccountForWrioID(to);
@@ -94,9 +120,11 @@ router.get('/donate',async (request,response) => {
             var donate = new Donations();
             await donate.create(user.wrioID,to,amount,0);
 
+            var amounUser = amount*calc_percent(amount)/100;
+            var fee = amount - amounUser;
 
 
-            response.send({"success":true,"dest":dest, "src":src});
+            response.send({"success":true,"dest":dest, "src":src,amount:amount,fee:fee,fee_percent:calc_percent(amount)});
         } else {
             throw new Error("User has no vaid userID, sorry");
         }
@@ -114,6 +142,7 @@ router.get('/donate',async (request,response) => {
 router.post('/get_balance',async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
@@ -142,6 +171,7 @@ function auth(id) {
 router.get('/coinadmin/master', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
@@ -168,6 +198,7 @@ router.get('/coinadmin/master', async (request,response) => {
 router.get('/coinadmin/users', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
@@ -201,6 +232,7 @@ router.get('/coinadmin/users', async (request,response) => {
 router.get('/coinadmin/donations', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var d = new Donations();
@@ -220,6 +252,7 @@ router.get('/coinadmin/donations', async (request,response) => {
 router.get('/coinadmin/etherfeeds', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
             var d = new EtherFeeds();
