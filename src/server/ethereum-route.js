@@ -110,6 +110,10 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
             var dest = await webGold.getEthereumAccountForWrioID(to);
             var src = await webGold.getEthereumAccountForWrioID(user.wrioID);
 
+            if (dest === src) {
+                throw new Error("Can't donate to itself");
+            }
+
             await webGold.unlockByWrioID(user.wrioID);
 
             await webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
@@ -126,11 +130,11 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
 
             response.send({"success":true,"dest":dest, "src":src,amount:amount,fee:fee,fee_percent:calc_percent(amount)});
         } else {
-            throw new Error("User has no vaid userID, sorry");
+            throw new Error("User has no valid userID, sorry");
         }
 
     } catch(e) {
-        console.log("Errro during donate",e);
+        console.log("Error during donate",e);
         dumpError(e);
         if (!e) e = "null";
         var textResult = e.toString();
