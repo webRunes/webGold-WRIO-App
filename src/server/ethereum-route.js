@@ -128,7 +128,7 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
             var fee = amount - amounUser;
 
 
-            response.send({"success":true,"dest":dest, "src":src,amount:amount,fee:fee,fee_percent:calc_percent(amount)});
+            response.send({"success":true,"dest":dest, "src":src,amount:amount,fee:fee,feePercent:calc_percent(amount)});
         } else {
             throw new Error("User has no valid userID, sorry");
         }
