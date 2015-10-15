@@ -124,11 +124,19 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
             var donate = new Donations();
             await donate.create(user.wrioID,to,amount,0);
 
-            var amounUser = amount*calc_percent(amount)/100;
-            var fee = amount - amounUser;
+            var amountUser = amount*calc_percent(amount)/100;
+            var fee = amount - amountUser;
 
 
-            response.send({"success":true,"dest":dest, "src":src,amount:amount,fee:fee,fee_percent:calc_percent(amount)});
+            response.send({
+                "success":true,
+                "dest":dest,
+                "src":src,
+                amount:amount,
+                amountUser: amountUser,
+                fee:fee,
+                feePercent:calc_percent(amount)
+            });
         } else {
             throw new Error("User has no valid userID, sorry");
         }
@@ -186,7 +194,7 @@ router.get('/coinadmin/master', async (request,response) => {
 
             response.send({
                 "ethBalance": ethBalance / wei,
-                "wrgBalance": wrgBalance/100,
+                "wrgBalance": wrgBalance / 100,
                 "gasPrice": gasprice / wei
             });
         } else {
