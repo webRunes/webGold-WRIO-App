@@ -50,6 +50,7 @@ export default class Invoice {
                 if (err) {
                     return reject(err);
                 }
+                resolve("Ok");
             })
         });
     }

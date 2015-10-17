@@ -53,7 +53,7 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
         if (!user) throw new Error("User not registered");
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
-            await webGold.emit(user.ethereumWallet,amount, user.wrioID);
+            await webGold.emit(user.ethereumWallet, amount, user.wrioID);
 
             response.send("Successfully sent "+amount);
         } else {
