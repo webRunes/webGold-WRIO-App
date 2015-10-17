@@ -64,7 +64,7 @@ export default class Donations {
     }
     getAll() {
         return new Promise((resolve,reject) =>{
-            this.donations.find({}).toArray(function (err,data) {
+            this.donations.find({}).sort({'timestamp':-1}).toArray(function (err,data) {
                 if (err) {
                     console.log("Db user search error");
                     reject(err);

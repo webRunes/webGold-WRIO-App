@@ -27,10 +27,12 @@ init().then(function(database) {
 
 import db from './db';
 import Invoice from './dbmodels/invoice.js'
+import User from './dbmodels/wriouser.js'
 
 
 export class BlockChain {
     constructor(options) {
+        console.log("Creating blockchain object");
         this.receivingAdress = nconf.get("payment:blockchain:receivingAdress");
         this.payments = db.db.collection('webGold_invoices');
         this.secret = nconf.get("payment:blockchain:secret");
@@ -42,7 +44,7 @@ export class BlockChain {
         this.payments = db.db.collection('webGold_invoices');
         this.webgold = new WebGold(db.db);
         this.get_rates().then((res)=>{
-            console.log("Getting current rates from blockhain API",res.toString());
+            console.log("Got current rates from blockhain API",res.toString());
         })
     }
 
@@ -69,7 +71,7 @@ export class BlockChain {
 
             console.log("Sending get_rates request",api_request);
             var result = await request.post(api_request);
-            console.log("USD/BTC = ",result.body.USD.buy);
+           // console.log("USD/BTC = ",result.body.USD.buy);
 
             return new BigNumber(result.body.USD.buy);
 
@@ -131,6 +133,7 @@ export class BlockChain {
     }
 
     handle_callback(req,resp) {
+        var that = this;
         return new Promise(async (resolve, reject) => {
 
             try {
@@ -155,6 +158,21 @@ export class BlockChain {
                     return;
                 }
 
+                let invoice = new Invoice();
+                var invoice_data = await invoice.getInvoice(nonce);
+                console.log("Got invoice ID:",invoice_data);
+
+                await invoice.recordAction({
+                    "request":req.query,
+                    "timestamp": new Date()
+                });
+
+                var user = new User();
+                user = await user.getByWrioID(invoice_data.wrioID);
+
+
+
+
                 if ( !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
                     resp.status(400).send("");
                     console.log("ERROR: missing required parameters");
@@ -162,9 +180,6 @@ export class BlockChain {
 
                 }
 
-                let invoice = new Invoice();
-                var invoice_data = await invoice.getInvoice(nonce);
-                console.log("Got invoice ID:",invoice_data);
 
 
                 console.log("Comparing input adress from invoice",invoice_data.input_address, input_address);
@@ -190,10 +205,11 @@ export class BlockChain {
 
                 if (confirmations > 5) {
                     await invoice.updateInvoiceData({
-                       state: "payment_confirmed"
+                        state: "payment_confirmed"
                     });
-                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
-                    this.webgold.emit(wrg);
+                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await that.get_rates());
+                    console.log("Emitting "+wrg);
+                    await this.webgold.emit(user.ethereumWallet, wrg, user.wrioID);
                     console.log(wrg,"WRG was emitted");
                     resp.status(200).send("*ok*");
                     return;
@@ -205,6 +221,7 @@ export class BlockChain {
 
             } catch (e) {
                 reject(e)
+                console.log("Error during blockchain callback: ",e);
             }
         });
     }

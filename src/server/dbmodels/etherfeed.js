@@ -63,7 +63,7 @@ export default class EtherFeed {
     }
     getAll() {
         return new Promise((resolve,reject) =>{
-            this.donations.find({}).toArray(function (err,feeds) {
+            this.donations.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
                 if (err) {
                     console.log("Db user search error");
                     reject(err);
