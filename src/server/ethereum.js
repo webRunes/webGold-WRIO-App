@@ -233,25 +233,22 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_sendcoin() {
-                that.accounts.unlockAccount(masterAccount,masterPassword);
-                that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
+                that.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
-                        console.log("donate failed",err);
+                        console.log("cointransfer failed",err);
                         reject(err);
                         return;
                     }
-                    console.log("donate succeeded",result);
+                    console.log("cointransfer succeeded",result);
                     resolve(result);
                 });
             }
 
-            console.log("Starting sendCoin cointransfer");
-            console.log(this.token.donate);
+            console.log("Starting sendCoin cointransfer",from,to,amount);
 
 
-            this.token.sendCoin.call(to, amount, {from: from},(err, callResult) => {
+            that.token.sendCoin.call(to, amount, {from: from},(err, callResult) => {
                 console.log("Trying sendcoin pre-transcation execution",err,callResult);
-
                 if (err) {
                     reject("Failed to perform pre-call");
                     return;
@@ -294,7 +291,12 @@ class WebGold {
      */
 
     async emit (dest,amount,toWrio) {
+        if (!amount) throw new Error("Amount not specified");
+        if (!dest) throw new Error("Destination not specified");
+        if (!toWrio) throw new Error("toWrio address not specified");
+
         console.log("Emitting new wrg to",dest,"Amount=",amount);
+        this.accounts.unlockAccount(masterAccount,masterPassword);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest,toWrio);
         var emission = new Emissions();
@@ -308,7 +310,7 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_donate() {
-                that.accounts.unlockAccount(masterAccount,masterPassword);
+                //that.accounts.unlockAccount(masterAccount,masterPassword);
                 that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         console.log("donate failed",err);
@@ -321,7 +323,7 @@ class WebGold {
             }
 
             console.log("Starting donate cointransfer");
-            console.log(this.token.donate);
+            //console.log(this.token.donate);
 
 
             this.token.donate.call(to, amount, {from: from},(err, callResult) => {

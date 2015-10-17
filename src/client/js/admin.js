@@ -6,6 +6,7 @@ import request from 'superagent';
 import PaymentHistory from './components/PaymentHistory'
 import EthereumClient from './components/EthereumClient'
 import { Router,Route, Link } from 'react-router'
+import moment from 'moment'
 
 import numeral from 'numeral';
 let SATOSHI = 100000000;
@@ -191,7 +192,7 @@ class Emissions extends React.Component {
                             return  <tr>
                                 <td>{ item.userID }</td>
                                 <td>{ item.amount / 100 }</td>
-                                <td>{ item.timestamp  }</td>
+                                <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
 
                             </tr>;
                         })}
@@ -264,7 +265,7 @@ class Donations extends React.Component {
                                 <td>{ item.srcWrioID }</td>
                                 <td>{ item.destWrioID }</td>
                                 <td>{ item.amount / 100 }</td>
-                                <td>{ item.timestamp}</td>
+                                <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY") }</td>
                                 <td></td>
                             </tr>;
                         })}
@@ -336,7 +337,7 @@ class EtherFeeds extends React.Component {
                             return  <tr>
                                 <td>{ item.amount }</td>
                                 <td>{ item.eth_account }</td>
-                                <td>{ item.timestamp  }</td>
+                                <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
                             </tr>;
                         })}
 
@@ -479,7 +480,7 @@ class Invoices extends React.Component {
                                 <td> {item.wrioID}</td>
                                 <td>{ item.input_address }</td>
                                 <td>{ amount }</td>
-                                <td>{ item.timestamp  }</td>
+                                <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
                                 <td>{ item.state}</td>
                             </tr>;
                         })}
