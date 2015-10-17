@@ -46,6 +46,7 @@
     "http": "~0.0",
     "jade": "1.7",
     "media-typer": "*",
+    "moment":"*",
     "mongodb": "^2.0.35",
     "ms": "*",
     "nconf": "*",

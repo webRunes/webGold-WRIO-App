@@ -155,6 +155,16 @@ export class BlockChain {
                     return;
                 }
 
+                let invoice = new Invoice();
+                var invoice_data = await invoice.getInvoice(nonce);
+                console.log("Got invoice ID:",invoice_data);
+
+                await invoice.recordAction({
+                    "request":req.query,
+                    "timestamp": new Date()
+                });
+
+
                 if ( !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
                     resp.status(400).send("");
                     console.log("ERROR: missing required parameters");
@@ -162,9 +172,6 @@ export class BlockChain {
 
                 }
 
-                let invoice = new Invoice();
-                var invoice_data = await invoice.getInvoice(nonce);
-                console.log("Got invoice ID:",invoice_data);
 
 
                 console.log("Comparing input adress from invoice",invoice_data.input_address, input_address);
@@ -173,6 +180,8 @@ export class BlockChain {
                     resp.status(403).send("");
                     return;
                 }
+
+
 
                 await invoice.updateInvoiceData({
                     amount: value,

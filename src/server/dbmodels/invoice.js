@@ -22,6 +22,7 @@ export default class Invoice {
             state: 'invoice_created',
             userID: userID,
             wrioID: wrioID,
+            actions:[],
             timestamp: new Date()
 
         };
@@ -37,6 +38,20 @@ export default class Invoice {
             });
         });
 
+    }
+
+    recordAction(action) {
+        var that = this;
+        console.log("Recording action to db....");
+        return new Promise((resolve,reject) => {
+            this.payments.updateOne({_id:that.invoice_id },{$addToSet:{
+                actions: action
+            }},function(err) {
+                if (err) {
+                    return reject(err);
+                }
+            })
+        });
     }
 
     updateInvoiceData(invoice_data) {
@@ -80,7 +95,7 @@ export default class Invoice {
     }
     getAll() {
         return new Promise((resolve,reject) =>{
-            this.payments.find({}).toArray(function (err,feeds) {
+            this.payments.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
                 if (err) {
                     console.log("Db invoice search error");
                     reject(err);
