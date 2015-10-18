@@ -30,6 +30,24 @@ class WebRunesUsers {
         });
     }
 
+    getByEthereumWallet(wallet) {
+        return new Promise((resolve,reject) =>{
+            this.users.findOne({ethereumWallet:wallet},function (err,data) {
+                if (err) {
+                    console.log("Db user search error");
+                    reject(err);
+                    return;
+                }
+                if (!data) {
+                    console.log('Db user not found');
+                    reject('User not found '+wrioID);
+                    return;
+                }
+                resolve(data);
+            })
+        });
+    }
+
     getAllUsers() {
         return new Promise((resolve,reject) =>{
             this.users.find({}).toArray(function (err,users) {
@@ -101,6 +119,26 @@ class WebRunesUsers {
                 resolve(data.ops[0]);
             })
         });
+    }
+
+    modifyAmount(wrioID,amount) {
+        return new Promise ((resolve,reject) => {
+            this.users.updateOne({wrioID:wrioID},
+                {
+                $inc:{
+                  dbBalance:amount
+                }
+                },
+                (err,data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    if (!data) {
+                        return reject("User not found");
+                    }
+                    resolve(data);
+            });
+        })
     }
 
     /*

@@ -19,9 +19,12 @@ import nconf from './wrio_nconf';
 import Donations from './dbmodels/donations.js'
 import Emissions from './dbmodels/emissions.js'
 import EtherFeeds from './dbmodels/etherfeed.js'
-import PrePayments from './dbmodels/prepay.js'
 import Invoices from "./dbmodels/invoice.js"
+import PrePayment from './dbmodels/prepay.js'
+import WrioUser from "./dbmodels/wriouser.js"
 
+
+let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
 let wei = 1000000000000000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
@@ -34,6 +37,8 @@ if (!masterAccount) {
 if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
 }
+
+
 
 
 
@@ -83,13 +88,14 @@ function calc_percent(wrg) {
 
 
 /*
-
     Donate API request
     parameters to: recipient WRIO-ID
     amount: amount to donate, in WRG
     sid: user's session id
 
  */
+
+
 
 router.get('/donate',async (request,response) => { // TODO : add authorization, important !!!!
     try {
@@ -103,29 +109,52 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
 
         amount *= 100;
 
+        if (amount < 0) {
+            throw new Error ("Amount can't be negative");
+        }
+
         var user = await getLoggedInUser(sid);
         if (!user) throw new Error("User not registered");
         if (user.wrioID) {
             var webGold = new WebGold(db.db);
-            var dest = await webGold.getEthereumAccountForWrioID(to);
+
+            var dest = await webGold.getEthereumAccountForWrioID(to); // ensure that source adress and destination adress have ethereum adress
             var src = await webGold.getEthereumAccountForWrioID(user.wrioID);
 
             if (dest === src) {
                 throw new Error("Can't donate to itself");
             }
 
-            await webGold.unlockByWrioID(user.wrioID);
+            var dbBalance = user.dbBalance || 0;
+            var blockchainBalance = await webGold.getBalance(src);
+            blockchainBalance = blockchainBalance.toString();
 
-            await webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+            console.log("Checking balance before donation",amount,blockchainBalance);
 
-            console.log("Prepare for transfer",dest,src,amount);
-            await webGold.donate(src,dest,amount);
 
-            var donate = new Donations();
-            await donate.create(user.wrioID,to,amount,0);
+            if (amount > blockchainBalance) {
+                // Do virtual payment to the database record because user has insufficient funds
+                // when funds arrive on the account, pending payments will be done
 
-            var amountUser = amount*calc_percent(amount)/100;
-            var fee = amount - amountUser;
+                if ((dbBalance-amount) < MAX_DEBT ) { // check if we havent reached maximum debt limit
+                    throw new Error("Insufficient funds");
+                }
+
+                var prepay = new PrePayment();
+                var userObj = new WrioUser();
+                await prepay.create(user.wrioID,amount,to);
+                await userObj.modifyAmount(user.wrioID,-amount);
+
+                console.log("Prepayment made");
+
+
+            } else {
+
+                // Make the real payment through the blockchain
+               await webGold.makeDonate(webGold, user, to, amount);
+
+            }
+
 
 
             response.send({
@@ -156,10 +185,20 @@ router.post('/get_balance',async (request,response) => {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
         if (user.wrioID) {
+
+            // try to get temp balance stored in db record
+
+            var dbBalance = new BigNumber(0);
+            if (user.balance) {
+                dbBalance = new BigNumber(user.balance);
+            }
+
+            console.log("balance from db:", dbBalance.toString());
+
             var webGold = new WebGold(db.db);
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
             var balance = await webGold.getBalance(dest) / 100;
-            console.log("balance:",balance.toString());
+            console.log("balance:",balance.add(dbBalance).toString());
             response.send({
                 "balance": balance.toString()
             })
@@ -220,10 +259,12 @@ router.get('/coinadmin/users', async (request,response) => {
             for (var user of users) {
                 console.log(user);
                 if (user.wrioID && user.ethereumWallet) {
+
                     wgUsers.push ({
                         wrioID: user.wrioID,
                         name: user.lastName,
                         ethWallet: user.ethereumWallet,
+                        dbBalance: (user.dbBalance || 0) / 100,
                         ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
                         wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100
                     });
@@ -241,7 +282,7 @@ router.get('/coinadmin/users', async (request,response) => {
     }
 });
 
-router.get('/coinadmin/donations', async (request,response) => {
+router.get('/coinadmin/prepayments', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
@@ -255,7 +296,7 @@ router.get('/coinadmin/donations', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin donations error",e);
+        console.log("Coinadmin prepayments error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -287,7 +328,7 @@ router.get('/coinadmin/prepayments', async (request,response) => {
         var user = await getLoggedInUser(request.sessionID);
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
-            var d = new PrePayments();
+            var d = new PrePayment();
             var data = await d.getAll();
 
             response.send(data);

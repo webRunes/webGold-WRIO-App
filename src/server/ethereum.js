@@ -23,6 +23,8 @@ import EtherFeed from './dbmodels/etherfeed.js'
 import Emissions from './dbmodels/emissions.js'
 import Donation from './dbmodels/donations.js'
 
+import PrePayment from './dbmodels/prepay.js'
+
 
 let wei = 1000000000000000000;
 let SATOSHI = 100000000;
@@ -120,23 +122,52 @@ class WebGold {
 
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
-        var event = this.token.CoinTransfer({}, '', function(error, result){
+        var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
                 console.log("Cointransfer listener error");
             } else {
-                console.log("Coin transfer: " +
-                    result.args.amount +
-                    " tokens were sent. Balances now are as following: \n Sender:\t" +
-                    result.args.sender + " \t" + that.token.coinBalanceOf.call(result.args.sender) +
-                    " tokens \n Receiver:\t" + result.args.receiver + " \t" +
-                    that.token.coinBalanceOf.call(result.args.receiver) + " tokens" );
+                try {
+                    var amount = result.args.amount;
+                    var sender = result.args.sender;
+                    var receiver = result.args.receiver;
+                    var wrioUsers = new WebRunesUsers();
+                    var user = await wrioUsers.getByEthereumWallet(receiver);
+
+                    console.log("WRG transfer finished: "+amount+" from: "+sender+" to: "+ receiver);
+                    await this.processPendingPayments(user.wrioID,amount)
+
+                } catch (e) {
+                    console.log("Processing payment failed",e);
+                }
+
             }
 
         });
+    }
 
 
+    async processPendingPayments(wrioID,amount) {
 
+        /* Check all prepayments, if there's some, mark them as completed, */
 
+        var left = amount;
+
+        var pre = new PrePayment();
+        var pending = await pre.getAll({'status':'pending',userID:wrioID});
+
+        for (var payment in pending) {
+            var p = peding[payment];
+            if (left > p.amount) {
+                var wrioUser = new WebRunesUsers();
+                var user = wrioUser.getByWrioID(p.userID);
+                await this.makeDonate(user, p.to, p.amount);
+                await wrioUser.modifyAmount(user.wrioID,p.amount); // remove payment amount from user's debt
+                await wrioUser.updateByWrioID(user.wrioID,{'state':'finished'});
+                left -= amount;
+
+            }
+        }
+        console.log("Pre-payments paid, left",left);
 
     }
 
@@ -346,6 +377,31 @@ class WebGold {
             });
         });
     }
+
+    // actual donate wrapper
+
+    async makeDonate (user, to, amount)  {
+
+        var dest = await this.getEthereumAccountForWrioID(to);
+        var src = await this.getEthereumAccountForWrioID(user.wrioID);
+
+        if (dest === src) {
+            throw new Error("Can't donate to itself");
+        }
+
+        await this.unlockByWrioID(user.wrioID);
+        await this.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+
+        console.log("Prepare for transfer",dest,src,amount);
+        await this.donate(src,dest,amount);
+
+        var donate = new Donations();
+        await donate.create(user.wrioID,to,amount,0);
+
+        var amountUser = amount*calc_percent(amount)/100;
+        var fee = amount - amountUser;
+
+    };
 
 
     /*

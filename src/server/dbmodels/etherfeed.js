@@ -11,7 +11,7 @@ export default class EtherFeed {
 
     constructor () {
 
-        this.donations = db.db.collection('webGold_EtherFeeds');
+        this.prepayments = db.db.collection('webGold_EtherFeeds');
 
     }
 
@@ -27,7 +27,7 @@ export default class EtherFeed {
         };
 
         return new Promise((resolve, reject) => {
-            this.donations.insertOne(invoice_data,function(err,res) {
+            this.prepayments.insertOne(invoice_data,function(err,res) {
                 if (err) {
                     reject(err);
                     return;
@@ -45,7 +45,7 @@ export default class EtherFeed {
 
         return new Promise((resolve,reject) => {
 
-            this.donations.findOne(mask,function (err,data) {
+            this.prepayments.findOne(mask,function (err,data) {
                 if (err) {
                     console.log("Error while searching invoice");
                     reject(err);
@@ -63,7 +63,7 @@ export default class EtherFeed {
     }
     getAll() {
         return new Promise((resolve,reject) =>{
-            this.donations.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
+            this.prepayments.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
                 if (err) {
                     console.log("Db user search error");
                     reject(err);

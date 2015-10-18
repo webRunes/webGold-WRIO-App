@@ -109,6 +109,7 @@ class Balances extends React.Component {
                         <th>NAME</th>
                         <th>ETH ADRESS</th>
                         <th>ETH BALANCE</th>
+                        <th>TEMP BALANCE(DB)</th>
                         <th>WRG BALANCE</th>
                     </tr>
                     </thead>
@@ -121,6 +122,7 @@ class Balances extends React.Component {
                                 <td>{ item.name }</td>
                                 <td>{ item.ethWallet  }</td>
                                 <td>{ item.ethBalance}</td>
+                                <td>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
                             </tr>;
                         })}
@@ -220,7 +222,7 @@ class Donations extends React.Component {
     }
 
     requestUsers(cb) {
-        request.get('/api/webgold/coinadmin/donations').end((err,users)=> {
+        request.get('/api/webgold/coinadmin/prepayments').end((err,users)=> {
             if (err) {
                 cb(err);
                 return;
@@ -395,11 +397,11 @@ class PrePayments extends React.Component {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>WRIOID</th>
-                        <th>NAME</th>
-                        <th>ETH ADRESS</th>
-                        <th>ETH BALANCE</th>
-                        <th>WRG BALANCE</th>
+                        <th>FROM</th>
+                        <th>TO</th>
+                        <th>AMOUNT</th>
+                        <th>STATE</th>
+                        <th>TIMESTAMP</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -407,11 +409,11 @@ class PrePayments extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.wrioID }</td>
-                                <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
-                                <td>{ item.ethBalance}</td>
-                                <td>{ item.wrgBalance}</td>
+                                <td>{ item.userID }</td>
+                                <td>{ item.to }</td>
+                                <td>{ item.amount / 100 }</td>
+                                <td>{ item.state}</td>
+                                <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY") }</td>
                             </tr>;
                         })}
 
