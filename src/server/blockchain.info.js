@@ -171,8 +171,6 @@ export class BlockChain {
                 user = await user.getByWrioID(invoice_data.wrioID);
 
 
-
-
                 if ( !transaction_hash || !input_transaction_hash || !input_address || !value || !confirmations) {
                     resp.status(400).send("");
                     console.log("ERROR: missing required parameters");
@@ -203,15 +201,17 @@ export class BlockChain {
                     return;
                 }
 
-                if (confirmations > 5) {
+
+
+                if (confirmations > 5) { // if there's more than 5 confirmations
                     await invoice.updateInvoiceData({
-                        state: "payment_confirmed"
+                       state: "payment_confirmed"
                     });
-                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await that.get_rates());
-                    console.log("Emitting "+wrg);
-                    await this.webgold.emit(user.ethereumWallet, wrg, user.wrioID);
+                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
+                    wrg = wrg.times(100).toFixed(0); // multipy 100 and round to make value in centiWRG
+                    await this.webgold.emit(user.ethereumWallet, parseInt(wrg), user.wrioID); // send ether to user
                     console.log(wrg,"WRG was emitted");
-                    resp.status(200).send("*ok*");
+                    resp.status(200).send("*ok*"); // send success to blockchain.info server
                     return;
                 }
                 console.log("**Confirmation recieved",confirmations);
