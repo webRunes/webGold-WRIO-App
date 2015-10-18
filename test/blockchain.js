@@ -1,5 +1,5 @@
-import nconf from '../app/server/wrio_nconf';
-import app from "../server-test.js";
+import nconf from '../src/server/wrio_nconf';
+import app from "../src/index.js";
 import request from 'supertest';
 import assert from 'assert';
 import should from 'should';
@@ -53,13 +53,16 @@ describe("Blockchain unit tests", function() {
         var i = new Invoices();
         var users = new Users();
 
+        await users.clearTestDb();
+        await i.clearTestDb();
+
         var user = await users.create({
             "wrioID": testID,
             "titterID": "186910661",
             "lastName": "John Doe",
-            "ethereumWallet": "0xd30123123123123123121b5c5d5382f"
+            "ethereumWallet": "0xc40e6bd934b31b312bfe55441fc086b19aa4df4d"
         });
-        invoiceID = await i.createInvoice(user.wrioID,user._id);
+        invoiceID = await i.createInvoice(user._id,user.wrioID);
         await i.updateInvoiceData({
             input_address: input_address,
             destination: destination,
@@ -96,7 +99,7 @@ describe("Blockchain unit tests", function() {
             confirmations:2,
             secret:secret,
             nonce: "232323-11234-112-2",
-            value:13131131313
+            value:50000
         };
         let trurl = "/api/blockchain/callback?"+serialize(tparams);
         console.log("Transaction URL",trurl);
@@ -115,12 +118,13 @@ describe("Blockchain unit tests", function() {
             confirmations:2,
             secret:secret,
             nonce: invoiceID,
-            value:13131131313
+            value:50000
         };
         let trurl = "/api/blockchain/callback?"+serialize(tparams);
         console.log("Transaction URL",trurl);
         request(app)
             .get(trurl)
+            .expect("confirmation_received")
             .expect(200,done);
     });
     it ("should send  *ok* when 6 confirmations received",function (done){
@@ -133,12 +137,13 @@ describe("Blockchain unit tests", function() {
             confirmations:7,
             secret:secret,
             nonce: invoiceID,
-            value:13131131313
+            value: 50000
         };
         let trurl = "/api/blockchain/callback?"+serialize(tparams);
         console.log("Transaction URL",trurl);
         request(app)
             .get(trurl)
+            .expect("*ok*")
             .expect(200,done);
     });
 

@@ -113,6 +113,7 @@ class WebGold {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.accounts
         });
+        console.log("Creating Hoooked web3 provider");
         web3.setProvider(provider);
 
         this.users = new WebRunesUsers(db);
@@ -233,6 +234,7 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_sendcoin() {
+                that.accounts.unlockAccount(masterAccount,masterPassword);
                 that.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         console.log("cointransfer failed",err);
@@ -310,7 +312,7 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_donate() {
-                //that.accounts.unlockAccount(masterAccount,masterPassword);
+                that.accounts.unlockAccount(masterAccount,masterPassword);
                 that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         console.log("donate failed",err);
