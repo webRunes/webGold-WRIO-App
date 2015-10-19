@@ -103,29 +103,6 @@ class WebRunesUsers {
         });
     }
 
-    /*
-     This method is uses before each unit test is taken to clear db
-     */
-
-    clearTestDb() {
-        return new Promise((resolve,reject) => {
-
-              //  console.log(db);
-
-            if (db.s.databaseName != "webrunes_test") {
-                return reject("Wipe can be made only on test db");
-            }
-            this.users.remove({},(err) => {
-                if (err)  {
-                    return reject(err);
-                }
-                resolve("Wipe ok");
-            });
-            }
-
-        );
-    }
-
 }
 
 export default WebRunesUsers;
