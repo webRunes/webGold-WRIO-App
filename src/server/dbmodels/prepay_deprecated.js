@@ -79,9 +79,9 @@ export default class PrePayments {
             })
         });
     }
-    updateByWrioID(wrioID, data) {
+    updateByWrioID(id, data) {
         return new Promise((resolve,reject) =>{
-            this.prepayments.updateOne({wrioID:wrioID},{$set:data},function (err,data) {
+            this.prepayments.updateOne({_id:id},{$set:data},function (err,data) {
                 if (err) {
                     console.log("Db prepayments search error");
                     reject(err);

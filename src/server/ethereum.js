@@ -9,7 +9,7 @@
 
 import web3 from 'web3'
 import {Promise} from 'es6-promise'
-import {dumpError} from './utils'
+import {dumpError,calc_percent} from './utils'
 import Accounts from './ethereum-node'
 import HookedWeb3Provider from 'hooked-web3-provider'
 import db from './db';
@@ -23,7 +23,7 @@ import EtherFeed from './dbmodels/etherfeed.js'
 import Emissions from './dbmodels/emissions.js'
 import Donation from './dbmodels/donations.js'
 
-import PrePayment from './dbmodels/prepay.js'
+//import PrePayment from './dbmodels/prepay.js'
 
 
 let wei = 1000000000000000000;
@@ -134,10 +134,11 @@ class WebGold {
                     var user = await wrioUsers.getByEthereumWallet(receiver);
 
                     console.log("WRG transfer finished: "+amount+" from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user.wrioID,amount)
+                    await this.processPendingPayments(user,amount)
 
                 } catch (e) {
                     console.log("Processing payment failed",e);
+                    dumpError(e);
                 }
 
             }
@@ -146,28 +147,32 @@ class WebGold {
     }
 
 
-    async processPendingPayments(wrioID,amount) {
+    async processPendingPayments(user,amount) {
 
         /* Check all prepayments, if there's some, mark them as completed, */
 
         var left = amount;
+        var pending = user['prepayments'] || [];
 
-        var pre = new PrePayment();
-        var pending = await pre.getAll({'status':'pending',userID:wrioID});
+        console.log("Found "+pending.length+" pending payments for"+user.wrioID);
 
+        if (pending.length == 0) {
+            return;
+        }
+
+        var wrioUser = new WebRunesUsers();
         for (var payment in pending) {
-            var p = peding[payment];
+            console.log ("   *****  PROCESSING PAYMENT "+payment)
+            var p = pending[payment];
             if (left > p.amount) {
-                var wrioUser = new WebRunesUsers();
-                var user = wrioUser.getByWrioID(p.userID);
+
                 await this.makeDonate(user, p.to, p.amount);
-                await wrioUser.modifyAmount(user.wrioID,p.amount); // remove payment amount from user's debt
-                await wrioUser.updateByWrioID(user.wrioID,{'state':'finished'});
+                await wrioUser.cancelPrepayment(user.wrioID,p.id,p.amount); // remove payment amount from user's debt
                 left -= amount;
 
             }
         }
-        console.log("Pre-payments paid, left",left);
+        console.log("Pre-payments paid, left",left.toString());
 
     }
 
@@ -395,7 +400,7 @@ class WebGold {
         console.log("Prepare for transfer",dest,src,amount);
         await this.donate(src,dest,amount);
 
-        var donate = new Donations();
+        var donate = new Donation();
         await donate.create(user.wrioID,to,amount,0);
 
         var amountUser = amount*calc_percent(amount)/100;

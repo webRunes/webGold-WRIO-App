@@ -117,14 +117,19 @@ class Balances extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  <tr>
+                            return  ([<tr>
                                 <td>{ item.wrioID }</td>
                                 <td>{ item.name }</td>
                                 <td>{ item.ethWallet  }</td>
                                 <td>{ item.ethBalance}</td>
                                 <td>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
-                            </tr>;
+
+                            </tr>,
+                            <tr>
+                                <td colSpan="6"><PrePayments data={ item.prepayments } /></td>
+                            </tr>]);
+
                         })}
 
                     </tbody>
@@ -222,7 +227,7 @@ class Donations extends React.Component {
     }
 
     requestUsers(cb) {
-        request.get('/api/webgold/coinadmin/prepayments').end((err,users)=> {
+        request.get('/api/webgold/coinadmin/donations').end((err,users)=> {
             if (err) {
                 cb(err);
                 return;
@@ -351,6 +356,7 @@ class EtherFeeds extends React.Component {
     }
 }
 
+
 class PrePayments extends React.Component {
 
 
@@ -359,35 +365,10 @@ class PrePayments extends React.Component {
         super(props);
 
         this.state = {
-            data:[
-
-            ]
+            data:props.data
         };
     }
 
-    requestUsers(cb) {
-        request.get('/api/webgold/coinadmin/prepayments').end((err,users)=> {
-            if (err) {
-                cb(err);
-                return;
-            }
-            cb(null,JSON.parse(users.text));
-        })
-    }
-
-    componentWillMount() {
-        var that = this;
-
-        this.requestUsers((err,state) => {
-            if (err) {
-                alert('Cant get users');
-                return;
-            }
-            that.setState({
-                data: state
-            });
-        });
-    }
 
     render() {
         return (
@@ -397,10 +378,10 @@ class PrePayments extends React.Component {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>FROM</th>
+                        <th>id</th>
                         <th>TO</th>
                         <th>AMOUNT</th>
-                        <th>STATE</th>
+
                         <th>TIMESTAMP</th>
                     </tr>
                     </thead>
@@ -409,10 +390,9 @@ class PrePayments extends React.Component {
                         this.state.data.map(function (item) {
 
                             return  <tr>
-                                <td>{ item.userID }</td>
+                                <td>{ item.id }</td>
                                 <td>{ item.to }</td>
                                 <td>{ item.amount / 100 }</td>
-                                <td>{ item.state}</td>
                                 <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY") }</td>
                             </tr>;
                         })}
@@ -502,7 +482,6 @@ React.render((
         <Route path="/" component={EthereumStats} />
         <Route path="/balances" component={Balances}/>
         <Route path="/etherfeeds" component={EtherFeeds}/>
-        <Route path="/prepayments" component={PrePayments}/>
         <Route path="/donations" component={Donations}/>
         <Route path="/emissions" component={Emissions}/>
         <Route path="/invoices" component={Invoices}/>

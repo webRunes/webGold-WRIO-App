@@ -4,6 +4,7 @@
  */
 
 import database from '../db';
+import uuid from 'node-uuid'
 let db;
 
 class WebRunesUsers {
@@ -121,13 +122,24 @@ class WebRunesUsers {
         });
     }
 
-    modifyAmount(wrioID,amount) {
+    /* create pre payment */
+    createPrepayment(wrioID,amount,to) {
         return new Promise ((resolve,reject) => {
+
             this.users.updateOne({wrioID:wrioID},
                 {
-                $inc:{
-                  dbBalance:amount
-                }
+                    $inc:{
+                      dbBalance:-amount
+                    },
+                    $push:{
+                        prepayments: {
+                            id: uuid.v1(),
+                            amount: amount,
+                            timestamp: new Date(),
+                            to:to
+
+                        }
+                    }
                 },
                 (err,data) => {
                     if (err) {
@@ -136,8 +148,40 @@ class WebRunesUsers {
                     if (!data) {
                         return reject("User not found");
                     }
+                    console.log('Makeprepayment result',data);
                     resolve(data);
             });
+        })
+    }
+
+    /*
+    * Cancel pre payment, both if timeout passed or money on account arrived
+    * make sure, that amount is correct value
+    * */
+    cancelPrepayment(wrioID,id,amount) {
+        return new Promise ((resolve,reject) => {
+
+            this.users.updateOne({wrioID:wrioID},
+                {
+                    $inc:{
+                        dbBalance:amount
+                    },
+                    $pull:{
+                        prepayments: {
+                            id: id
+                        }
+                    }
+                },
+                (err,data) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    if (!data) {
+                        return reject("User not found");
+                    }
+                    console.log('cancelPrepayment result',data);
+                    resolve(data);
+                });
         })
     }
 

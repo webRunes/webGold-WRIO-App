@@ -6,7 +6,7 @@
  */
 
 import WebGold from './ethereum.js'
-import {dumpError} from './utils'
+import {calc_percent,dumpError} from './utils'
 import web3 from 'web3'
 import {Promise} from 'es6-promise'
 import {Router} from 'express';
@@ -15,12 +15,12 @@ import db from './db';
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser'
 import nconf from './wrio_nconf';
-
+import BigNumber from 'bignumber.js';
 import Donations from './dbmodels/donations.js'
 import Emissions from './dbmodels/emissions.js'
 import EtherFeeds from './dbmodels/etherfeed.js'
 import Invoices from "./dbmodels/invoice.js"
-import PrePayment from './dbmodels/prepay.js'
+//import PrePayment from './dbmodels/prepay.js'
 import WrioUser from "./dbmodels/wriouser.js"
 
 
@@ -72,18 +72,7 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
 
 });
 
-function calc_percent(wrg) {
-    var p;
-    if (wrg === 0) {
-        p = 1
-    } else {
-        p = Math.floor(Math.log10(wrg)+1);
-    }
 
-    var percent = 75 + (p - 1) * 5 + wrg*0.0005;
-    return percent;
-
-}
 
 
 
@@ -100,18 +89,15 @@ function calc_percent(wrg) {
 router.get('/donate',async (request,response) => { // TODO : add authorization, important !!!!
     try {
         var to = request.query.to;
-        var amount = parseInt(request.query.amount);
-        console.log(typeof amount);
+        var amount = parseInt(request.query.amount) * 100;
         if (typeof amount !== "number") {
             throw new Error("Can't parse amount");
         }
-        var sid = request.query.sid || '';
-
-        amount *= 100;
-
         if (amount < 0) {
             throw new Error ("Amount can't be negative");
         }
+
+        var sid = request.query.sid || '';
 
         var user = await getLoggedInUser(sid);
         if (!user) throw new Error("User not registered");
@@ -140,10 +126,8 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
                     throw new Error("Insufficient funds");
                 }
 
-                var prepay = new PrePayment();
                 var userObj = new WrioUser();
-                await prepay.create(user.wrioID,amount,to);
-                await userObj.modifyAmount(user.wrioID,-amount);
+                await userObj.createPrepayment(user.wrioID,-amount,to);
 
                 console.log("Prepayment made");
 
@@ -151,10 +135,11 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
             } else {
 
                 // Make the real payment through the blockchain
-               await webGold.makeDonate(webGold, user, to, amount);
+               await webGold.makeDonate(user, to, amount);
 
             }
-
+            var amountUser = amount*calc_percent(amount)/100;
+            var fee = amount - amountUser;
 
 
             response.send({
@@ -196,9 +181,15 @@ router.post('/get_balance',async (request,response) => {
             console.log("balance from db:", dbBalance.toString());
 
             var webGold = new WebGold(db.db);
+
+
+
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
             var balance = await webGold.getBalance(dest) / 100;
-            console.log("balance:",balance.add(dbBalance).toString());
+
+            await webGold.processPendingPayments(user,balance*100);
+
+            //console.log("balance:",balance.add(dbBalance).toString());
             response.send({
                 "balance": balance.toString()
             })
@@ -207,6 +198,7 @@ router.post('/get_balance',async (request,response) => {
         }
     } catch(e) {
         console.log("Errro during get_balance",e);
+        dumpError(e);
         response.status(403).send("Error");
     }
 
@@ -266,7 +258,8 @@ router.get('/coinadmin/users', async (request,response) => {
                         ethWallet: user.ethereumWallet,
                         dbBalance: (user.dbBalance || 0) / 100,
                         ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
-                        wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100
+                        wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
+                        prepayments: user.prepayments || []
                     });
                 }
             }
@@ -282,16 +275,17 @@ router.get('/coinadmin/users', async (request,response) => {
     }
 });
 
+/*
 router.get('/coinadmin/prepayments', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
-            var d = new Donations();
-            var donations = await d.getAll();
+            var p = new PrePayment();
+            var prepayments = await p.getAll();
 
-            response.send(donations);
+            response.send(prepayments);
         } else {
             throw new Error("User not admin,sorry");
         }
@@ -300,7 +294,7 @@ router.get('/coinadmin/prepayments', async (request,response) => {
         dumpError(e);
         response.status(403).send("Error");
     }
-});
+});*/
 
 router.get('/coinadmin/etherfeeds', async (request,response) => {
     try {
@@ -323,12 +317,12 @@ router.get('/coinadmin/etherfeeds', async (request,response) => {
 });
 
 
-router.get('/coinadmin/prepayments', async (request,response) => {
+router.get('/coinadmin/donations', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (auth(user.wrioID)) {
             console.log("Coinadmin admin detected");
-            var d = new PrePayment();
+            var d = new Donations();
             var data = await d.getAll();
 
             response.send(data);
@@ -336,7 +330,7 @@ router.get('/coinadmin/prepayments', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin prepayments error",e);
+        console.log("Coinadmin donations error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
