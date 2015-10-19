@@ -1,0 +1,4 @@
+#!/bin/sh
+
+geth --rpc --networkid=39318 --maxpeers=0 --datadir=~/.ethereum/dev/ --mine --minerthreads 1 --etherbase "0x740f63f535bc86fb87f9482adbec5ca289a2d59e" --genesis ethereum_genesis.json
+
