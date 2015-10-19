@@ -112,24 +112,4 @@ export default class Invoice {
         });
     }
 
-    clearTestDb() {
-
-        return new Promise((resolve,reject) => {
-
-                //console.log(db.db);
-
-                if (db.db.s.databaseName != "webrunes_test") {
-                    return reject("Wipe can be made only on test db");
-                }
-                this.payments.remove({},(err) => {
-                    if (err)  {
-                        return reject(err);
-                    }
-                    resolve("Wipe ok");
-                });
-            }
-
-        );
-    }
-
 }
