@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import User from './components/User';
 import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
@@ -7,6 +8,7 @@ import PaymentHistory from './components/PaymentHistory'
 import EthereumClient from './components/EthereumClient'
 import { Router,Route, Link } from 'react-router'
 import moment from 'moment'
+import {Modal,Button} from 'react-bootstrap'
 
 import numeral from 'numeral';
 let SATOSHI = 100000000;
@@ -69,7 +71,8 @@ class Balances extends React.Component {
         this.state = {
             data:[
 
-            ]
+            ],
+            modalContent: null
         };
     }
 
@@ -92,12 +95,30 @@ class Balances extends React.Component {
                 return;
             }
             that.setState({
-                data: state
+                data: state,
+                showModal:false
             });
         });
     }
 
+    close() {
+        console.log("modal closed");
+        this.setState({showModal:false});
+    }
+
+    showModal(prepayments) {
+        console.log(this,prepayments);
+        this.setState({
+            showModal:true,
+            modalContent: prepayments
+        });
+    }
+
     render() {
+        //var data = this.state.data[0];
+        var data = [];
+
+
         return (
             <div>
                 <h2>User's balance</h2>
@@ -117,23 +138,34 @@ class Balances extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  ([<tr>
+
+                            return  (<tr>
                                 <td>{ item.wrioID }</td>
                                 <td>{ item.name }</td>
-                                <td>{ item.ethWallet  }</td>
+                                <td>{ item.ethWallet}</td>
                                 <td>{ item.ethBalance}</td>
-                                <td>{ item.dbBalance}</td>
+                                <td onClick={this.showModal.bind(this,item.prepayments)}>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
 
-                            </tr>,
-                            <tr>
-                                <td colSpan="6"><PrePayments data={ item.prepayments } /></td>
-                            </tr>]);
+                            </tr>)
 
-                        })}
+
+                        }.bind(this))}
 
                     </tbody>
                 </table>
+                <Modal show={this.state.showModal}  onHide={this.close.bind(this)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>PrePayments</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        { this.state.modalContent ?  <PrePayments data= { this.state.modalContent } /> : ""}
+
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.close.bind(this)}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
 
         );
@@ -373,7 +405,6 @@ class PrePayments extends React.Component {
     render() {
         return (
             <div>
-                <h2>Pre payment list</h2>
                 <p>List of deferred payments, when user have 0 WRG balance</p>
                 <table className="table">
                     <thead>
@@ -476,8 +507,9 @@ class Invoices extends React.Component {
 
 
 
+
 //console.log(Router,Route);
-React.render((
+ReactDOM.render((
     <Router>
         <Route path="/" component={EthereumStats} />
         <Route path="/balances" component={Balances}/>
@@ -485,7 +517,6 @@ React.render((
         <Route path="/donations" component={Donations}/>
         <Route path="/emissions" component={Emissions}/>
         <Route path="/invoices" component={Invoices}/>
-
     </Router>
 ), document.getElementById('main'));
 

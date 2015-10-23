@@ -7,3 +7,4 @@
 [webgold.wrioos.com](http://webgold.wrioos.com)
 
 Powered by [Open Copyright](http://opencopyright.webrunes.com)
+

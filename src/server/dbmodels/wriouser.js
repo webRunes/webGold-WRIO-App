@@ -179,7 +179,7 @@ class WebRunesUsers {
                     if (!data) {
                         return reject("User not found");
                     }
-                    console.log('cancelPrepayment result',data);
+                    //console.log('cancelPrepayment result',data);
                     resolve(data);
                 });
         })

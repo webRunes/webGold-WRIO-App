@@ -24,6 +24,7 @@ import Invoices from "./dbmodels/invoice.js"
 import WrioUser from "./dbmodels/wriouser.js"
 
 
+
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
 let wei = 1000000000000000000;
@@ -187,12 +188,14 @@ router.post('/get_balance',async (request,response) => {
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
             var balance = await webGold.getBalance(dest) / 100;
 
-            await webGold.processPendingPayments(user,balance*100);
-
             //console.log("balance:",balance.add(dbBalance).toString());
             response.send({
-                "balance": balance.toString()
+                "balance": balance - (user.dbBalance/100)
             })
+
+            await webGold.processPendingPayments(user,balance*100);
+
+
         } else {
             throw new Error("User has no vaid userID, sorry");
         }
@@ -256,7 +259,7 @@ router.get('/coinadmin/users', async (request,response) => {
                         wrioID: user.wrioID,
                         name: user.lastName,
                         ethWallet: user.ethereumWallet,
-                        dbBalance: (user.dbBalance || 0) / 100,
+                        dbBalance: -(user.dbBalance || 0) / 100,
                         ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
                         wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
                         prepayments: user.prepayments || []

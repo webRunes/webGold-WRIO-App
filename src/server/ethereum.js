@@ -30,6 +30,7 @@ let wei = 1000000000000000000;
 let SATOSHI = 100000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
+var prepaymentProcessLock = {};
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");
@@ -127,14 +128,14 @@ class WebGold {
                 console.log("Cointransfer listener error");
             } else {
                 try {
-                    var amount = result.args.amount;
                     var sender = result.args.sender;
                     var receiver = result.args.receiver;
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
+                    var amount = await this.getBalance(receiver);
 
                     console.log("WRG transfer finished: "+amount+" from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user,amount)
+                    await this.processPendingPayments(user,amount.toString())
 
                 } catch (e) {
                     console.log("Processing payment failed",e);
@@ -149,36 +150,60 @@ class WebGold {
 
     async processPendingPayments(user,amount) {
 
-        /* Check all prepayments, if there's some, mark them as completed, */
+        if (!user.wrioID) {
+            throw new Error("User have no wrioID, exit");
+        }
 
-        var left = amount;
-        var pending = user['prepayments'] || [];
-
-        console.log("Found "+pending.length+" pending payments for"+user.wrioID);
-
-        if (pending.length == 0) {
+        if (user.wrioID in prepaymentProcessLock) {
+            console.log("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
             return;
         }
 
-        var wrioUser = new WebRunesUsers();
-        for (var payment in pending) {
-            console.log ("   *****  PROCESSING PAYMENT "+payment)
-            var p = pending[payment];
-            if (left > p.amount) {
+        prepaymentProcessLock[user.wrioID] = true; // engage lock
 
-                await this.makeDonate(user, p.to, p.amount);
-                await wrioUser.cancelPrepayment(user.wrioID,p.id,p.amount); // remove payment amount from user's debt
-                left -= amount;
+        try {
+            console.log("****** PROCESS_PENDING_PAYMENTS",amount);
 
+            /* Check all prepayments, if there's some, mark them as completed, */
+
+            var left = amount;
+            var pending = user['prepayments'] || [];
+
+            console.log("Found "+pending.length+" pending payments for"+user.wrioID);
+
+            if (pending.length == 0) {
+                return;
             }
+
+            var wrioUser = new WebRunesUsers();
+            for (var payment in pending) {
+                console.log ("   *****  PROCESSING PAYMENT "+payment);
+                var p = pending[payment];
+                var paym_amount = - p.amount;
+                console.log(left,paym_amount);
+                if (left >=paym_amount) {
+                    console.log("Donating to",p.to,paym_amount);
+                    await this.unlockByWrioID(user.wrioID);
+                    await this.makeDonate(user, p.to, paym_amount);
+                    await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
+                    left -= paym_amount;
+
+                }
+            }
+            console.log("Pre-payments paid, left",left.toString());
+            delete prepaymentProcessLock[user.wrioID]; //  release lock
+        } catch (e) {
+            delete prepaymentProcessLock[user.wrioID]; //  make sure lock is released in unexpected situation
+            throw e; // Throw error down through the chain
         }
-        console.log("Pre-payments paid, left",left.toString());
+
+
 
     }
 
     async unlockByWrioID (wrioID) {
         var user = await this.users.getByWrioID(wrioID);
-        console.log(user);
+        //console.log(user);
         if (user.ethereumWallet) {
             console.log("Unlocking existing wallet for " + wrioID);
             this.accounts.unlockAccount(user.ethereumWallet,wrioID);
@@ -197,7 +222,7 @@ class WebGold {
     async getEthereumAccountForWrioID (wrioID) {
 
         var user = await this.users.getByWrioID(wrioID);
-        console.log(user);
+       // console.log(user);
         if (user.ethereumWallet) {
             console.log("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;

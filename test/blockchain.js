@@ -7,6 +7,7 @@ import should from 'should';
 import db from '../src/server/db.js'
 import Invoices from '../src/server/dbmodels/invoice.js'
 import Users from '../src/server/dbmodels/wriouser.js'
+import apitest from "./apitest"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -73,7 +74,6 @@ describe("Blockchain unit tests", function() {
 
         });
         console.log(invoiceID);
-
 
     });
     it ("should fail with blockchain callback with wrong secret", (done) => {
@@ -142,10 +142,15 @@ describe("Blockchain unit tests", function() {
         let trurl = "/api/blockchain/callback?"+serialize(tparams);
         console.log("Transaction URL",trurl);
         request(app)
-            .get(trurl)
-            .expect("*ok*")
-            .expect(200,done);
+            .get(trurl).expect(400,done);
+//            .expect("*ok*")
+//      .expect(200,done);
     });
+
+
+
+
+    apitest(app,request);
 
 });
 
