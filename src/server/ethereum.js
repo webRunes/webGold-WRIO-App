@@ -9,7 +9,7 @@
 
 import web3 from 'web3'
 import {Promise} from 'es6-promise'
-import {dumpError} from './utils'
+import {dumpError,calc_percent} from './utils'
 import Accounts from './ethereum-node'
 import HookedWeb3Provider from 'hooked-web3-provider'
 import db from './db';
@@ -23,11 +23,14 @@ import EtherFeed from './dbmodels/etherfeed.js'
 import Emissions from './dbmodels/emissions.js'
 import Donation from './dbmodels/donations.js'
 
+//import PrePayment from './dbmodels/prepay.js'
+
 
 let wei = 1000000000000000000;
 let SATOSHI = 100000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
+var prepaymentProcessLock = {};
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");
@@ -120,21 +123,79 @@ class WebGold {
 
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
-        var event = this.token.CoinTransfer({}, '', function(error, result){
+        var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
                 console.log("Cointransfer listener error");
             } else {
-                console.log("Coin transfer: " +
-                    result.args.amount +
-                    " tokens were sent. Balances now are as following: \n Sender:\t" +
-                    result.args.sender + " \t" + that.token.coinBalanceOf.call(result.args.sender) +
-                    " tokens \n Receiver:\t" + result.args.receiver + " \t" +
-                    that.token.coinBalanceOf.call(result.args.receiver) + " tokens" );
+                try {
+                    var sender = result.args.sender;
+                    var receiver = result.args.receiver;
+                    var wrioUsers = new WebRunesUsers();
+                    var user = await wrioUsers.getByEthereumWallet(receiver);
+                    var amount = await this.getBalance(receiver);
+
+                    console.log("WRG transfer finished: "+amount+" from: "+sender+" to: "+ receiver);
+                    await this.processPendingPayments(user,amount.toString())
+
+                } catch (e) {
+                    console.log("Processing payment failed",e);
+                    dumpError(e);
+                }
+
             }
 
         });
+    }
 
 
+    async processPendingPayments(user,amount) {
+
+        if (!user.wrioID) {
+            throw new Error("User have no wrioID, exit");
+        }
+
+        if (user.wrioID in prepaymentProcessLock) {
+            console.log("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
+            return;
+        }
+
+        prepaymentProcessLock[user.wrioID] = true; // engage lock
+
+        try {
+            console.log("****** PROCESS_PENDING_PAYMENTS",amount);
+
+            /* Check all prepayments, if there's some, mark them as completed, */
+
+            var left = amount;
+            var pending = user['prepayments'] || [];
+
+            console.log("Found "+pending.length+" pending payments for"+user.wrioID);
+
+            if (pending.length == 0) {
+                return;
+            }
+
+            var wrioUser = new WebRunesUsers();
+            for (var payment in pending) {
+                console.log ("   *****  PROCESSING PAYMENT "+payment);
+                var p = pending[payment];
+                var paym_amount = - p.amount;
+                console.log(left,paym_amount);
+                if (left >=paym_amount) {
+                    console.log("Donating to",p.to,paym_amount);
+                    await this.unlockByWrioID(user.wrioID);
+                    await this.makeDonate(user, p.to, paym_amount);
+                    await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
+                    left -= paym_amount;
+
+                }
+            }
+            console.log("Pre-payments paid, left",left.toString());
+            delete prepaymentProcessLock[user.wrioID]; //  release lock
+        } catch (e) {
+            delete prepaymentProcessLock[user.wrioID]; //  make sure lock is released in unexpected situation
+            throw e; // Throw error down through the chain
+        }
 
 
 
@@ -142,7 +203,7 @@ class WebGold {
 
     async unlockByWrioID (wrioID) {
         var user = await this.users.getByWrioID(wrioID);
-        console.log(user);
+        //console.log(user);
         if (user.ethereumWallet) {
             console.log("Unlocking existing wallet for " + wrioID);
             this.accounts.unlockAccount(user.ethereumWallet,wrioID);
@@ -161,7 +222,7 @@ class WebGold {
     async getEthereumAccountForWrioID (wrioID) {
 
         var user = await this.users.getByWrioID(wrioID);
-        console.log(user);
+       // console.log(user);
         if (user.ethereumWallet) {
             console.log("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;
@@ -346,6 +407,31 @@ class WebGold {
             });
         });
     }
+
+    // actual donate wrapper
+
+    async makeDonate (user, to, amount)  {
+
+        var dest = await this.getEthereumAccountForWrioID(to);
+        var src = await this.getEthereumAccountForWrioID(user.wrioID);
+
+        if (dest === src) {
+            throw new Error("Can't donate to itself");
+        }
+
+        await this.unlockByWrioID(user.wrioID);
+        await this.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+
+        console.log("Prepare for transfer",dest,src,amount);
+        await this.donate(src,dest,amount);
+
+        var donate = new Donation();
+        await donate.create(user.wrioID,to,amount,0);
+
+        var amountUser = amount*calc_percent(amount)/100;
+        var fee = amount - amountUser;
+
+    };
 
 
     /*
