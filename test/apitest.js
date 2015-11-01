@@ -6,13 +6,15 @@ export default (app,request) => {
 
     describe("API unit tests", function() {
 
+
+
         it ("shoud return default page",function (done){
             request(app)
                 .get('/')
                 .expect(200,done);
         });
 
-        it("shoud fail with empty credentials", function (done) {
+        it("/api/search shoud fail with empty credentials", function (done) {
             var postdata = {
                 twitterCreds: {
                     access_token:"",
@@ -30,15 +32,21 @@ export default (app,request) => {
 
     });
 
-    it("should fail to get_balance without credentials", (done) => {
+    it("get_balance should fail with wrong origin header", (done) => {
+
         request(app)
             .post('/api/webgold/get_balance')
-            .expect(403,done)
+            .expect(200,done)
     });
 
-    it("should fail to get_balance without credentials", (done) => {
+
+   // console.log("Setting override",app.override_session);
+
+
+    it("donate should work with credentials", (done) => {
+        console.log("*****get_balance start****");
         request(app)
-            .post('/api/webgold/get_balance')
+            .get('/api/webgold/donate')
             .expect(403,done)
     })
 
