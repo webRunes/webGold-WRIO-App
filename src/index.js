@@ -17,6 +17,7 @@ import MongoStore from 'connect-mongo'
 
 var app = express();
 app.ready = () => {};
+app.override_session = {sid:null};
 
 app.use(function (request, response, next) {
 	//console.log(request);
@@ -78,12 +79,31 @@ function setup_server(db) {
 			key: 'sid'
 		}
 	));
+
+
+
+	app.use((req,res,next)=> {  // stub for unit testing, we can override sessionID, if app.override_session is set
+		console.log("OVERRIDE:",app.override_session.sid);
+		if (app.override_session.sid) {
+			 req.sessionID = app.override_session.sid;
+			 console.log("Overriding session ID",app.override_session.sid);
+		}
+
+
+
+		return next();
+
+	});
+
+
+
 }
 function setup_routes(db) {
 	app.get('/', function (request, response) {
 		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
 	});
 	app.get('/coinadmin', function (request, response) {
+		console.log(request);
 		response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
 	});
 

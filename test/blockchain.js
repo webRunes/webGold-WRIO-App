@@ -8,6 +8,7 @@ import db from '../src/server/db.js'
 import Invoices from '../src/server/dbmodels/invoice.js'
 import Users from '../src/server/dbmodels/wriouser.js'
 import apitest from "./apitest"
+import {generateFakeSession,clearTestDb} from "../src/server/wriologin.js"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -19,6 +20,7 @@ var ready = false;
 app.ready = () => {
     ready = true;
 };
+
 
 function waitdb() {
     return new Promise((resolve,reject) => {
@@ -34,6 +36,7 @@ function waitdb() {
 
 }
 
+
 var serialize = (obj) => {
     var str = [];
     for(var p in obj)
@@ -43,6 +46,7 @@ var serialize = (obj) => {
     return str.join("&");
 };
 
+let testObjId = "55da495d0d925e152e73f5f6";
 let testID = '1234567890';
 let input_address = "30450221008949f0cb400094ad2b5eb3";
 let destination = 'b388ab8935022079656090d7f6bac4c9';
@@ -56,8 +60,10 @@ describe("Blockchain unit tests", function() {
 
         await users.clearTestDb();
         await i.clearTestDb();
+        await clearTestDb();
 
         var user = await users.create({
+            "_id": db.ObjectID(testObjId),
             "wrioID": testID,
             "titterID": "186910661",
             "lastName": "John Doe",
@@ -73,6 +79,11 @@ describe("Blockchain unit tests", function() {
             'requested_amount': "13131131313"
 
         });
+
+        app.override_session.sid = "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW";
+
+        await generateFakeSession(user._id);
+
         console.log(invoiceID);
 
     });
@@ -142,10 +153,11 @@ describe("Blockchain unit tests", function() {
         let trurl = "/api/blockchain/callback?"+serialize(tparams);
         console.log("Transaction URL",trurl);
         request(app)
-            .get(trurl).expect(400,done);
-//            .expect("*ok*")
-//      .expect(200,done);
+            .get(trurl)
+            .expect("*ok*")
+      .expect(200,done);
     });
+
 
 
 
