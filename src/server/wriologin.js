@@ -28,7 +28,7 @@ export function loginWithSessionId(ssid, done) {
     console.log("Trying deserialize session",ssid);
     sessions.findOne({"_id": ssid}, function(err, session) {
         if (err || !session) {
-            console.log("User not found", err);
+            console.log("User corresponding to this SID not found", err);
             done(err);
             return;
         }
@@ -50,6 +50,55 @@ export function loginWithSessionId(ssid, done) {
         //done(err, rows[0]);
     });
 }
+
+export function generateFakeSession(userID) {
+    var sessions = db.db.collection('sessions');
+
+    return new Promise((resolve,reject) => {
+        var item = {
+            _id: "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW",
+            expires: new Date(909090909090990),
+            session: JSON.stringify({
+                cookie: {
+                    "originalMaxAge": 0,
+                    expires: "2025-11-22"
+                },
+                passport: {
+                    user: userID
+                }
+            })
+        };
+
+       sessions.insertOne(item,(err,res) => {
+           if (err) {
+               return reject(err);
+           }
+           resolve()
+       })
+    });
+
+}
+
+export function clearTestDb() {
+    var sessions = db.db.collection('sessions');
+    return new Promise((resolve,reject) => {
+
+            //  console.log(db);
+
+            if (db.db.s.databaseName != "webrunes_test") {
+                return reject("Wipe can be made only on test db");
+            }
+            sessions.remove({},(err) => {
+                if (err)  {
+                    return reject(err);
+                }
+                resolve("Wipe ok");
+            });
+        }
+
+    );
+}
+
 
 export function getTwitterCredentials(sessionId, done) {
 
