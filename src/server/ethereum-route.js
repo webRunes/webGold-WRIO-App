@@ -188,9 +188,16 @@ router.post('/get_balance',async (request,response) => {
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
             var balance = await webGold.getBalance(dest) / 100;
 
+            var bal = balance;
+
+            if (user.dbBalace) { // adjust sum if we have pending payments
+                bal -=  (user.dbBalance/100);
+            }
+            
+
             //console.log("balance:",balance.add(dbBalance).toString());
             response.send({
-                "balance": balance - (user.dbBalance/100)
+                "balance": bal
             })
 
             await webGold.processPendingPayments(user,balance*100);
