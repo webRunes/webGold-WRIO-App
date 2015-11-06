@@ -1,16 +1,17 @@
 import React from 'react';
 import UserInfo from './UserInfo';
 import request from 'superagent';
+import BigNumber from 'bignumber.js'
 
 class User extends React.Component {
     constructor(props) {
         super(props);
         var that = this;
         this.state = {
-            balance: "..."
+            balance: null
         }
         this.requestBalance((err,balance) => {
-            var amount = JSON.parse(balance).balance;
+            var amount = new BigNumber(JSON.parse(balance).balance);
             console.log("Ethereum balance", amount);
             that.setState({
                 balance: amount
@@ -29,7 +30,15 @@ class User extends React.Component {
     }
 
     render() {
-        var btc = this.props.btcExchangeRate.toString();
+        var btcRate = this.props.btcExchangeRate.toFixed(8);
+        var usdBalance = "...";
+        var wrgBalance = "....";
+        if (this.state.balance) {
+            usdBalance =  this.state.balance.mul(this.props.btcExchangeRate).div(10000).toFixed(8);
+            wrgBalance = this.state.balance.toFixed(2);
+        }
+
+
         return (
             <div className="form-group">
                 { this.props.username ? 
@@ -38,9 +47,9 @@ class User extends React.Component {
             	    <li>
                         <span>Current balance</span>
                         <span>
-                            { this.state.balance }<small className="currency">WRG</small>
+                            { wrgBalance }<small className="currency">WRG</small>
                             <sup className="currency">
-                                { this.state.balance * this.props.btcExchangeRate / 10000 }<span className="currency">BTC</span>
+                                <span>{ usdBalance }</span><span className="currency">BTC</span>
                             </sup>
                         </span>
                     </li>
@@ -48,7 +57,7 @@ class User extends React.Component {
         				<span>Exchange rate</span>
                         <span>
                             10 000<small className="currency">WRG</small>
-                            = { btc }<small className="currency">BTC</small>
+                            = { btcRate }<small className="currency">BTC</small>
 
                         </span>
             		</li>
