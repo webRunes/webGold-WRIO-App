@@ -7,7 +7,7 @@
 // ln -s /srv/www/ethereumjs-accounts/ /srv/node_modules/ethereumjs-accounts-node
 // geth --rpc --rpcaddr "192.168.1.4" --unlock 0
 
-import web3 from 'web3'
+import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise'
 import {dumpError,calc_percent} from './utils'
 import Accounts from './ethereum-node'
@@ -191,6 +191,7 @@ class WebGold {
                 }
             }
             console.log("Pre-payments paid, left",left.toString());
+
             delete prepaymentProcessLock[user.wrioID]; //  release lock
         } catch (e) {
             delete prepaymentProcessLock[user.wrioID]; //  make sure lock is released in unexpected situation
