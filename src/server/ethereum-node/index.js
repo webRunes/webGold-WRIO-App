@@ -45,8 +45,7 @@ require('browserify-cryptojs/components/aes');
 
 
 
-import web3 from 'web3'
-
+import Web3 from 'web3'; var web3 = new Web3();
 import {dumpError} from '../utils.js'
 
 

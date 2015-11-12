@@ -2,7 +2,7 @@
  * Created by michbil on 15.09.15.
  */
 
-import web3 from 'web3'
+import Web3 from 'web3'; var web3 = new Web3();
 
 web3.setProvider(new web3.providers.HttpProvider('http://localhost:8545')) ;
 
