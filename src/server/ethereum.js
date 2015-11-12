@@ -150,6 +150,16 @@ class WebGold {
 
     async processPendingPayments(user,amount) {
 
+        function setLock(id) {
+            console.log("Setting lock for ",id);
+            prepaymentProcessLock[id] = true; // engage lock
+        }
+        function releaseLock(id) {
+            delete prepaymentProcessLock[id]; //  make sure lock is released in unexpected situation
+            console.log("Releasing lock for ",id);
+        }
+
+
         if (!user.wrioID) {
             throw new Error("User have no wrioID, exit");
         }
@@ -159,7 +169,7 @@ class WebGold {
             return;
         }
 
-        prepaymentProcessLock[user.wrioID] = true; // engage lock
+        setLock(user.wrioID);
 
         try {
             console.log("****** PROCESS_PENDING_PAYMENTS",amount);
@@ -172,6 +182,7 @@ class WebGold {
             console.log("Found "+pending.length+" pending payments for"+user.wrioID);
 
             if (pending.length == 0) {
+                releaseLock(user.wrioID);
                 return;
             }
 
@@ -192,9 +203,9 @@ class WebGold {
             }
             console.log("Pre-payments paid, left",left.toString());
 
-            delete prepaymentProcessLock[user.wrioID]; //  release lock
+            releaseLock(user.wrioID);
         } catch (e) {
-            delete prepaymentProcessLock[user.wrioID]; //  make sure lock is released in unexpected situation
+            releaseLock(user.wrioID);
             throw e; // Throw error down through the chain
         }
 
