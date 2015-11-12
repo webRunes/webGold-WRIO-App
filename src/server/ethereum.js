@@ -31,6 +31,8 @@ let SATOSHI = 100000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
 var prepaymentProcessLock = {};
+let DAY_IN_MS = 24 * 60 * 60 * 1000;
+let prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");
@@ -132,10 +134,10 @@ class WebGold {
                     var receiver = result.args.receiver;
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
-                    var amount = await this.getBalance(receiver);
 
-                    console.log("WRG transfer finished: "+amount+" from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user,amount.toString())
+
+                    console.log("WRG transfer finished, from: "+sender+" to: "+ receiver);
+                    await this.processPendingPayments(user)
 
                 } catch (e) {
                     console.log("Processing payment failed",e);
@@ -147,8 +149,15 @@ class WebGold {
         });
     }
 
+    checkPrePaymentExpired(payment) {
+        let timeLeft =new Date() - new Date(payment.timestamp);
 
-    async processPendingPayments(user,amount) {
+        console.log("Prepayment data", timeLeft);
+
+        return timeLeft < 0 ? true : false;
+    }
+
+    async processPendingPayments(user) {
 
         function setLock(id) {
             console.log("Setting lock for ",id);
@@ -159,7 +168,6 @@ class WebGold {
             console.log("Releasing lock for ",id);
         }
 
-
         if (!user.wrioID) {
             throw new Error("User have no wrioID, exit");
         }
@@ -168,6 +176,10 @@ class WebGold {
             console.log("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
             return;
         }
+
+        var amount = await this.getBalance(user.ethereumAccount);
+
+        amount = amount.toString();
 
         setLock(user.wrioID);
 
@@ -189,6 +201,7 @@ class WebGold {
             var wrioUser = new WebRunesUsers();
             for (var payment in pending) {
                 console.log ("   *****  PROCESSING PAYMENT "+payment);
+
                 var p = pending[payment];
                 var paym_amount = - p.amount;
                 console.log(left,paym_amount);
@@ -198,8 +211,16 @@ class WebGold {
                     await this.makeDonate(user, p.to, paym_amount);
                     await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
                     left -= paym_amount;
-
+                } else {
+                    console.log("Insufficient funds to complete the payment",payment);
                 }
+
+                if (this.checkPrePaymentExpired(pending[payment])) {
+                    console.log("Deleteting expired prepayment");
+                    await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
+                };
+
+
             }
             console.log("Pre-payments paid, left",left.toString());
 

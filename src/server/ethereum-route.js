@@ -174,33 +174,27 @@ router.post('/get_balance',async (request,response) => {
 
             // try to get temp balance stored in db record
 
-            var dbBalance = new BigNumber(0);
-            if (user.balance) {
-                dbBalance = new BigNumber(user.balance);
+            var dbBalance = 0;
+            if (user.dbBalance) {
+                dbBalance = user.dbBalance / 100;
             }
 
-            console.log("balance from db:", dbBalance.toString());
+            console.log("balance from db:", dbBalance);
 
             var webGold = new WebGold(db.db);
-
-
 
             var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
             var balance = await webGold.getBalance(dest) / 100;
 
-            var bal = balance;
-
-            if (user.dbBalace) { // adjust sum if we have pending payments
-                bal -=  (user.dbBalance/100);
-            }
+            var bal = balance - dbBalance;
 
 
             //console.log("balance:",balance.add(dbBalance).toString());
             response.send({
                 "balance": bal
-            })
+            });
 
-            await webGold.processPendingPayments(user,balance*100);
+            await webGold.processPendingPayments(user);
 
 
         } else {
