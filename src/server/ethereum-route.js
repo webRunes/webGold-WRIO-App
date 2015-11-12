@@ -204,10 +204,10 @@ router.post('/get_balance',async (request,response) => {
 
 
         } else {
-            throw new Error("User has no vaid userID, sorry");
+            throw new Error("User has no valid userID, sorry");
         }
     } catch(e) {
-        console.log("Errro during get_balance",e);
+        console.log("Error during get_balance",e);
         dumpError(e);
         response.status(403).send("Error");
     }
