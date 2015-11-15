@@ -5,18 +5,34 @@ var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 
-gulp.task('babel-server', function() {
-    gulp.src('src/index.js')
-        .on('error', function(err) {
-            console.log('Babel server:', err.toString());
-        })
-        .pipe(gulp.dest('app'));
+function restart_nodemon () {
+    if (nodemon_instance) {
+        console.log("Restarting nodemon");
+        nodemon_instance.emit('restart');
+    } else {
+        console.log("Nodemon isntance not ready yet")
+    }
 
-    return gulp.src('src/server/**/*.*')
+}
+
+gulp.task('babel-server', function() {
+    return gulp.src('src/index.js')
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
-        .pipe(gulp.dest('app/server'));
+        .pipe(gulp.dest('app'))
+        .on('end',function (){
+            gulp.src('src/server/**/*.*')
+                .on('error', function(err) {
+                    console.log('Babel server:', err.toString());
+                })
+                .pipe(gulp.dest('app/server'))
+                .on('end',function() {
+                    restart_nodemon();
+            });
+        });
+
+
 });
 
 gulp.task('babel-client', function() {
@@ -58,16 +74,23 @@ gulp.task('views', function() {
 });
 
 
+var nodemon_instance;
 
 gulp.task('nodemon', function() {
-    nodemon({
-        script: 'server.js',
-        ext: 'js',
-        ignore: ['src/**']
-    })
-        .on('error', function(error) {
-            console.log('Nodemon:', event.message);
+
+    if (!nodemon_instance) {
+        nodemon_instance = nodemon({
+            script: 'server.js',
+            watch: 'src/__manual_watch__',
+            ext: '__manual_watch__',
+            verbose: false,
+        }).on('restart', function() {
+            console.log('~~~ restart server ~~~');
         });
+    } else {
+        nodemon_instance.emit('restart');
+    }
+
 });
 
 gulp.task('default', ['babel-server', 'babel-client', 'views']);
