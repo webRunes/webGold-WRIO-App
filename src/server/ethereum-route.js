@@ -123,7 +123,11 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
                 // Do virtual payment to the database record because user has insufficient funds
                 // when funds arrive on the account, pending payments will be done
 
-                if ((dbBalance-amount) < MAX_DEBT ) { // check if we havent reached maximum debt limit
+                var debt = dbBalance-amount;
+
+                console.log("CALCULATED DEBT:",debt);
+
+                if (debt > MAX_DEBT ) { // check if we havent reached maximum debt limit
                     throw new Error("Insufficient funds");
                 }
 
@@ -159,9 +163,12 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
     } catch(e) {
         console.log("Error during donate",e);
         dumpError(e);
-        if (!e) e = "null";
-        var textResult = e.toString();
-        response.status(403).send({"error":textResult});
+        if (!e) {
+            response.status(403).send({"error":"Unknown error"});
+        } else {
+            response.status(403).send({"error":e.message});
+        }
+
     }
 
 });

@@ -36,7 +36,10 @@ export default (app,request) => {
 
         request(app)
             .post('/api/webgold/get_balance')
-            .expect(200,done)
+            .expect(200,(res) => {
+                console.log(res);
+                done();
+            })
     });
 
 
