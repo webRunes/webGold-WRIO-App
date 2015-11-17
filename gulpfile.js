@@ -42,6 +42,12 @@ gulp.task('babel-client', function() {
         })
         .pipe(gulp.dest('app/client/3rdparty'));
 
+    gulp.src('hub/*.*')
+        .on('error',function (err) {
+
+        })
+        .pipe(gulp.dest('app/hub/'));
+
     browserify({
         entries: './src/client/js/client.js',
         debug: true

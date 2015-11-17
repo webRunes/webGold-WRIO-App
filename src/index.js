@@ -100,7 +100,7 @@ function setup_server(db) {
 }
 function setup_routes(db) {
 	app.get('/', function (request, response) {
-		response.sendFile(__dirname + '/client/views/site.html');
+		response.sendFile(__dirname + '/hub/index.html');
 	});
 	app.get('/coinadmin', function (request, response) {
 		console.log(request);
