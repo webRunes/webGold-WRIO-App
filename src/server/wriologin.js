@@ -50,6 +50,12 @@ export function loginWithSessionId(ssid, done) {
         //done(err, rows[0]);
     });
 }
+/*
+
+Returns promise of fake user's session, needed for testing purposes
+
+ */
+
 
 export function generateFakeSession(userID) {
     var sessions = db.db.collection('sessions');
@@ -78,6 +84,14 @@ export function generateFakeSession(userID) {
     });
 
 }
+
+/*
+
+Clears test db records when unit testing (promised)
+
+DON'T use in production environment !!!!
+
+ */
 
 export function clearTestDb() {
     var sessions = db.db.collection('sessions');
@@ -119,6 +133,11 @@ export function getTwitterCredentials(sessionId, done) {
     });
 }
 
+/*
+
+Returns logged in user id (promised)
+
+ */
 
 export function getLoggedInUser(ssid) {
     return new Promise((resolve, reject) => {
@@ -131,11 +150,3 @@ export function getLoggedInUser(ssid) {
         });
     });
 }
-
-/*
-var obj = {
-    setDB: setDB,
-    loginWithSessionId: loginWithSessionId
-};
-
-export default obj;*/
