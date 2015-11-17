@@ -198,7 +198,9 @@ router.post('/get_balance',async (request,response) => {
 
             //console.log("balance:",balance.add(dbBalance).toString());
             response.send({
-                "balance": bal
+                "balance": bal,
+                "promised": dbBalance,
+                "blockchain": balance
             });
 
             await webGold.processPendingPayments(user);
