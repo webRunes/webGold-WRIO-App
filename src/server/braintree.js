@@ -57,11 +57,11 @@ router.post("/payment-methods", function  (req, res)  {
         }, function (err, result) {
             if (err) {
                 console.log("processing nonce error", err);
-                res.sendFile(path.join(TEMPLATE_PATH, '/failure.html'));
+                res.sendFile(path.join(TEMPLATE_PATH, '/failure.htm'));
                 return;
             }
             console.log("processing transaction: ", result);
-            res.sendFile(path.join(TEMPLATE_PATH, '/success.html'));
+            res.sendFile(path.join(TEMPLATE_PATH, '/success.htm'));
             var obj = {
                 Amount: amountWRG,
                 Added: $currentDate,
