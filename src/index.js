@@ -56,7 +56,7 @@ function setup_server(db) {
 
 //For app pages
 	app.set('view engine', 'ejs');
-	app.use(express.static(path.join(TEMPLATE_PATH, '/')));
+	//app.use(express.static(path.join(TEMPLATE_PATH, '/')));
 
 	const DOMAIN = nconf.get("db:workdomain");
 
@@ -100,15 +100,15 @@ function setup_server(db) {
 }
 function setup_routes(db) {
 	app.get('/', function (request, response) {
-		response.sendFile(path.join(TEMPLATE_PATH, '/index.htm'));
+		response.sendFile(__dirname + '/hub/index.htm');
 	});
 	app.get('/coinadmin', function (request, response) {
 		console.log(request);
-		response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
+		response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
 	});
 
 	app.get('/add_funds', function (request, response) {
-		response.sendFile(__dirname + '/client/views/index.html');
+		response.sendFile(__dirname + '/client/views/index.htm');
 	});
 
 	app.get('/add_funds_data', async (request, response) => {
