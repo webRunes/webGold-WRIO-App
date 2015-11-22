@@ -1,3 +1,5 @@
+/* Main webgold contract file */
+
 contract token {
   
   mapping (address => uint) public coinBalanceOf;
