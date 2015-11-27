@@ -94,7 +94,7 @@ class WebGold {
     constructor(db) {
         var that = this;
         this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
-        var abi_file = path.resolve(__dirname, '../../ethereum/token.abi');
+        var abi_file = path.resolve(__dirname, '../../contract/token.abi');
         this.abi = eval(fs.readFileSync(abi_file).toString());
         this.token = web3.eth.contract(this.abi)
             .at(this.contractadress,(err,res) => {
