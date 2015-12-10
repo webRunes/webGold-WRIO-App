@@ -35,7 +35,40 @@ gulp.task('babel-server', function() {
 
 });
 
-gulp.task('babel-client', function() {
+gulp.task('babel-client-admin',function () {
+
+    return browserify({
+        entries: './src/client/js/admin.js',
+        debug: true
+    })
+        .transform(babelify)
+        .bundle()
+        .on('error', function(err) {
+            console.log('Babel client:', err.toString());
+        })
+        .pipe(source('admin.js'))
+        .pipe(gulp.dest('app/client'));
+
+});
+
+gulp.task('babel-client-transactions',function () {
+
+    return browserify({
+        entries: './src/client/js/transactions.js',
+        debug: true
+    })
+        .transform(babelify)
+        .bundle()
+        .on('error', function(err) {
+            console.log('Babel client:', err.toString());
+        })
+        .pipe(source('transactions.js'))
+        .pipe(gulp.dest('app/client'));
+
+});
+
+
+gulp.task('babel-client', ['babel-client-admin', 'babel-client-transactions'],function() {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
 
@@ -60,17 +93,7 @@ gulp.task('babel-client', function() {
         .pipe(source('client.js'))
         .pipe(gulp.dest('app/client'));
 
-    browserify({
-        entries: './src/client/js/admin.js',
-        debug: true
-    })
-        .transform(babelify)
-        .bundle()
-        .on('error', function(err) {
-            console.log('Babel client:', err.toString());
-        })
-        .pipe(source('admin.js'))
-        .pipe(gulp.dest('app/client'));
+
 
 });
 

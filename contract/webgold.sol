@@ -25,19 +25,34 @@ contract token {
        return true;
      }
 
-      function donate(address receiver, uint amount) returns(bool sufficient) {
-        if (amount <= 0) return false;
+    function getPercent(uint amount) internal returns (uint out_percent) {
+
         uint p = 1;
-        uint sum_receiver = 0;
-        uint sum_master = 0;
         uint percent = 0;
+
         if ((amount > 0) && (amount < 10*wrgMul)) p = 1;
         if ((amount >= 10*wrgMul) && (amount < 100*wrgMul)) p = 2;
         if ((amount >= 100*wrgMul) && (amount < 1000*wrgMul)) p = 3;
         if ((amount >= 1000*wrgMul) && (amount < 10000*wrgMul)) p = 4;
-        if (amount > 10000*wrgMul) return false;
+        if ((amount >= 10000*wrgMul) && (amount < 100000*wrgMul)) p = 5;
+        if (amount >= 100000*wrgMul) return 0;
 
         percent = 75*percentMul + (p - 1)*5*percentMul + percentMul * amount / (2000*wrgMul);
+        return percent;
+
+    }
+
+    function donate(address receiver, uint amount) returns(bool sufficient) {
+        if (amount <= 0) return false;
+
+        uint sum_receiver = 0;
+        uint sum_master = 0;
+        uint percent = 0;
+
+        percent = getPercent(amount);
+        if (percent == 0) {
+            return false; // if have too big sum, don't proceed any further
+        }
         sum_receiver = percent * amount / (percentMul*100);
         sum_master = amount - sum_receiver;
 
@@ -47,5 +62,5 @@ contract token {
         coinBalanceOf[master] += sum_master;
         CoinTransfer(msg.sender, receiver, amount);
         return true;
-        }
+    }
 }

@@ -245,7 +245,7 @@ router.post('/payment_history', async (request,response) => {
 
         var blockchain = new BlockChain();
         var history = await blockchain.getInvoices(userID._id);
-        console.log("History",history);
+       // console.log("History",history);
         response.send(history);
 
     } catch (e) {
