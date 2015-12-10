@@ -21,10 +21,9 @@ class Transactions extends React.Component {
         super(props);
 
         this.state = {
-            data:[
-
-            ],
-            modalContent: null
+            data: [],
+            modalContent: null,
+            loading: true
         };
     }
 
@@ -32,8 +31,10 @@ class Transactions extends React.Component {
 
         TransactionStore.listen((transactions) => {
             this.setState({
-                data: transactions
+                data: transactions,
+                loading: false
             });
+
         });
 
         Actions.Rate.listen((val)=>{
@@ -64,6 +65,88 @@ class Transactions extends React.Component {
             exchangeRate =  this.state.rates.exchangeRate;
         }
 
+       var table = (
+            <table className="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Transaction</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {
+                    this.state.data.map(function (item) {
+                        var title = "";
+                        var glyph = "";
+                        var status = "";
+                        var opacity = 1.0;
+
+                        if (item.type === "add_funds") {
+                            glyph = "glyphicon glyphicon-arrow-down";
+                            title = "Funds added";
+                            if (item.state == "request_sent") {
+                                status = "Awaiting payment";
+                                opacity = 0.4;
+                                title = "Funds add requested";
+                            }
+                            if (item.state == "payment_confirmed") {
+                                status = "Payment confirmed"
+                            }
+                        }
+                        if (item.type === "donation") {
+                            if (item.incoming) {
+                                glyph = "glyphicon glyphicon-arrow-down";
+                                title = "Received donation from @" + item.srcName;
+                                status = "Completed";
+
+                            } else {
+                                glyph = "glyphicon glyphicon-arrow-up";
+                                title = "Sent donation to @" + item.destName;
+                                status = "Completed";
+                                item.amount = -item.amount;
+                            }
+                        }
+
+                        var style = {opacity: opacity};
+
+                        return (
+                            <tr key={item.id} style={ style }>
+                                <td><span className={ glyph }></span></td>
+                                <td>{title}</td>
+                                <td>{new Date(item.timestamp).toDateString()}</td>
+                                <td>{status}</td>
+                                <td>{item.amount}
+                                    <small className="currency">WRG</small>
+                                    <sup className="currency">{item.amountUSD} USD</sup>
+                                </td>
+                            </tr>
+                        );
+                    })
+                }
+
+                </tbody>
+            </table>);
+
+        var showtable = false;
+        var nomsg = "";
+
+        if (this.state.loading) {
+            showtable = false;
+
+        } else {
+            if (this.state.data == []) {
+                showtable = false;
+                nomsg = "No records"
+            } else {
+                showtable = "true";
+                nomsg = "";
+            }
+        }
+        var loader = (<img src="http://wrioos.com.s3.amazonaws.com/Default-WRIO-Theme/img/loading.gif"/>);
 
         return (
             <div>
@@ -80,67 +163,9 @@ class Transactions extends React.Component {
                             =&nbsp;{ exchangeRate }
                             <small className="currency">USD</small></span></li>
                 </ul>
-                <table className="table table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th>Transaction</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Amount</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                {this.state.loading?loader:""}
+                {showtable?table:nomsg}
 
-                    {
-                        this.state.data.map(function (item) {
-                            var title = "";
-                            var glyph = "";
-                            var status = "";
-                            var opacity = 1.0;
-
-                            if (item.type === "add_funds") {
-                                glyph = "glyphicon glyphicon-arrow-down";
-                                title = "Funds added";
-                                if (item.state == "request_sent") {
-                                    status = "Awaiting payment";
-                                    opacity = 0.4;
-                                    title = "Funds add requested";
-                                }
-                                if (item.state == "payment_confirmed") {
-                                    status = "Payment confirmed"
-                                }
-                            }
-                            if (item.type === "donation") {
-                                if (item.incoming) {
-                                    glyph = "glyphicon glyphicon-arrow-down";
-                                    title = "Received donation from @"+item.srcName;
-                                    status = "Complete";
-
-                                } else {
-                                    glyph = "glyphicon glyphicon-arrow-up";
-                                    title = "Sent donation to @"+item.destName;
-                                    status = "Complete";
-                                    item.amount = -item.amount;
-                                }
-                            }
-
-                            var style = {opacity : opacity};
-
-                            return  (
-                                <tr key={item.id} style={ style} >
-                                    <td><span className= { glyph }></span></td>
-                                    <td>{title}</td>
-                                    <td>{new Date(item.timestamp).toDateString()}</td>
-                                    <td>{status}</td>
-                                    <td>{item.amount}<small className="currency">WRG</small><sup className="currency">{item.amountUSD} USD</sup></td>
-                                </tr>
-                            );
-                        })
-                    }
-
-                    </tbody>
-                </table>
             </div>
         );
     }

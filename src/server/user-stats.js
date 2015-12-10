@@ -32,7 +32,26 @@ var getUserNames = async (names)=> {
 
     return await Users.getAllUsers(query);
 
-}
+};
+
+
+
+router.get('/prepayments', async (request,response) => {
+    try {
+        var user = await getLoggedInUser(request.sessionID);
+
+        if (user.prepayments) {
+            response.send(user.prepayments)
+        } else {
+            response.send([]);
+        }
+
+    } catch(e) {
+        console.log("Error getting prepayments",e);
+        dumpError(e);
+        response.status(403).send("Error");
+    }
+});
 
 
 router.get('/donations', async (request,response) => {
