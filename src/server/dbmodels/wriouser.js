@@ -49,9 +49,10 @@ class WebRunesUsers {
         });
     }
 
-    getAllUsers() {
+    getAllUsers(query) {
+        query = query || {};
         return new Promise((resolve,reject) =>{
-            this.users.find({}).toArray(function (err,users) {
+            this.users.find(query).toArray(function (err,users) {
                 if (err) {
                     console.log("Db user search error");
                     reject(err);

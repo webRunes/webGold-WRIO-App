@@ -74,9 +74,6 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
 });
 
 
-
-
-
 /*
     Donate API request
     parameters to: recipient WRIO-ID
@@ -84,8 +81,6 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
     sid: user's session id
 
  */
-
-
 
 router.get('/donate',async (request,response) => { // TODO : add authorization, important !!!!
     try {

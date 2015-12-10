@@ -3,9 +3,11 @@ import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
 //import braintree from './server/braintree';
-import blockchain from './server/blockchain.info'
+import BlockChainRoute from './server/blockchain.info'
 import {BlockChain} from './server/blockchain.info'
-import ethereum_route from './server/ethereum-route'
+import EthereumRoute from './server/ethereum-route'
+import UserStatsRoute from './server/user-stats.js'
+
 import {init} from './server/db';
 import {loginWithSessionId,getLoggedInUser} from './server/wriologin'
 import WebGold from './server/ethereum'
@@ -89,8 +91,6 @@ function setup_server(db) {
 			 console.log("Overriding session ID",app.override_session.sid);
 		}
 
-
-
 		return next();
 
 	});
@@ -105,6 +105,10 @@ function setup_routes(db) {
 	app.get('/coinadmin', function (request, response) {
 		console.log(request);
 		response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
+	});
+
+	app.get('/transactions', function (request, response) {
+		response.sendFile(__dirname + '/client/views/webgold-transactions.htm');
 	});
 
 	app.get('/add_funds', function (request, response) {
@@ -175,8 +179,9 @@ function setup_routes(db) {
 	});
 
 	//app.use('/api/braintree/', braintree);
-	app.use('/api/blockchain/',blockchain);
-	app.use('/api/webgold/',ethereum_route);
+	app.use('/api/blockchain/',BlockChainRoute);
+	app.use('/api/webgold/',EthereumRoute);
+	app.use('/api/user/',UserStatsRoute);
 	app.use('/assets', express.static(path.join(__dirname, '/client')));
 }
 
