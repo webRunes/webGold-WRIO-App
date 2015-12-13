@@ -101,14 +101,26 @@ class Transactions extends React.Component {
                             if (item.incoming) {
                                 glyph = "glyphicon glyphicon-arrow-down";
                                 title = "Received donation from @" + item.srcName;
-                                status = "Completed";
-
                             } else {
                                 glyph = "glyphicon glyphicon-arrow-up";
                                 title = "Sent donation to @" + item.destName;
-                                status = "Completed";
                                 item.amount = -item.amount;
                             }
+                            status = "Completed";
+                        }
+
+                        if (item.type === "prepayment") {
+                            opacity = 0.6;
+                            if (item.incoming) {
+                                glyph = "glyphicon glyphicon-arrow-down";
+                                title = "Received donation from @" + item.srcName;
+                            } else {
+                                glyph = "glyphicon glyphicon-arrow-up";
+                                title = "Sent donation to @" + item.destName;
+                                item.amount = -item.amount;
+                            }
+                            status = "Pending";
+
                         }
 
                         var style = {opacity: opacity};

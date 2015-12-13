@@ -21,6 +21,15 @@ import Invoices from "./dbmodels/invoice.js"
 import WrioUser from "./dbmodels/wriouser.js"
 
 
+var decodeUserNames = async (names) => {
+    var nameHash = {};
+    var users = await getUserNames(names);
+    for (var i in users) {
+        var user = users[i];
+        nameHash[user.wrioID]=user.lastName;
+    }
+    return nameHash;
+}
 
 var getUserNames = async (names)=> {
     var Users = new WrioUser();
@@ -34,17 +43,63 @@ var getUserNames = async (names)=> {
 
 };
 
-
-
 router.get('/prepayments', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
+        var Users = new WrioUser(db.db);
 
-        if (user.prepayments) {
-            response.send(user.prepayments)
-        } else {
-            response.send([]);
+        // search in User arrays for prepayments designated for us
+
+        var prepQuery = {
+            prepayments:
+            {
+                $elemMatch:
+                {
+                    to: user.wrioID
+                }
+            }
+        };
+
+        var matchingUsers = await Users.getAllUsers(prepQuery);
+
+        var names = [user.wrioID];
+        var prepayments = [];
+
+        if (user.prepayments) { // add user's pening payments to the output list
+            prepayments = prepayments.concat(user.prepayments.map((item)=>{
+                item.from = user.wrioID;
+                item.incoming = false;
+                names.push(item.to);
+                return item;
+            }));
         }
+
+        matchingUsers.map((u) => {
+            names.push(u.wrioID);
+            var payments = u.prepayments.map((item)=> {
+                item.from = u.wrioID; // add from reference
+                item.incoming = true;
+                return item;
+            });
+            prepayments = prepayments.concat(payments);
+        });
+
+        var nameHash = await decodeUserNames(names);
+
+        response.send(prepayments.map((pre) => {
+            console.log(user.wrioID, pre);
+            if ((pre.to == user.wrioID) || (pre.from == user.wrioID)) {
+                console.log("MATCH");
+                return {
+                    id: pre.id,
+                    incoming: pre.incoming,
+                    amount:-pre.amount,
+                    timestamp: pre.timestamp,
+                    srcName:nameHash[pre.from],
+                    destName:nameHash[pre.to]
+                };
+            }
+        }));
 
     } catch(e) {
         console.log("Error getting prepayments",e);
@@ -79,13 +134,7 @@ router.get('/donations', async (request,response) => {
             return item;
         });
         // create mappings for usernames
-        var nameHash = {};
-        var users = await getUserNames(names);
-        for (var i in users) {
-            var user = users[i];
-            nameHash[user.wrioID]=user.lastName;
-        }
-
+        var nameHash = await decodeUserNames(names);
         data = data.map((item)=> {
             item.destName = nameHash[item.destWrioID];
             item.srcName = nameHash[item.srcWrioID];
