@@ -67,7 +67,13 @@ module.exports = Reflux.createStore({
 
          this.requestPaymentHistory((err,state) => {
              if (err) {
-                throw new Error('Cant get payment history:',err);
+                console.log('Cant get payment history:',err);
+                if (err.status === 403) {
+                    that.trigger({error:"You're not allowed to see this page"});
+                } else {
+                    that.trigger({error:"Oops! Something went wrong!"})
+                }
+
                 return;
              }
              //console.log(state);
@@ -90,7 +96,12 @@ module.exports = Reflux.createStore({
          });
         this.requestDonations((err,state) => {
             if (err) {
-                throw new Error('Cant get donations: '+err);
+                console.log('Cant get donations: '+err);
+                if (err.status === 403) {
+                    that.trigger({error:"You're not allowed to see this page"});
+                } else {
+                    that.trigger({error:"Oops! Something went wrong!"})
+                }
                 return;
             }
            // console.log(state);
@@ -115,7 +126,12 @@ module.exports = Reflux.createStore({
 
         this.requestPrepayments((err,state) => {
             if (err) {
-                throw new Error('Cant get prepayments: ' + err);
+                console.log('Cant get prepayments: ' + err);
+                if (err.status === 403) {
+                    that.trigger({error:"You're not allowed to see this page"});
+                } else {
+                    that.trigger({error:"Oops! Something went wrong!"})
+                }
                 return;
             }
             console.log("Prepayments",state);
