@@ -70,7 +70,7 @@ module.exports = Reflux.createStore({
                 throw new Error('Cant get payment history:',err);
                 return;
              }
-             console.log(state);
+             //console.log(state);
              that.sortedAppend(state.map((element) => {
                  var amount = limitBTCDigits(element.requested_amount / SATOSHI);
                  return {
@@ -93,7 +93,7 @@ module.exports = Reflux.createStore({
                 throw new Error('Cant get donations: '+err);
                 return;
             }
-            console.log(state);
+           // console.log(state);
             that.sortedAppend(state.map((element) => {
 
                 return {
@@ -113,6 +113,28 @@ module.exports = Reflux.createStore({
             that.trigger(that.transactions);
         });
 
+        this.requestPrepayments((err,state) => {
+            if (err) {
+                throw new Error('Cant get prepayments: ' + err);
+                return;
+            }
+            console.log("Prepayments",state);
+            that.sortedAppend(state.map((element) => {
+
+                return {
+                    id: element.id,
+                    type:"prepayment",
+                    amount: element.amount,
+                    amountUSD: "",
+                    timestamp: element.timestamp,
+                    incoming: element.incoming,
+                    destName: element.destName,
+                    srcName: element.srcName
+                }
+            }));
+            that.trigger(that.transactions);
+        });
+
     },
 
     requestPaymentHistory(cb) {
@@ -127,6 +149,16 @@ module.exports = Reflux.createStore({
 
     requestDonations(cb) {
         request.get('/api/user/donations').end((err,users)=> {
+            if (err) {
+                cb(err);
+                return;
+            }
+            cb(null,JSON.parse(users.text));
+        })
+    },
+
+    requestPrepayments(cb) {
+        request.get('/api/user/prepayments').end((err,users)=> {
             if (err) {
                 cb(err);
                 return;
