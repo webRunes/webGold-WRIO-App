@@ -4,6 +4,7 @@ var utils = require('./utils');
 
 module.exports = _Error;
 
+
 /**
  * Generic Error klass to wrap any errors returned by stripe-node
  */

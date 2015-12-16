@@ -5,25 +5,86 @@ var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 
+function restart_nodemon () {
+    if (nodemon_instance) {
+        console.log("Restarting nodemon");
+        nodemon_instance.emit('restart');
+    } else {
+        console.log("Nodemon isntance not ready yet")
+    }
+
+}
+
 gulp.task('babel-server', function() {
-    gulp.src('src/index.js')
+    return gulp.src('src/index.js')
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
-        .pipe(gulp.dest('app'));
-        
-    gulp.src('src/server/**/*.*')
-        .on('error', function(err) {
-            console.log('Babel server:', err.toString());
-        })
-        .pipe(gulp.dest('app/server'));
+        .pipe(gulp.dest('app'))
+        .on('end',function (){
+            gulp.src('src/server/**/*.*')
+                .on('error', function(err) {
+                    console.log('Babel server:', err.toString());
+                })
+                .pipe(gulp.dest('app/server'))
+                .on('end',function() {
+                    restart_nodemon();
+            });
+        });
+
+
 });
 
-gulp.task('babel-client', function() {
-    browserify({ 
-            entries: './src/client/js/client.js',
-            debug: true 
+gulp.task('babel-client-admin',function () {
+
+    return browserify({
+        entries: './src/client/js/admin.js',
+        debug: true
+    })
+        .transform(babelify)
+        .bundle()
+        .on('error', function(err) {
+            console.log('Babel client:', err.toString());
         })
+        .pipe(source('admin.js'))
+        .pipe(gulp.dest('app/client'));
+
+});
+
+gulp.task('babel-client-transactions',function () {
+
+    return browserify({
+        entries: './src/client/js/transactions.js',
+        debug: true
+    })
+        .transform(babelify)
+        .bundle()
+        .on('error', function(err) {
+            console.log('Babel client:', err.toString());
+        })
+        .pipe(source('transactions.js'))
+        .pipe(gulp.dest('app/client'));
+
+});
+
+
+gulp.task('babel-client', ['babel-client-admin', 'babel-client-transactions'],function() {
+    gulp.src('src/client/js/3rdparty/*.*')
+        .on('error',function (err) {
+
+        })
+        .pipe(gulp.dest('app/client/3rdparty'));
+
+    gulp.src('hub/*.*')
+        .on('error',function (err) {
+
+        })
+        .pipe(gulp.dest('app/hub/'));
+
+    browserify({
+        entries: './src/client/js/client.js',
+        debug: true
+    })
         .transform(babelify)
         .bundle()
         .on('error', function(err) {
@@ -31,22 +92,34 @@ gulp.task('babel-client', function() {
         })
         .pipe(source('client.js'))
         .pipe(gulp.dest('app/client'));
+
+
+
 });
 
 gulp.task('views', function() {
-    gulp.src('src/client/views/**/*.*')
+    return gulp.src('src/client/views/**/*.*')
         .pipe(gulp.dest('app/client/views'));
 });
 
+
+var nodemon_instance;
+
 gulp.task('nodemon', function() {
-    nodemon({
-        script: 'server.js',
-        ext: 'js',
-        ignore: ['src/**']
-    }) 
-        .on('error', function(error) {
-            console.log('Nodemon:', event.message);
+
+    if (!nodemon_instance) {
+        nodemon_instance = nodemon({
+            script: 'server.js',
+            watch: 'src/__manual_watch__',
+            ext: '__manual_watch__',
+            verbose: false,
+        }).on('restart', function() {
+            console.log('~~~ restart server ~~~');
         });
+    } else {
+        nodemon_instance.emit('restart');
+    }
+
 });
 
 gulp.task('default', ['babel-server', 'babel-client', 'views']);

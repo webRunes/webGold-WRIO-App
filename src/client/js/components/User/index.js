@@ -1,12 +1,44 @@
 import React from 'react';
 import UserInfo from './UserInfo';
+import request from 'superagent';
+import BigNumber from 'bignumber.js'
 
 class User extends React.Component {
     constructor(props) {
         super(props);
+        var that = this;
+        this.state = {
+            balance: null
+        }
+        this.requestBalance((err,balance) => {
+            var amount = new BigNumber(JSON.parse(balance).balance);
+            console.log("Ethereum balance", amount);
+            that.setState({
+                balance: amount
+                });
+        });
     }
-    
+
+    requestBalance(cb) {
+        request.post('/api/webgold/get_balance').end((err,balance)=> {
+            if (err) {
+                cb(err);
+                return;
+            }
+            cb(null,balance.text);
+        })
+    }
+
     render() {
+        var btcRate = this.props.btcExchangeRate.toFixed(8);
+        var usdBalance = "...";
+        var wrgBalance = "....";
+        if (this.state.balance) {
+            usdBalance =  this.state.balance.mul(this.props.btcExchangeRate).div(10000).toFixed(8);
+            wrgBalance = this.state.balance.toFixed(2);
+        }
+
+
         return (
             <div className="form-group">
                 { this.props.username ? 
@@ -15,9 +47,9 @@ class User extends React.Component {
             	    <li>
                         <span>Current balance</span>
                         <span>
-                            { this.props.balance }<small className="currency">WRG</small>
+                            { wrgBalance }<small className="currency">WRG</small>
                             <sup className="currency">
-                                { this.props.balance * this.props.exchangeRate / 10000 }<span className="currency">USD</span>
+                                <span>{ usdBalance }</span><span className="currency">BTC</span>
                             </sup>
                         </span>
                     </li>
@@ -25,9 +57,17 @@ class User extends React.Component {
         				<span>Exchange rate</span>
                         <span>
                             10 000<small className="currency">WRG</small>
-                            = { this.props.exchangeRate }<small className="currency">USD</small>
+                            = { btcRate }<small className="currency">BTC</small>
+
                         </span>
             		</li>
+                    <li>
+                        <span>Exchange rate</span>
+                         <span>
+                            10 000<small className="currency">WRG</small>
+                             = { this.props.exchangeRate }<small className="currency">USD</small>
+                        </span>
+                    </li>
             	</ul>
             </div>
         );

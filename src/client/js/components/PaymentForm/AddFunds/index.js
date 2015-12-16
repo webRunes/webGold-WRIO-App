@@ -25,7 +25,9 @@ class AddFunds extends React.Component {
     
     render() {
         return (
+
             <div className="col-xs-12">
+                 { this.state.user == null ? <div className="callout">Please login to add funds</div> : <div /> }
 				<div className="form-group col-xs-12">
         			<div className="pull-right">
                         { this.state.user !== null ? 
