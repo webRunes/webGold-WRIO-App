@@ -17,7 +17,7 @@ let SATOSHI = 100000000;
 function frameReady() {
     var ht = $("body").outerHeight(true);
     console.log(ht);
-    parent.postMessage(JSON.stringify({"titterHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
+    parent.postMessage(JSON.stringify({"transactionsHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
 }
         
 (function() {
