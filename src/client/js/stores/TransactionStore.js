@@ -98,7 +98,7 @@ module.exports = Reflux.createStore({
             if (err) {
                 console.log('Cant get donations: '+err);
                 if (err.status === 403) {
-                    that.trigger({error:"You're not allowed to see this page"});
+                    that.trigger({error:"Forbidden"});
                 } else {
                     that.trigger({error:"Oops! Something went wrong!"})
                 }
@@ -128,7 +128,7 @@ module.exports = Reflux.createStore({
             if (err) {
                 console.log('Cant get prepayments: ' + err);
                 if (err.status === 403) {
-                    that.trigger({error:"You're not allowed to see this page"});
+                    that.trigger({error:"Forbidden"});
                 } else {
                     that.trigger({error:"Oops! Something went wrong!"})
                 }
