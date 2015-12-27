@@ -66,6 +66,13 @@ class Transactions extends React.Component {
     componentWillMount() {
 
         TransactionStore.listen((transactions) => {
+            if (transactions.error) {
+                this.setState({
+                    error:transactions.error,
+                    loading: false
+                });
+                return;
+            }
             this.setState({
                 data: transactions,
                 loading: false
@@ -196,6 +203,11 @@ class Transactions extends React.Component {
         }
         var loader = (<img src="http://wrioos.com.s3.amazonaws.com/Default-WRIO-Theme/img/loading.gif"/>);
 
+        if (this.state.error) {
+            nomsg = this.state.error;
+            showtable = false;
+        }
+
         return (
             <div>
                 <ul className="breadcrumb">
@@ -212,7 +224,7 @@ class Transactions extends React.Component {
                             <small className="currency">USD</small></span></li>
                 </ul>
                 {this.state.loading?loader:""}
-                {showtable?table:nomsg}
+                {showtable?table:<div className="alert alert-warning">{nomsg}</div>}
 
             </div>
         );
