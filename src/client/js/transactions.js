@@ -14,14 +14,20 @@ import BalanceStore from './stores/BalanceStore.js'
 import numeral from 'numeral';
 let SATOSHI = 100000000;
 
-function frameReady() {
-    var ht = $("body").outerHeight(true);
-    console.log(ht);
-    parent.postMessage(JSON.stringify({"transactionsHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
-}
-        
-(function() {
-    var throttle = function(type, name, obj) {
+class Transactions extends React.Component {
+
+    constructor(props) {
+        console.log("Balances created");
+        super(props);
+
+        this.state = {
+            data: [],
+            modalContent: null,
+            loading: true
+        };
+    }
+
+    throttle(type, name, obj) {
         obj = obj || window;
         var running = false;
         var func = function() {
@@ -39,28 +45,18 @@ function frameReady() {
             });
         };
         obj.addEventListener(type, func);
-    };
+    }
 
-    /* init - you can init any event */
-    throttle("resize", "optimizedResize");
-})();
+    frameReady() {
+        var ht = $("body").outerHeight(true);
+        parent.postMessage(JSON.stringify({"transactionsHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
+    }
 
-// handle event
-window.addEventListener("optimizedResize", function() {
-   frameReady();
-});
-
-class Transactions extends React.Component {
-
-    constructor(props) {
-        console.log("Balances created");
-        super(props);
-
-        this.state = {
-            data: [],
-            modalContent: null,
-            loading: true
-        };
+    componentDidMount() {
+        throttle("resize", "optimizedResize");
+        window.addEventListener("optimizedResize", function() {
+           frameReady();
+        });
     }
 
     componentWillMount() {
