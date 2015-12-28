@@ -27,6 +27,38 @@ class Transactions extends React.Component {
         };
     }
 
+    throttle(type, name, obj) {
+        obj = obj || window;
+        var running = false;
+        var func = function() {
+            if (running) { return; }
+            running = true;
+            requestAnimationFrame(function() {
+                // For IE compatibility
+                var evt = document.createEvent("CustomEvent");
+                evt.initCustomEvent(name, false, false, {
+                    'cmd': "resize"
+                });
+                obj.dispatchEvent(evt);
+                // obj.dispatchEvent(new CustomEvent(name));
+                running = false;
+            });
+        };
+        obj.addEventListener(type, func);
+    }
+
+    frameReady() {
+        var ht = $("body").outerHeight(true);
+        parent.postMessage(JSON.stringify({"transactionsHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
+    }
+
+    componentDidMount() {
+        throttle("resize", "optimizedResize");
+        window.addEventListener("optimizedResize", function() {
+           frameReady();
+        });
+    }
+
     componentWillMount() {
 
         TransactionStore.listen((transactions) => {
