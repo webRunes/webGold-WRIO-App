@@ -206,9 +206,6 @@ class Transactions extends React.Component {
 
         return (
             <div>
-                <ul className="breadcrumb">
-                    <li className="active">Transactions</li>
-                </ul>
                 <ul className="leaders">
                     <li><span>Current Balance&nbsp;</span>
                         <span>&nbsp; { wrgBalance }
