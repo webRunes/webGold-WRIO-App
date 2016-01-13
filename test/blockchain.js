@@ -55,11 +55,11 @@ var invoiceID;
 describe("Blockchain unit tests", function() {
     before(async () => {
        await waitdb();
-        var i = new Invoices();
+        var invoice = new Invoices();
         var users = new Users();
 
         await users.clearTestDb();
-        await i.clearTestDb();
+        await invoice.clearTestDb();
         await clearTestDb();
 
         var user = await users.create({
@@ -69,8 +69,8 @@ describe("Blockchain unit tests", function() {
             "lastName": "John Doe",
             "ethereumWallet": "0xc40e6bd934b31b312bfe55441fc086b19aa4df4d"
         });
-        invoiceID = await i.createInvoice(user._id,user.wrioID);
-        await i.updateInvoiceData({
+        invoiceID = await invoice.createInvoice(user._id,user.wrioID);
+        await invoice.updateInvoiceData({
             input_address: input_address,
             destination: destination,
             fee_percent: 0,
@@ -81,7 +81,6 @@ describe("Blockchain unit tests", function() {
         });
 
         app.override_session.sid = "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW";
-
         await generateFakeSession(user._id);
 
         console.log(invoiceID);
