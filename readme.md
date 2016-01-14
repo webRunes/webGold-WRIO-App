@@ -11,5 +11,5 @@ For docker local development start geth node on local machine with start_eth scr
 ##Official Hub
 [webgold.wrioos.com](https://webgold.wrioos.com)
 
-Powered by [Open Copyright](https://opencopyright.webrunes.com)
+Powered by [Open Copyright](https://opencopyright.wrioos.com)
 
