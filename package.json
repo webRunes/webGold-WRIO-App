@@ -4,7 +4,7 @@
   "description": "https://github.com/webRunes/webGold-WRIO-App/",
   "main": "server.js",
   "scripts": {
-    "start": "gulp && gulp test && echo \"Build Completed.\" ",
+    "start": "echo \"Build Completed.\" ",
     "test": "export NODE_ENV=testing && mocha --timeout 20000 --compilers js:babel/register test/blockchain.js"
   },
   "engines": {
