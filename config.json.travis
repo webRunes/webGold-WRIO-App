@@ -1,16 +1,16 @@
 {
  "db": {
     "host": "localhost",
-    "dbname": "test",
+    "dbname": "webrunes_test",
     "user": "",
     "password": "",
     "workdomain": ".wrioos.com",
     "mongouser": "",
-    "mongodbname": "test"
+    "mongodbname": "webrunes_test"
   },
   "mongo": {
     "host": "localhost",
-    "dbname": "test",
+    "dbname": "webrunes_test",
     "user": "",
     "password": ""
   },
