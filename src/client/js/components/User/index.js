@@ -49,7 +49,7 @@ class User extends React.Component {
                         <span>
                             { wrgBalance }<small className="currency">WRG</small>
                             <sup className="currency">
-                                <span>{ usdBalance }</span><span className="currency">BTC</span>
+                                <span ref="usdBalance">{ usdBalance }</span><span className="currency">BTC</span>
                             </sup>
                         </span>
                     </li>
