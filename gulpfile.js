@@ -23,7 +23,7 @@ gulp.task('test', function() {
         // gulp-mocha needs filepaths so you can't have any plugins before it
         .pipe(mocha({
             reporter: 'dot',
-            timeout: 20000
+            timeout: 60000
         }))
         .once('error', function (err) {
             console.log(err)
