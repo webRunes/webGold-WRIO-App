@@ -4,11 +4,13 @@ sudo: false
 node_js:
   - 0.12
 
+
 install : npm install
 script  : npm start
 
 before_deploy:
 - gem install mime-types -v 2.6.2
+
 
 deploy:
   - provider: opsworks
