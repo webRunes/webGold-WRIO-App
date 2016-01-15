@@ -6,16 +6,17 @@ import BigNumber from 'bignumber.js'
 class User extends React.Component {
     constructor(props) {
         super(props);
-        var that = this;
         this.state = {
             balance: null
         }
         this.requestBalance((err,balance) => {
-            var amount = new BigNumber(JSON.parse(balance).balance);
-            console.log("Ethereum balance", amount);
-            that.setState({
-                balance: amount
+            if (balance) {
+                var amount = new BigNumber(JSON.parse(balance).balance);
+                console.log("Ethereum balance", amount);
+                this.setState({
+                    balance: amount
                 });
+            }
         });
     }
 
