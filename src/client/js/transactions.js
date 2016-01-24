@@ -53,7 +53,7 @@ class Transactions extends React.Component {
     }
 
     componentDidMount() {
-        throttle("resize", "optimizedResize");
+        this.throttle("resize", "optimizedResize");
         window.addEventListener("optimizedResize", function() {
            frameReady();
         });
