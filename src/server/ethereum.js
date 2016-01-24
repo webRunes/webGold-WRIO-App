@@ -14,14 +14,15 @@ import Accounts from './ethereum-node'
 import HookedWeb3Provider from 'hooked-web3-provider'
 import db from './db';
 import {init} from './db';
-import WebRunesUsers from './dbmodels/wriouser'
 import fs from 'fs';
 import path from 'path'
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
+import WebRunesUsers from './dbmodels/wriouser'
 import EtherFeed from './dbmodels/etherfeed.js'
 import Emissions from './dbmodels/emissions.js'
 import Donation from './dbmodels/donations.js'
+import mongoKeyStore from './payments/MongoKeystore.js'
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -41,51 +42,6 @@ if (!masterAccount) {
 }
 if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
-}
-
-class mongoKeyStore {
-    constructor(db) {
-        this.accounts = db.collection('ethereum_accounts');
-    }
-
-    get(key) {
-        return new Promise((resolve,reject) =>{
-            this.accounts.findOne({_id:key},function (err,data) {
-                if (err) {
-                    console.log("mongoKeyStore Db key search error");
-                    reject(err);
-                    return;
-                }
-                if (!data) {
-                    console.log('Db key not found');
-                    reject('mongoKeyStore keyNotFound '+key);
-                    return;
-                }
-                resolve(data.value);
-            })
-        });
-    }
-
-    set(key,value) {
-        var that = this;
-        return new Promise((resolve,reject) =>{
-            console.log("Writing account to keystore");
-            this.accounts.insertOne({
-                "_id": key,
-                "value": value
-
-            },function(err,res) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve("OK");
-            });
-        });
-    }
-
-
-
 }
 
 
@@ -110,9 +66,7 @@ class WebGold {
             {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
-
             });
-
 
         var provider = new HookedWeb3Provider({
             host: nconf.get('payment:ethereum:host'),
@@ -134,8 +88,6 @@ class WebGold {
                     var receiver = result.args.receiver;
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
-
-
                     console.log("WRG transfer finished, from: "+sender+" to: "+ receiver);
                     await this.processPendingPayments(user)
 
@@ -178,9 +130,7 @@ class WebGold {
         }
 
         var amount = await this.getBalance(user.ethereumAccount);
-
         amount = amount.toString();
-
         setLock(user.wrioID);
 
         try {
@@ -262,7 +212,6 @@ class WebGold {
         } else {
             return await this.createEthereumAccountForWRIOID(wrioID)
         }
-
     }
 
     async createEthereumAccountForWRIOID (wrioID) {
