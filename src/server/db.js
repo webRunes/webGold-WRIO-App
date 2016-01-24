@@ -23,7 +23,12 @@ export function init() {
         let user = nconf.get('mongo:user');
         let password = nconf.get('mongo:password');
         let mongodbname = nconf.get('mongo:dbname');
-        url = `mongodb://${user}:${password}@${host}/${mongodbname}`;
+
+        if (user) {
+            url = `mongodb://${user}:${password}@${host}/${mongodbname}`;
+        } else {
+            url = `mongodb://${host}/${mongodbname}`;
+        }
     }
 
     return new Promise((resolve, reject) => {

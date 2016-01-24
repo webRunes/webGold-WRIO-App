@@ -1,9 +1,12 @@
+require('babel/register');
+
 var gulp = require('gulp');
 var browserify = require('browserify');
 var babel = require('gulp-babel');
 var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
+var mocha = require('gulp-mocha');
 
 function restart_nodemon () {
     if (nodemon_instance) {
@@ -14,6 +17,22 @@ function restart_nodemon () {
     }
 
 }
+
+gulp.task('test', function() {
+    return gulp.src('test/**/*.js', {read: false})
+        // gulp-mocha needs filepaths so you can't have any plugins before it
+        .pipe(mocha({
+            reporter: 'dot',
+            timeout: 60000
+        }))
+        .once('error', function (err) {
+            console.log(err)
+            process.exit(1);
+        })
+        .once('end', function () {
+            process.exit();
+        });;
+});
 
 gulp.task('babel-server', function() {
     return gulp.src('src/index.js')

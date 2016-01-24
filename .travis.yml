@@ -4,9 +4,17 @@ sudo: false
 node_js:
   - 0.12
 
+install: 
+  - npm install
+  - npm install -g gulp
 
-install : npm install
-script  : npm start
+services: mongodb
+
+script:
+  - cp config.json.travis config.json
+  - gulp
+  - gulp test
+  - npm start
 
 before_deploy:
 - gem install mime-types -v 2.6.2

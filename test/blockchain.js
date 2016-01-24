@@ -159,10 +159,6 @@ describe("Blockchain unit tests", function() {
 
 
 
-
-
-    apitest(app,request);
-
 });
 
 /**

@@ -5,30 +5,16 @@ import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import {dumpError} from './utils';
 import BigNumber from 'bignumber.js';
-
 import {init} from './db';
 import WebGold from './ethereum'
-
-const router = Router();
-
-/*
-init().then(function(database) {
-    var blockchain = new BlockChain();
-    blockchain.get_payment_history(11).then(function (res){
-        console.log(res);
-        database.close();
-    });
-
-});
-*/
-
-
-
-
 import db from './db';
 import Invoice from './dbmodels/invoice.js'
 import User from './dbmodels/wriouser.js'
 
+
+const router = Router();
+
+/* Blockchain.info client for bitcoin payments */
 
 export class BlockChain {
     constructor(options) {
@@ -67,11 +53,15 @@ export class BlockChain {
     async get_rates() {
         try {
 
-            let api_request = "https://blockchain.info/ru/ticker";
+            var isInTest = typeof global.it === 'function';
 
+            if (isInTest) {
+                return new BigNumber(433.0);
+            }
+
+            let api_request = "https://blockchain.info/ru/ticker";
             console.log("Sending get_rates request",api_request);
             var result = await request.post(api_request);
-           // console.log("USD/BTC = ",result.body.USD.buy);
 
             return new BigNumber(result.body.USD.buy);
 
@@ -135,7 +125,6 @@ export class BlockChain {
     handle_callback(req,resp) {
         var that = this;
         return new Promise(async (resolve, reject) => {
-
             try {
                 let secret = decodeURIComponent(req.query.secret);
                 let nonce = req.query.nonce;
@@ -178,8 +167,6 @@ export class BlockChain {
 
                 }
 
-
-
                 console.log("Comparing input adress from invoice",invoice_data.input_address, input_address);
                 if (invoice_data.input_address != input_address) {
                     console.log("Wrong input address");
@@ -201,15 +188,13 @@ export class BlockChain {
                     return;
                 }
 
-
-
                 if (confirmations > 5) { // if there's more than 5 confirmations
                     await invoice.updateInvoiceData({
                        state: "payment_confirmed"
                     });
                     var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
                     wrg = wrg.times(100).toFixed(0); // multipy 100 and round to make value in centiWRG
-                    await this.webgold.emit(user.ethereumWallet, parseInt(wrg), user.wrioID); // send ether to user
+                    await this.generateWrg(user.ethereumWallet, parseInt(wrg), user.wrioID); // send ether to user
                     console.log(wrg,"WRG was emitted");
                     resp.status(200).send("*ok*"); // send success to blockchain.info server
                     return;
@@ -224,6 +209,17 @@ export class BlockChain {
                 console.log("Error during blockchain callback: ",e);
             }
         });
+    }
+
+    async generateWrg(who,amount,id) {
+        var isInTest = typeof global.it === 'function';
+        if (isInTest) {
+            console.log(" ====  Mocking emission of WRG ==== ");
+            return;
+        } else {
+            return await this.webgold.emit(who, amount, id); // send ether to user
+        }
+
     }
 }
 
