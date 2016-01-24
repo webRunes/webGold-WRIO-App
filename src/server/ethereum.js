@@ -88,8 +88,6 @@ class WebGold {
                     var receiver = result.args.receiver;
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
-
-
                     console.log("WRG transfer finished, from: "+sender+" to: "+ receiver);
                     await this.processPendingPayments(user)
 
