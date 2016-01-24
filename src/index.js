@@ -123,7 +123,6 @@ function setup_routes(db) {
 
 		try {
 			var user = await getLoggedInUser(request.sessionID);
-
 			if (user) {
 				var bc = new BlockChain();
 				var btc_rate = await bc.get_rates();
@@ -137,8 +136,6 @@ function setup_routes(db) {
 					btcExchangeRate: bitRate
 				});
 			}
-
-
 		} catch(e) {
 			console.log('WEBGOLD:User not found',e);
 			response.json({
@@ -149,9 +146,6 @@ function setup_routes(db) {
 			});
 
 		}
-
-
-
 	});
 
 	app.get('/get_user', function (request, response) {

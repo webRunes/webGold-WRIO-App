@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "echo \"Build Completed.\" ",
-    "test": "export NODE_ENV=testing && mocha --timeout 20000 --compilers js:babel/register test/blockchain.js"
+    "test": "export NODE_ENV=testing && gulp test"
   },
   "engines": {
     "node": ">= v0.8.0"

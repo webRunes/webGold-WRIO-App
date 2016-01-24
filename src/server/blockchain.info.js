@@ -5,30 +5,16 @@ import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import {dumpError} from './utils';
 import BigNumber from 'bignumber.js';
-
 import {init} from './db';
 import WebGold from './ethereum'
-
-const router = Router();
-
-/*
-init().then(function(database) {
-    var blockchain = new BlockChain();
-    blockchain.get_payment_history(11).then(function (res){
-        console.log(res);
-        database.close();
-    });
-
-});
-*/
-
-
-
-
 import db from './db';
 import Invoice from './dbmodels/invoice.js'
 import User from './dbmodels/wriouser.js'
 
+
+const router = Router();
+
+/* Blockchain.info client for bitcoin payments */
 
 export class BlockChain {
     constructor(options) {
