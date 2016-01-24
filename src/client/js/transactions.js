@@ -47,16 +47,17 @@ class Transactions extends React.Component {
         obj.addEventListener(type, func);
     }
 
-    frameReady() {
+    postHeight() {
         var ht = $("body").outerHeight(true);
         parent.postMessage(JSON.stringify({"transactionsHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
     }
 
     componentDidMount() {
         this.throttle("resize", "optimizedResize");
-        window.addEventListener("optimizedResize", function() {
-           frameReady();
+        window.addEventListener("optimizedResize", () => {
+           this.postHeight();
         });
+        postHeight();
     }
 
     componentWillMount() {
