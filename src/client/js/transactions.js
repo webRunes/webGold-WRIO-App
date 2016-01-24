@@ -197,7 +197,7 @@ class Transactions extends React.Component {
                 nomsg = "";
             }
         }
-        var loader = (<img src="http://wrioos.com.s3.amazonaws.com/Default-WRIO-Theme/img/loading.gif"/>);
+        var loader = (<img src="https://default.wrioos.com/img/loading.gif"/>);
 
         if (this.state.error) {
             nomsg = this.state.error;
