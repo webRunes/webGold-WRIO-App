@@ -13,7 +13,7 @@ services: mongodb
 script:
   - cp config.json.travis config.json
   - gulp
-  - gulp test
+  - npm test
   - npm start
 
 before_deploy:
