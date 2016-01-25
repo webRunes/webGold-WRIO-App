@@ -116,7 +116,7 @@ function setup_routes(db) {
     });
 
     app.get('/add_funds_data', async (request, response) => {
-        var loginUrl =  nconf.get('loginUrl') || ("//login"+nconf.get('server:workdomain')+'/');
+        var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
         console.log(loginUrl);
 
         console.log("WEBGOLD:Add funds data");
