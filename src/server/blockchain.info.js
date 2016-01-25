@@ -6,10 +6,10 @@ import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import {dumpError} from './utils';
 import BigNumber from 'bignumber.js';
 import {init} from './db';
-import WebGold from './ethereum'
+import WebGold from './ethereum';
 import db from './db';
-import Invoice from './dbmodels/invoice.js'
-import User from './dbmodels/wriouser.js'
+import Invoice from './dbmodels/invoice.js';
+import User from './dbmodels/wriouser.js';
 
 
 const router = Router();
@@ -31,7 +31,7 @@ export class BlockChain {
         this.webgold = new WebGold(db.db);
         this.get_rates().then((res)=>{
             console.log("Got current rates from blockhain API",res.toString());
-        })
+        });
     }
 
 
@@ -45,7 +45,7 @@ export class BlockChain {
                 } else {
                     resolve(res);
                 }
-            })
+            });
         });
 
     }
@@ -116,7 +116,7 @@ export class BlockChain {
             } catch(e) {
                 console.log("Blockchain API request failed",e);
                 dumpError(e);
-                reject(e)
+                reject(e);
             }
         });
 
@@ -205,7 +205,7 @@ export class BlockChain {
 
 
             } catch (e) {
-                reject(e)
+                reject(e);
                 console.log("Error during blockchain callback: ",e);
             }
         });

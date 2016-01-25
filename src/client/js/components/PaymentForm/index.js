@@ -4,9 +4,9 @@ import Amount from './Amount';
 import AddFunds from './AddFunds';
 import Alert from './Alert';
 //import BrainTreeForm from "./BraintreeForm"
-import BincoinForm from './BitcoinForm'
-import PaymentStore from '../../stores/PaymentStore'
-import PaymentData from "./PaymentData"
+import BincoinForm from './BitcoinForm';
+import PaymentStore from '../../stores/PaymentStore';
+import PaymentData from "./PaymentData";
 import request from 'superagent';
 
 let SATOSHI = 100000000;
@@ -19,7 +19,7 @@ class PaymentForm extends React.Component {
             alert: null,
             payment_data: null,
             amount: 0.0
-        }
+        };
     }
 
     changeAmount(status) {
@@ -29,7 +29,7 @@ class PaymentForm extends React.Component {
     componentDidMount() {
         var that = this;
         this.unsubscribe = PaymentStore.listen(function onStatusChange(status) {
-            that.changeAmount(status)
+            that.changeAmount(status);
         });
     }
     componentWillUnmount() {
@@ -99,11 +99,15 @@ class PaymentForm extends React.Component {
                         type={ this.state.alert.type } 
                         message={ this.state.alert.message}
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
-        		<Amount exchangeRate={ this.props.exchangeRate } />
-            	<AddFunds loginUrl={ this.props.loginUrl } />
-        	</form>
+                <Amount exchangeRate={ this.props.exchangeRate } />
+                <AddFunds loginUrl={ this.props.loginUrl } />
+            </form>
         );
     }
 }
+PaymentForm.propTypes = {
+    loginUrl: React.PropTypes.string.isRequired,
+    exchangeRate: React.PropTypes.object
+};
 
 export default PaymentForm;

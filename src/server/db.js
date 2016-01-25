@@ -16,7 +16,7 @@ export function init() {
 
     if (process.env.NODE_ENV == 'testing') {
        console.log("Mongodb testing mode entered");
-        url = 'mongodb://mongo:27017/webrunes_test'
+        url = 'mongodb://mongo:27017/webrunes_test';
     } else {
         console.log("Normal mongodb mode entered");
         let host = nconf.get('mongo:host');

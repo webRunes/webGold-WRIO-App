@@ -1,14 +1,14 @@
 import React from 'react';
 import UserInfo from './UserInfo';
 import request from 'superagent';
-import BigNumber from 'bignumber.js'
+import BigNumber from 'bignumber.js';
 
 class User extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             balance: null
-        }
+        };
         this.requestBalance((err,balance) => {
             if (balance) {
                 var amount = new BigNumber(JSON.parse(balance).balance);
@@ -25,9 +25,9 @@ class User extends React.Component {
             if (err) {
                 cb(err);
                 return;
-            }
+            };
             cb(null,balance.text);
-        })
+        });
     }
 
     render() {
@@ -45,7 +45,7 @@ class User extends React.Component {
                 { this.props.username ? 
                     <UserInfo username={ this.props.username } /> : '' }
                 <ul className="leaders">
-            	    <li>
+                    <li>
                         <span>Current balance</span>
                         <span>
                             { wrgBalance }<small className="currency">WRG</small>
@@ -54,14 +54,14 @@ class User extends React.Component {
                             </sup>
                         </span>
                     </li>
-            		<li>
-        				<span>Exchange rate</span>
+                    <li>
+                        <span>Exchange rate</span>
                         <span>
                             10 000<small className="currency">WRG</small>
                             = { btcRate }<small className="currency">BTC</small>
 
                         </span>
-            		</li>
+                    </li>
                     <li>
                         <span>Exchange rate</span>
                          <span>
@@ -69,10 +69,16 @@ class User extends React.Component {
                              = { this.props.exchangeRate }<small className="currency">USD</small>
                         </span>
                     </li>
-            	</ul>
+                </ul>
             </div>
         );
     }
 }
+
+User.propTypes = {
+    username: React.PropTypes.string.isRequired,
+    btcExchangeRate: React.PropTypes.object,
+    exchangeRate: React.PropTypes.object
+};
 
 export default User;

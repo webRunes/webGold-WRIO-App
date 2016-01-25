@@ -51,7 +51,7 @@ export default class Invoice {
                     return reject(err);
                 }
                 resolve("Ok");
-            })
+            });
         });
     }
 
@@ -91,7 +91,7 @@ export default class Invoice {
                 }
                 that.invoice_id = data._id;
                 resolve(data);
-            })
+            });
         });
     }
     getAll() {
@@ -108,7 +108,7 @@ export default class Invoice {
                     return;
                 }
                 resolve(feeds);
-            })
+            });
         });
     }
 

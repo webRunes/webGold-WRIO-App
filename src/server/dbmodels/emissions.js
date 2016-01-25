@@ -57,7 +57,7 @@ export default class Emissions {
                 }
                 that.invoice_id = data._id;
                 resolve(data);
-            })
+            });
         });
     }
     getAll() {
@@ -74,7 +74,7 @@ export default class Emissions {
                     return;
                 }
                 resolve(data);
-            })
+            });
         });
     }
 

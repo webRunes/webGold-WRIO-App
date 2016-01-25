@@ -23,7 +23,7 @@ export default class mongoKeyStore {
                     return;
                 }
                 resolve(data.value);
-            })
+            });
         });
     }
 

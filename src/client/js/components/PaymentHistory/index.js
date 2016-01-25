@@ -9,16 +9,11 @@ class PaymentsHistory extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data:[
-
-            ]
-
-        }
-
+            data:[]
+        };
     }
 
     componentDidMount() {
-
         console.log("Mounted");
         request.post('/api/blockchain/payment_history').end((err,res) => {
            if (err || !res) {
@@ -27,21 +22,14 @@ class PaymentsHistory extends React.Component {
            }
             this.setState({
                 data: res.body
-            })
+            });
         });
-
-
     }
 
     render() {
-
-
         return (
             <div>
-
-
                <h1>Pending payments</h1>
-
                 <table className="table">
                     <thead>
                         <tr>
@@ -60,12 +48,12 @@ class PaymentsHistory extends React.Component {
                             } else {
                                 amount = numeral(amount).format('0.00000000') + " BTC";
                             }
-                        return  <tr>
+                        return  (<tr>
                             <td>{ item.input_address }</td>
                             <td>{ amount }</td>
                             <td>{ item.timestamp  }</td>
                             <td>{ item.state}</td>
-                        </tr>;
+                        </tr>);
                     })}
 
                     </tbody>
