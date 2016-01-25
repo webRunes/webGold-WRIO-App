@@ -5,8 +5,8 @@
 /**
  * Created by michbil on 06.12.15.
  */
-import Reflux from 'reflux'
-import Actions from '../actions/transactions.js'
+import Reflux from 'reflux';
+import Actions from '../actions/transactions.js';
 import request from 'superagent';
 
 function limitBTCDigits(x) {
@@ -36,7 +36,7 @@ module.exports = Reflux.createStore({
             withCredentials().
             end((err,data)=> {
                 if (err) {
-                    throw new Error("Can't get rates")
+                    throw new Error("Can't get rates");
                 }
                 console.log(data.body);
                 that.rates = data.body;

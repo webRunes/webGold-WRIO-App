@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import User from './components/User';
 import Info from './components/Info';
-import moment from 'moment'
-import {Modal,Button} from 'react-bootstrap'
-import Actions from './actions/transactions.js'
-import BigNumber from 'bignumber.js'
-import UnitConverter from './libs/units.js'
+import moment from 'moment';
+import {Modal,Button} from 'react-bootstrap';
+import Actions from './actions/transactions.js';
+import BigNumber from 'bignumber.js';
+import UnitConverter from './libs/units.js';
 
-import TransactionStore from './stores/TransactionStore.js'
-import BalanceStore from './stores/BalanceStore.js'
+import TransactionStore from './stores/TransactionStore.js';
+import BalanceStore from './stores/BalanceStore.js';
 
 import numeral from 'numeral';
 let SATOSHI = 100000000;
@@ -81,13 +81,13 @@ class Transactions extends React.Component {
         Actions.Rate.listen((val)=>{
             this.setState({
                 rates: val
-            })
+            });
         });
         Actions.Balance.listen((val)=> {
             this.setState({
                 balance: val
-            })
-        })
+            });
+        });
 
     }
 
@@ -135,7 +135,7 @@ class Transactions extends React.Component {
                                 title = "Funds add requested";
                             }
                             if (item.state == "payment_confirmed") {
-                                status = "Payment confirmed"
+                                status = "Payment confirmed";
                             }
                         }
                         if (item.type === "donation") {
@@ -193,7 +193,7 @@ class Transactions extends React.Component {
         } else {
             if (this.state.data == []) {
                 showtable = false;
-                nomsg = "No records"
+                nomsg = "No records";
             } else {
                 showtable = "true";
                 nomsg = "";

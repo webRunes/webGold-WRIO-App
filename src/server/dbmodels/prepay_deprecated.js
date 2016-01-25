@@ -58,7 +58,7 @@ export default class PrePayments {
                 }
                 that.invoice_id = data._id;
                 resolve(data);
-            })
+            });
         });
     }
     getAll(where) {
@@ -76,7 +76,7 @@ export default class PrePayments {
                     return;
                 }
                 resolve(feeds);
-            })
+            });
         });
     }
     updateByWrioID(id, data) {
@@ -93,7 +93,7 @@ export default class PrePayments {
                     return;
                 }
                 resolve(data);
-            })
+            });
         });
     }
 

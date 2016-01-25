@@ -8,7 +8,8 @@ class AddFunds extends React.Component {
         super(props);
         this.state = {
             user: null
-        }
+        };
+
     }
     
     componentWillMount() {
@@ -28,8 +29,8 @@ class AddFunds extends React.Component {
 
             <div className="col-xs-12">
                  { this.state.user == null ? <div className="callout">Please login to add funds</div> : <div /> }
-				<div className="form-group col-xs-12">
-        			<div className="pull-right">
+                <div className="form-group col-xs-12">
+                    <div className="pull-right">
                         { this.state.user !== null ? 
                             <AddFundsButton /> : 
                             <LoginButton loginUrl={ this.props.loginUrl } /> }
@@ -39,5 +40,8 @@ class AddFunds extends React.Component {
         );
     }
 }
+AddFunds.propTypes = {
+    loginUrl: React.PropTypes.string.isRequired
+};
 
 export default AddFunds;

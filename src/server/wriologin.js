@@ -1,4 +1,4 @@
-import db from './db'
+import db from './db';
 
 
 // used to deserialize the user
@@ -23,7 +23,7 @@ export function loginWithSessionId(ssid, done) {
     if (!match) {
         console.log("Wrong ssid");
         done("Error");
-        return
+        return;
     }
     console.log("Trying deserialize session",ssid);
     sessions.findOne({"_id": ssid}, function(err, session) {
@@ -44,7 +44,7 @@ export function loginWithSessionId(ssid, done) {
         if (user != undefined) {
             deserialize(user, done);
         } else {
-            done("Wrong cookie")
+            done("Wrong cookie");
         }
 
         //done(err, rows[0]);
@@ -79,8 +79,8 @@ export function generateFakeSession(userID) {
            if (err) {
                return reject(err);
            }
-           resolve()
-       })
+           resolve();
+       });
     });
 
 }
@@ -125,7 +125,7 @@ export function getTwitterCredentials(sessionId, done) {
                 done(null, {
                     "token": res.token,
                     "tokenSecret": res.tokenSecret
-                })
+                });
             } else {
                 done("No login with twitter");
             }

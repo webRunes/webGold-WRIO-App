@@ -46,12 +46,12 @@ require('browserify-cryptojs/components/aes');
 
 
 import Web3 from 'web3'; var web3 = new Web3();
-import {dumpError} from '../utils.js'
+import {dumpError} from '../utils.js';
 
 
 class KeyStoreClass {
     constructor() {
-        this.keys = {}
+        this.keys = {};
     }
 
     Get(key) {

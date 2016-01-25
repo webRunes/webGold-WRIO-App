@@ -12,7 +12,7 @@ var Store = Reflux.createStore({
        console.log("Change amount triggered");
        this.trigger({
            amount: amount
-       })
+       });
    }
 });
 

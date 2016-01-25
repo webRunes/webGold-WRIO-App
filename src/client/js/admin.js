@@ -4,11 +4,11 @@ import User from './components/User';
 import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
-import PaymentHistory from './components/PaymentHistory'
-import EthereumClient from './components/EthereumClient'
-import { Router,Route, Link } from 'react-router'
-import moment from 'moment'
-import {Modal,Button} from 'react-bootstrap'
+import PaymentHistory from './components/PaymentHistory';
+import EthereumClient from './components/EthereumClient';
+import { Router,Route, Link } from 'react-router';
+import moment from 'moment';
+import {Modal,Button} from 'react-bootstrap';
 
 import numeral from 'numeral';
 let SATOSHI = 100000000;
@@ -33,7 +33,7 @@ class EthereumStats extends React.Component {
                 return;
             }
             cb(null,JSON.parse(balance.text));
-        })
+        });
     }
 
     componentWillMount() {
@@ -83,7 +83,7 @@ class Balances extends React.Component {
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     }
 
     componentWillMount() {
@@ -147,9 +147,7 @@ class Balances extends React.Component {
                                 <td onClick={this.showModal.bind(this,item.prepayments)}>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
 
-                            </tr>)
-
-
+                            </tr>);
                         }.bind(this))}
 
                     </tbody>
@@ -193,7 +191,7 @@ class Emissions extends React.Component {
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     }
 
     componentWillMount() {
@@ -228,12 +226,12 @@ class Emissions extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  <tr>
+                            return  (<tr>
                                 <td>{ item.userID }</td>
                                 <td>{ item.amount / 100 }</td>
                                 <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
 
-                            </tr>;
+                            </tr>);
                         })}
 
                     </tbody>
@@ -265,7 +263,7 @@ class Donations extends React.Component {
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     }
 
     componentWillMount() {
@@ -300,13 +298,13 @@ class Donations extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  <tr>
+                            return  (<tr>
                                 <td>{ item.srcWrioID }</td>
                                 <td>{ item.destWrioID }</td>
                                 <td>{ item.amount / 100 }</td>
                                 <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY") }</td>
                                 <td></td>
-                            </tr>;
+                            </tr>);
                         })}
 
                     </tbody>
@@ -338,7 +336,7 @@ class EtherFeeds extends React.Component {
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     }
 
     componentWillMount() {
@@ -373,11 +371,11 @@ class EtherFeeds extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  <tr>
+                            return  (<tr>
                                 <td>{ item.amount }</td>
                                 <td>{ item.eth_account }</td>
                                 <td>{  moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
-                            </tr>;
+                            </tr>);
                         })}
 
                     </tbody>
@@ -420,12 +418,12 @@ class PrePayments extends React.Component {
                     {
                         this.state.data.map(function (item) {
 
-                            return  <tr>
+                            return  (<tr>
                                 <td>{ item.id }</td>
                                 <td>{ item.to }</td>
                                 <td>{ item.amount / 100 }</td>
                                 <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY") }</td>
-                            </tr>;
+                            </tr>);
                         })}
 
                     </tbody>
@@ -436,6 +434,10 @@ class PrePayments extends React.Component {
     }
 }
 
+PrePayments.propTypes = {
+    data: React.PropTypes.object
+};
+
 class Invoices extends React.Component {
 
     constructor(props) {
@@ -445,7 +447,7 @@ class Invoices extends React.Component {
 
             ]
 
-        }
+        };
 
     }
 
@@ -459,7 +461,7 @@ class Invoices extends React.Component {
             }
             this.setState({
                 data: res.body
-            })
+            });
         });
 
 
@@ -489,13 +491,13 @@ class Invoices extends React.Component {
                             } else {
                                 amount = numeral(amount).format('0.00000000') + " BTC";
                             }
-                            return  <tr>
+                            return  (<tr>
                                 <td> {item.wrioID}</td>
                                 <td>{ item.input_address }</td>
                                 <td>{ amount }</td>
                                 <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
                                 <td>{ item.state}</td>
-                            </tr>;
+                            </tr>);
                         })}
 
                     </tbody>

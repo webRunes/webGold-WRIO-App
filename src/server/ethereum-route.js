@@ -5,23 +5,23 @@
  * Created by michbil on 26.09.15.
  */
 
-import WebGold from './ethereum.js'
-import {calc_percent,dumpError} from './utils'
+import WebGold from './ethereum.js';
+import {calc_percent,dumpError} from './utils';
 import Web3 from 'web3'; var web3 = new Web3();
-import {Promise} from 'es6-promise'
+import {Promise} from 'es6-promise';
 import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser} from './wriologin';
 import db from './db';
 const router = Router();
-import WebRunesUsers from './dbmodels/wriouser'
+import WebRunesUsers from './dbmodels/wriouser';
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
-import Donations from './dbmodels/donations.js'
-import Emissions from './dbmodels/emissions.js'
-import EtherFeeds from './dbmodels/etherfeed.js'
-import Invoices from "./dbmodels/invoice.js"
+import Donations from './dbmodels/donations.js';
+import Emissions from './dbmodels/emissions.js';
+import EtherFeeds from './dbmodels/etherfeed.js';
+import Invoices from "./dbmodels/invoice.js";
 //import PrePayment from './dbmodels/prepay.js'
-import WrioUser from "./dbmodels/wriouser.js"
+import WrioUser from "./dbmodels/wriouser.js";
 
 
 

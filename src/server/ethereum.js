@@ -8,21 +8,21 @@
 // geth --rpc --rpcaddr "192.168.1.4" --unlock 0
 
 import Web3 from 'web3'; var web3 = new Web3();
-import {Promise} from 'es6-promise'
-import {dumpError,calc_percent} from './utils'
-import Accounts from './ethereum-node'
-import HookedWeb3Provider from 'hooked-web3-provider'
+import {Promise} from 'es6-promise';
+import {dumpError,calc_percent} from './utils';
+import Accounts from './ethereum-node';
+import HookedWeb3Provider from 'hooked-web3-provider';
 import db from './db';
 import {init} from './db';
 import fs from 'fs';
-import path from 'path'
+import path from 'path';
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
-import WebRunesUsers from './dbmodels/wriouser'
-import EtherFeed from './dbmodels/etherfeed.js'
-import Emissions from './dbmodels/emissions.js'
-import Donation from './dbmodels/donations.js'
-import mongoKeyStore from './payments/MongoKeystore.js'
+import WebRunesUsers from './dbmodels/wriouser';
+import EtherFeed from './dbmodels/etherfeed.js';
+import Emissions from './dbmodels/emissions.js';
+import Donation from './dbmodels/donations.js';
+import mongoKeyStore from './payments/MongoKeystore.js';
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -89,7 +89,7 @@ class WebGold {
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
                     console.log("WRG transfer finished, from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user)
+                    await this.processPendingPayments(user);
 
                 } catch (e) {
                     console.log("Processing payment failed",e);
@@ -210,14 +210,14 @@ class WebGold {
             console.log("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;
         } else {
-            return await this.createEthereumAccountForWRIOID(wrioID)
+            return await this.createEthereumAccountForWRIOID(wrioID);
         }
     }
 
     async createEthereumAccountForWRIOID (wrioID) {
         var accountObject = await this.accounts.newAccount(wrioID);
         console.log("Created account for WRIOID: "+wrioID+": ", accountObject);
-        await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address})
+        await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
         return accountObject.address;
 
     }
@@ -229,9 +229,9 @@ class WebGold {
                 if (err) {
                     reject("getEtherBalance failed");
                 } else {
-                    resolve(res.toString())
+                    resolve(res.toString());
                 }
-            })
+            });
         });
     }
 

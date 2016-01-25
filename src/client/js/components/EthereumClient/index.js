@@ -1,5 +1,5 @@
-import {Promise} from 'es6-promise'
-import React from 'react'
+import {Promise} from 'es6-promise';
+import React from 'react';
 import request from 'superagent';
 
 class EthereumClient extends React.Component {
@@ -7,11 +7,7 @@ class EthereumClient extends React.Component {
 
     constructor(props) {
         super(props);
-
-
     }
-
-
 
     render() {
         return (
