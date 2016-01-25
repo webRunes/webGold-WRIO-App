@@ -123,7 +123,7 @@ router.post('/donate', function(request, response) {
             currency: 'usd',
             card: request.body.stripeToken,
             description: 'Donatation for WRIO'
-        }
+        };
 
         var userId = User.userID;
        /* stripe.charges.create(chargeData, function(error, charge) {
@@ -167,7 +167,7 @@ router.post('/withdraw', function(request, response) {
         Amount: request.body.amount,
         Added: $currentDate,
         UserId: ssid
-    }
+    };
     webRunes_webGold_withdraw.insert(obj,function(error,result) {
 
     });

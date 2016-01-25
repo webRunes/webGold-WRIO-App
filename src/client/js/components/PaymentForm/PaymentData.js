@@ -1,18 +1,14 @@
-import React from 'react'
+import React from 'react';
 
 class PaymentData extends React.Component {
 
     constructor(props) {
         super(props);
-
-
     }
 
     componentDidMount() {
-
         console.log("PaymentData Mounted");
         new QRCode(document.getElementById("qrcode"), this.props.adress);
-
     }
 
     render() {
@@ -25,5 +21,9 @@ class PaymentData extends React.Component {
         );
     }
 }
+PaymentData.propTypes = {
+    adress: React.PropTypes.string,
+    amount:React.PropTypes.string
+};
 
 export default PaymentData;

@@ -59,7 +59,7 @@ export default class Donations {
                 }
                 that.invoice_id = data._id;
                 resolve(data);
-            })
+            });
         });
     }
     getAll(query) {
@@ -77,7 +77,7 @@ export default class Donations {
                     return;
                 }
                 resolve(data);
-            })
+            });
         });
     }
 

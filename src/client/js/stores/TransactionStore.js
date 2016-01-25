@@ -1,8 +1,8 @@
 /**
  * Created by michbil on 06.12.15.
  */
-import Reflux from 'reflux'
-import Actions from '../actions/transactions.js'
+import Reflux from 'reflux';
+import Actions from '../actions/transactions.js';
 import request from 'superagent';
 
 // {
@@ -13,7 +13,7 @@ import request from 'superagent';
 //    state:"Complete"
 // }
 
-import UnitConverter from '../libs/units.js'
+import UnitConverter from '../libs/units.js';
 
 function limitBTCDigits(x) {
     return Math.floor(x * 100000000) / 100000000;
@@ -71,7 +71,7 @@ module.exports = Reflux.createStore({
                 if (err.status === 403) {
                     that.trigger({error:"You're not allowed to see this page"});
                 } else {
-                    that.trigger({error:"Oops! Something went wrong!"})
+                    that.trigger({error:"Oops! Something went wrong!"});
                 }
 
                 return;
@@ -87,7 +87,7 @@ module.exports = Reflux.createStore({
                      amountBTC: amount,
                      state: element.state,
                      timestamp: element.timestamp
-                 }
+                 };
              }));
              if (this.exchange) {
                  this.adjustUnits();
@@ -100,7 +100,7 @@ module.exports = Reflux.createStore({
                 if (err.status === 403) {
                     that.trigger({error:"Forbidden"});
                 } else {
-                    that.trigger({error:"Oops! Something went wrong!"})
+                    that.trigger({error:"Oops! Something went wrong!"});
                 }
                 return;
             }
@@ -116,7 +116,7 @@ module.exports = Reflux.createStore({
                     incoming: element.incoming,
                     destName: element.destName,
                     srcName: element.srcName
-                }
+                };
             }));
             if (this.exchange) {
                 this.adjustUnits();
@@ -130,7 +130,7 @@ module.exports = Reflux.createStore({
                 if (err.status === 403) {
                     that.trigger({error:"Forbidden"});
                 } else {
-                    that.trigger({error:"Oops! Something went wrong!"})
+                    that.trigger({error:"Oops! Something went wrong!"});
                 }
                 return;
             }
@@ -146,7 +146,7 @@ module.exports = Reflux.createStore({
                     incoming: element.incoming,
                     destName: element.destName,
                     srcName: element.srcName
-                }
+                };
             }));
             that.trigger(that.transactions);
         });
@@ -160,7 +160,7 @@ module.exports = Reflux.createStore({
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     },
 
     requestDonations(cb) {
@@ -170,7 +170,7 @@ module.exports = Reflux.createStore({
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     },
 
     requestPrepayments(cb) {
@@ -180,7 +180,7 @@ module.exports = Reflux.createStore({
                 return;
             }
             cb(null,JSON.parse(users.text));
-        })
+        });
     },
 
     getAll () {

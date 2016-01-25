@@ -3,9 +3,9 @@ import User from './components/User';
 import Info from './components/Info';
 import PaymentForm from './components/PaymentForm';
 import request from 'superagent';
-import PaymentHistory from './components/PaymentHistory'
-import EthereumClient from './components/EthereumClient'
-import BigNumber from 'bignumber.js'
+import PaymentHistory from './components/PaymentHistory';
+import EthereumClient from './components/EthereumClient';
+import BigNumber from 'bignumber.js';
 
 let SATOSHI = 100000000;
 

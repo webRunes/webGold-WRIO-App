@@ -58,7 +58,7 @@ export default class EtherFeed {
                 }
                 that.invoice_id = data._id;
                 resolve(data);
-            })
+            });
         });
     }
     getAll() {
@@ -75,7 +75,7 @@ export default class EtherFeed {
                     return;
                 }
                 resolve(feeds);
-            })
+            });
         });
     }
 
