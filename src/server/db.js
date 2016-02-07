@@ -1,6 +1,7 @@
 import {MongoClient,ObjectID} from 'mongodb';
 import nconf from './wrio_nconf'; 
 import {Promise} from 'es6-promise';
+import logger from 'winston';
 
 let db = {
     db: {},
@@ -12,13 +13,13 @@ export function init() {
 
     let url;
 
-    console.log(process.env.NODE_ENV);
+    logger.debug(process.env.NODE_ENV);
 
     if (process.env.NODE_ENV == 'testing') {
-       console.log("Mongodb testing mode entered");
+       logger.info("Mongodb testing mode entered");
         url = 'mongodb://mongo:27017/webrunes_test';
     } else {
-        console.log("Normal mongodb mode entered");
+        logger.info("Normal mongodb mode entered");
         let host = nconf.get('mongo:host');
         let user = nconf.get('mongo:user');
         let password = nconf.get('mongo:password');

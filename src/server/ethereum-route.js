@@ -22,7 +22,7 @@ import EtherFeeds from './dbmodels/etherfeed.js';
 import Invoices from "./dbmodels/invoice.js";
 //import PrePayment from './dbmodels/prepay.js'
 import WrioUser from "./dbmodels/wriouser.js";
-
+import logger from 'winston';
 
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
@@ -44,11 +44,11 @@ if (!masterPassword) {
 
 
 router.get('/free_wrg',async (request,response) => {  // TODO: remove this method
-    console.log("  =====  WARING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
+    logger.error("  =====  WARING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
     try {
 
         var amount = parseInt(request.query.amount);
-        console.log(typeof amount);
+        logger.debug(typeof amount);
         if (typeof amount !== "number") {
             throw new Error("Can't parse amount");
         }
@@ -66,7 +66,7 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
             throw new Error("User has no vaid userID, sorry");
         }
     } catch(e) {
-        console.log("Errro during free_wrg ",e);
+        logger.error("Errro during free_wrg ",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -111,7 +111,7 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
             var blockchainBalance = await webGold.getBalance(src);
             blockchainBalance = blockchainBalance.toString();
 
-            console.log("Checking balance before donation",amount,blockchainBalance);
+            logger.debug("Checking balance before donation",amount,blockchainBalance);
 
 
             if (amount > blockchainBalance) {
@@ -120,7 +120,7 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
 
                 var debt = dbBalance-amount;
 
-                console.log("CALCULATED DEBT:",debt);
+                logger.debug("CALCULATED DEBT:",debt);
 
                 if (debt > MAX_DEBT ) { // check if we havent reached maximum debt limit
                     throw new Error("Insufficient funds");
@@ -129,7 +129,7 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
                 var userObj = new WrioUser();
                 await userObj.createPrepayment(user.wrioID,-amount,to);
 
-                console.log("Prepayment made");
+                logger.info("Prepayment made");
 
 
             } else {
@@ -156,7 +156,7 @@ router.get('/donate',async (request,response) => { // TODO : add authorization, 
         }
 
     } catch(e) {
-        console.log("Error during donate",e);
+        logger.error("Error during donate",e);
         dumpError(e);
         if (!e) {
             response.status(403).send({"error":"Unknown error"});
@@ -181,7 +181,7 @@ router.post('/get_balance',async (request,response) => {
                 dbBalance = user.dbBalance / 100;
             }
 
-            console.log("balance from db:", dbBalance);
+            logger.debug("balance from db:", dbBalance);
 
             var webGold = new WebGold(db.db);
 
@@ -191,7 +191,7 @@ router.post('/get_balance',async (request,response) => {
             var bal = balance - dbBalance;
 
 
-            //console.log("balance:",balance.add(dbBalance).toString());
+            //logger.debug("balance:",balance.add(dbBalance).toString());
             response.send({
                 "balance": bal,
                 "promised": dbBalance,
@@ -205,7 +205,7 @@ router.post('/get_balance',async (request,response) => {
             throw new Error("User has no valid userID, sorry");
         }
     } catch(e) {
-        console.log("Error during get_balance",e);
+        logger.error("Error during get_balance",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -231,7 +231,7 @@ router.get('/coinadmin/master', async (request,response) => {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrgBalance = await webGold.getBalance(masterAccount);
             var ethBalance = await webGold.getEtherBalance(masterAccount);
@@ -247,7 +247,7 @@ router.get('/coinadmin/master', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin error",e);
+        logger.error("Coinadmin error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -258,13 +258,13 @@ router.get('/coinadmin/users', async (request,response) => {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrioUsers = new WebRunesUsers(db.db);
             var users = await wrioUsers.getAllUsers();
             var wgUsers = [];
             for (var user of users) {
-                console.log(user);
+                logger.debug(user);
                 if (user.wrioID && user.ethereumWallet) {
 
                     wgUsers.push ({
@@ -284,7 +284,7 @@ router.get('/coinadmin/users', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin error",e);
+        logger.error("Coinadmin error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -295,7 +295,7 @@ router.get('/coinadmin/etherfeeds', async (request,response) => {
         var user = await getLoggedInUser(request.sessionID);
         if (!user) throw new Error("User not registered");
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var d = new EtherFeeds();
             var ethFeeds = await d.getAll();
 
@@ -304,7 +304,7 @@ router.get('/coinadmin/etherfeeds', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin ethFeed error",e);
+        logger.error("Coinadmin ethFeed error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -315,7 +315,7 @@ router.get('/coinadmin/donations', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var d = new Donations();
             var data = await d.getAll();
 
@@ -324,7 +324,7 @@ router.get('/coinadmin/donations', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin donations error",e);
+        logger.error("Coinadmin donations error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -335,7 +335,7 @@ router.get('/coinadmin/emissions', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var d = new Emissions();
             var data = await d.getAll();
 
@@ -344,7 +344,7 @@ router.get('/coinadmin/emissions', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin emissions error",e);
+        logger.error("Coinadmin emissions error",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -354,7 +354,7 @@ router.get('/coinadmin/invoices', async (request,response) => {
     try {
         var user = await getLoggedInUser(request.sessionID);
         if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
+            logger.debug("Coinadmin admin detected");
             var d = new Invoices();
             var data = await d.getAll();
 
@@ -363,7 +363,7 @@ router.get('/coinadmin/invoices', async (request,response) => {
             throw new Error("User not admin,sorry");
         }
     } catch(e) {
-        console.log("Coinadmin emissions error",e);
+        logger.error("Coinadmin emissions error",e);
         dumpError(e);
         response.status(403).send("Error");
     }

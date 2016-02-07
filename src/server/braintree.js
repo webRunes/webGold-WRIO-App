@@ -5,11 +5,12 @@ import braintree from 'braintree';
 import {sendEmail} from './wrio_mailer.js';
 import db from './db';
 import path from 'path';
+import logger from 'winston';
 
 const router = Router();
 
 const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
-console.log(wrioLogin);
+logger.debug(wrioLogin);
 
 var gateway = braintree.connect({
     environment: braintree.Environment.Sandbox,
@@ -17,12 +18,12 @@ var gateway = braintree.connect({
     publicKey: nconf.get("payment:braintree:publicKey"),
     privateKey: nconf.get("payment:braintree:privateKey")
 });
-console.log("Creating braintree object");
+logger.debug("Creating braintree object");
 
 router.get("/client_token", function (req, res) {
     gateway.clientToken.generate({}, function (err, response) {
         if (err) {
-            console.log("client_token error",err);
+            logger.error("client_token error",err);
             return;
         }
         res.send(response.clientToken);
@@ -34,7 +35,7 @@ router.post("/payment-methods", function  (req, res)  {
     wrioLogin.loginWithSessionId(req.sessionID, function(err, User) {
 
         if (err) {
-            console.log("User not found");
+            logger.error("User not found");
             return response.status(403).render('index.ejs', {"error": "Not logged in", "user": undefined});
         }
 
@@ -49,18 +50,18 @@ router.post("/payment-methods", function  (req, res)  {
         if (isNaN(amountWRG) || (amountWRG < 0)) {
             res.status(400).send({"error": "bad request"});
         }
-        console.log("Got nonce", nonce);
+        logger.debug("Got nonce", nonce);
         // Use payment method nonce here
         gateway.transaction.sale({
             amount: amount,
             paymentMethodNonce: nonce
         }, function (err, result) {
             if (err) {
-                console.log("processing nonce error", err);
+                logger.debug("processing nonce error", err);
                 res.sendFile(path.join(TEMPLATE_PATH, '/failure.htm'));
                 return;
             }
-            console.log("processing transaction: ", result);
+            logger.debug("processing transaction: ", result);
             res.sendFile(path.join(TEMPLATE_PATH, '/success.htm'));
             var obj = {
                 Amount: amountWRG,
@@ -69,7 +70,7 @@ router.post("/payment-methods", function  (req, res)  {
             };
             webRunes_webGold.insert(obj, function (error) {
                 //connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
-                return console.log(error);
+                return logger.error(error);
             });
         });
     });
@@ -79,9 +80,9 @@ router.post("/payment-methods", function  (req, res)  {
 
 router.post('/add_funds', async (request, response) => {
     try {
-/*        console.log(wrioLogin);
+/*        logger.debug(wrioLogin);
         let user = await wrioLogin.getLoggedInUser(request.sessionID);
-        console.log(user);
+        logger.debug(user);
         let token = await stripe.tokens.create({
             card: {
                 number: request.body.creditCard,
@@ -106,7 +107,7 @@ router.post('/add_funds', async (request, response) => {
          */
         response.status(200).send('Success');
     } catch(e) {
-        console.log('Error:', e.message);
+        logger.error('Error:', e.message);
     }
 });
 
@@ -114,7 +115,7 @@ router.post('/donate', function(request, response) {
     var webRunes_webGold = db.db.collection('webRunes_webGold');
     wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
         if (err) {
-            console.log("User not found");
+            logger.error("User not found");
             return response.render('index.ejs', {"error": "Not logged in", "user": undefined});
         }
 
@@ -128,7 +129,7 @@ router.post('/donate', function(request, response) {
         var userId = User.userID;
        /* stripe.charges.create(chargeData, function(error, charge) {
             if (error) {
-                console.log("Create charge error: ", error);
+                logger.debug("Create charge error: ", error);
                 return response.json(error.message);
             }
             response.json(charge);
@@ -146,7 +147,7 @@ router.post('/donate', function(request, response) {
                     };
                     webRunes_webGold.insert(obj,function(error) {
                         //connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
-                        return console.log(error);
+                        return logger.debug(error);
                     });
                 } else {
                     return response.json(error.message);

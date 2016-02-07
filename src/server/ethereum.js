@@ -23,6 +23,7 @@ import EtherFeed from './dbmodels/etherfeed.js';
 import Emissions from './dbmodels/emissions.js';
 import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
+import logger from 'winston';
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -58,7 +59,7 @@ class WebGold {
                     throw "Contract init failed";
                     return;
                 }
-                console.log("Contract init finished");
+                logger.info("Contract init finished");
         }); // change to contract address
 
         this.KeyStore =  new mongoKeyStore(db);
@@ -72,7 +73,7 @@ class WebGold {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.accounts
         });
-        console.log("Creating Hoooked web3 provider");
+        logger.debug("Creating Hoooked web3 provider");
         web3.setProvider(provider);
 
         this.users = new WebRunesUsers(db);
@@ -81,18 +82,18 @@ class WebGold {
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
-                console.log("Cointransfer listener error");
+                logger.error("Cointransfer listener error");
             } else {
                 try {
                     var sender = result.args.sender;
                     var receiver = result.args.receiver;
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
-                    console.log("WRG transfer finished, from: "+sender+" to: "+ receiver);
+                    logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
                     await this.processPendingPayments(user);
 
                 } catch (e) {
-                    console.log("Processing payment failed",e);
+                    logger.error("Processing payment failed",e);
                     dumpError(e);
                 }
 
@@ -104,7 +105,7 @@ class WebGold {
     checkPrePaymentExpired(payment) {
         let timeLeft =new Date() - new Date(payment.timestamp);
 
-        console.log("Prepayment data", timeLeft);
+        logger.debug("Prepayment data", timeLeft);
 
         return timeLeft < 0 ? true : false;
     }
@@ -112,12 +113,12 @@ class WebGold {
     async processPendingPayments(user) {
 
         function setLock(id) {
-            console.log("Setting lock for ",id);
+            logger.debug("Setting lock for ",id);
             prepaymentProcessLock[id] = true; // engage lock
         }
         function releaseLock(id) {
             delete prepaymentProcessLock[id]; //  make sure lock is released in unexpected situation
-            console.log("Releasing lock for ",id);
+            logger.debug("Releasing lock for ",id);
         }
 
         if (!user.wrioID) {
@@ -125,7 +126,7 @@ class WebGold {
         }
 
         if (user.wrioID in prepaymentProcessLock) {
-            console.log("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
+            logger.debug("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
             return;
         }
 
@@ -134,14 +135,14 @@ class WebGold {
         setLock(user.wrioID);
 
         try {
-            console.log("****** PROCESS_PENDING_PAYMENTS",amount);
+            logger.info("****** PROCESS_PENDING_PAYMENTS",amount);
 
             /* Check all prepayments, if there's some, mark them as completed, */
 
             var left = amount;
             var pending = user['prepayments'] || [];
 
-            console.log("Found "+pending.length+" pending payments for"+user.wrioID);
+            logger.debug("Found "+pending.length+" pending payments for"+user.wrioID);
 
             if (pending.length == 0) {
                 releaseLock(user.wrioID);
@@ -154,25 +155,25 @@ class WebGold {
 
                 var p = pending[payment];
                 var paym_amount = - p.amount;
-                console.log(left,paym_amount);
+                logger.debug(left,paym_amount);
                 if (left >=paym_amount) {
-                    console.log("Donating to",p.to,paym_amount);
+                    logger.info("Donating to",p.to,paym_amount);
                     await this.unlockByWrioID(user.wrioID);
                     await this.makeDonate(user, p.to, paym_amount);
                     await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
                     left -= paym_amount;
                 } else {
-                    console.log("Insufficient funds to complete the payment",payment);
+                    logger.error("Insufficient funds to complete the payment",payment);
                 }
 
                 if (this.checkPrePaymentExpired(pending[payment])) {
-                    console.log("Deleteting expired prepayment");
+                    logger.verbose("Deleteting expired prepayment");
                     await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
                 };
 
 
             }
-            console.log("Pre-payments paid, left",left.toString());
+            logger.debug("Pre-payments paid, left",left.toString());
 
             releaseLock(user.wrioID);
         } catch (e) {
@@ -186,9 +187,9 @@ class WebGold {
 
     async unlockByWrioID (wrioID) {
         var user = await this.users.getByWrioID(wrioID);
-        //console.log(user);
+        //logger.debug(user);
         if (user.ethereumWallet) {
-            console.log("Unlocking existing wallet for " + wrioID);
+            logger.debug("Unlocking existing wallet for " + wrioID);
             this.accounts.unlockAccount(user.ethereumWallet,wrioID);
         }
     }
@@ -198,16 +199,16 @@ class WebGold {
             to: "0xc4abd0339eb8d57087278718986382264244252f",
             data: "0xc6888fa10000000000000000000000000000000000000000000000000000000000000003"
         });
-        console.log(result); //
+        logger.debug(result); //
     }
 
 
     async getEthereumAccountForWrioID (wrioID) {
 
         var user = await this.users.getByWrioID(wrioID);
-       // console.log(user);
+       // logger.debug(user);
         if (user.ethereumWallet) {
-            console.log("Returning existing wallet for "+wrioID);
+            logger.debug("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;
         } else {
             return await this.createEthereumAccountForWRIOID(wrioID);
@@ -216,7 +217,7 @@ class WebGold {
 
     async createEthereumAccountForWRIOID (wrioID) {
         var accountObject = await this.accounts.newAccount(wrioID);
-        console.log("Created account for WRIOID: "+wrioID+": ", accountObject);
+        logger.verbose("Created account for WRIOID: "+wrioID+": ", accountObject);
         await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
         return accountObject.address;
 
@@ -253,16 +254,16 @@ class WebGold {
 
             this.accounts.unlockAccount(masterAccount,masterPassword);
 
-            console.log("Preparing to transfer",amount,"ETH");
+            logger.verbose("Preparing to transfer",amount,"ETH");
 
             var amountWEI = web3.toWei(amount, "ether");
             web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
                 if (err) {
-                    console.log("etherTransfer failed");
+                    logger.error("etherTransfer failed");
                     reject("Ether transfer failed");
                     return;
                 }
-                console.log("Ether transfer succeeded: ",to, amount,amountWEI,result);
+                logger.info("Ether transfer succeeded: ",to, amount,amountWEI,result);
                 resolve(result);
             });
         });
@@ -280,27 +281,27 @@ class WebGold {
                 that.accounts.unlockAccount(masterAccount,masterPassword);
                 that.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
-                        console.log("cointransfer failed",err);
+                        logger.error("cointransfer failed",err);
                         reject(err);
                         return;
                     }
-                    console.log("cointransfer succeeded",result);
+                    logger.info("cointransfer succeeded",result);
                     resolve(result);
                 });
             }
 
-            console.log("Starting sendCoin cointransfer",from,to,amount);
+            logger.debug("Starting sendCoin cointransfer",from,to,amount);
 
 
             that.token.sendCoin.call(to, amount, {from: from},(err, callResult) => {
-                console.log("Trying sendcoin pre-transcation execution",err,callResult);
+                logger.verbose("Trying sendcoin pre-transcation execution",err,callResult);
                 if (err) {
                     reject("Failed to perform pre-call");
                     return;
                 }
 
                 if (callResult) {
-                    console.log('sendCoin preview succeeds so now sendTx...');
+                    logger.debug('sendCoin preview succeeds so now sendTx...');
                     actual_sendcoin();
                 }
                 else {
@@ -318,15 +319,15 @@ class WebGold {
 
     async ensureMinimumEther(dest,toWrio) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
         var ethBalance = await this.getEtherBalance(dest)/wei;
-        console.log("Ether:",ethBalance);
+        logger.debug("Ether:",ethBalance);
         if (ethBalance < min_amount) {
-            console.log("Adding minium ether amount",ethBalance);
+            logger.info("Adding minium ether amount",ethBalance);
             await this.etherTransfer(dest,min_amount);
 
             var feed = new EtherFeed();
             await feed.create(dest,min_amount,toWrio);
         } else {
-            console.log("Account has minimum ether, cancelling");
+            logger.verbose("Account has minimum ether, cancelling");
         }
     }
 
@@ -340,7 +341,7 @@ class WebGold {
         if (!dest) throw new Error("Destination not specified");
         if (!toWrio) throw new Error("toWrio address not specified");
 
-        console.log("Emitting new wrg to",dest,"Amount=",amount);
+        logger.info("Emitting new wrg to",dest,"Amount=",amount);
         this.accounts.unlockAccount(masterAccount,masterPassword);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest,toWrio);
@@ -358,21 +359,21 @@ class WebGold {
                 that.accounts.unlockAccount(masterAccount,masterPassword);
                 that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
-                        console.log("donate failed",err);
+                        logger.error("donate failed",err);
                         reject(err);
                         return;
                     }
-                    console.log("donate succeeded",result);
+                    logger.info("donate succeeded",result);
                     resolve(result);
                 });
             }
 
-            console.log("Starting donate cointransfer");
-            //console.log(this.token.donate);
+            logger.debug("Starting donate cointransfer");
+            //logger.debug(this.token.donate);
 
 
             this.token.donate.call(to, amount, {from: from},(err, callResult) => {
-                console.log("Trying donate pre-transcation execution",err,callResult);
+                logger.debug("Trying donate pre-transcation execution",err,callResult);
 
                 if (err) {
                     reject("Failed to perform pre-call");
@@ -380,7 +381,7 @@ class WebGold {
                 }
 
                 if (callResult) {
-                    console.log('donate preview succeeds so now sendTx...');
+                    logger.debug('donate preview succeeds so now sendTx...');
                     actual_donate();
                 }
                 else {
@@ -404,7 +405,7 @@ class WebGold {
         await this.unlockByWrioID(user.wrioID);
         await this.ensureMinimumEther(user.ethereumWallet,user.wrioID);
 
-        console.log("Prepare for transfer",dest,src,amount);
+        logger.debug("Prepare for transfer",dest,src,amount);
         await this.donate(src,dest,amount);
 
         var donate = new Donation();
@@ -460,7 +461,7 @@ class WebGold {
     convertWRGtoBTC(wrg,btcrate) {
 
         var btc = wrg.div(btcrate).div(10000).times(this.WRGExchangeRate).times(SATOSHI);
-        //console.log("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
+        //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
         return btc;
 
     }

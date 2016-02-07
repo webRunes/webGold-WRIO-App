@@ -3,6 +3,7 @@ let wrioLogin = require('./wriologin');
 import nconf from './wrio_nconf';
 import Stripe from 'stripe';
 import {sendEmail} from './wrio_mailer.js';
+import logger from 'winston';
 
 const router = Router(); 
 const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));
@@ -15,9 +16,9 @@ export function setDB(db_link) {
 
 router.post('/add_funds', async (request, response) => {
     try {
-        console.log(wrioLogin);
+        logger.debug(wrioLogin);
         let user = await wrioLogin.getLoggedInUser(request.sessionID);
-        console.log(user);
+        logger.debug(user);
         let token = await stripe.tokens.create({
             card: {
                 number: request.body.creditCard,
@@ -42,7 +43,7 @@ router.post('/add_funds', async (request, response) => {
         */
         response.status(200).send('Success');
     } catch(e) {
-        console.log('Error:', e.message);
+        logger.error('Error:', e.message);
     }
 });
 
@@ -50,7 +51,7 @@ router.post('/donate', function(request, response) {
     var webRunes_webGold = db.collection('webRunes_webGold');
     wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
         if (err) {
-            console.log("User not found");
+            logger.error("User not found");
             return response.render('index.ejs', {"error": "Not logged in", "user": undefined});
         }
 
@@ -64,7 +65,7 @@ router.post('/donate', function(request, response) {
         var userId = User.userID;
         stripe.charges.create(chargeData, function(error, charge) {
             if (error) {
-                console.log("Create charge error: ", error);
+                logger.error("Create charge error: ", error);
                 return response.json(error.message);
             }
             response.json(charge);
@@ -82,7 +83,7 @@ router.post('/donate', function(request, response) {
                     };
                     webRunes_webGold.insert(obj,function(error) {
                     //connection.query(query, [charge.id, amountInWRG, userId], function(error, result) {
-                        return console.log(error);
+                        return logger.error(error);
                     });
                 } else {
                     return response.json(error.message);

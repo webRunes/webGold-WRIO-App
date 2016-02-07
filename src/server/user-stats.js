@@ -19,7 +19,7 @@ import EtherFeeds from './dbmodels/etherfeed.js';
 import Invoices from "./dbmodels/invoice.js";
 //import PrePayment from './dbmodels/prepay.js'
 import WrioUser from "./dbmodels/wriouser.js";
-
+import logger from 'winston';
 
 var decodeUserNames = async (names) => {
     var nameHash = {};
@@ -87,9 +87,9 @@ router.get('/prepayments', async (request,response) => {
         var nameHash = await decodeUserNames(names);
 
         response.send(prepayments.map((pre) => {
-            console.log(user.wrioID, pre);
+            logger.debug(user.wrioID, pre);
             if ((pre.to == user.wrioID) || (pre.from == user.wrioID)) {
-                console.log("MATCH");
+                logger.debug("MATCH");
                 return {
                     id: pre.id,
                     incoming: pre.incoming,
@@ -102,7 +102,7 @@ router.get('/prepayments', async (request,response) => {
         }));
 
     } catch(e) {
-        console.log("Error getting prepayments",e);
+        logger.error("Error getting prepayments",e);
         dumpError(e);
         response.status(403).send("Error");
     }
@@ -143,7 +143,7 @@ router.get('/donations', async (request,response) => {
         response.send(data);
 
     } catch(e) {
-        console.log("Error getting donations",e);
+        logger.error("Error getting donations",e);
         dumpError(e);
         response.status(403).send("Error");
     }

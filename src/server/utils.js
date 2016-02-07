@@ -2,16 +2,18 @@
  * Created by michbil on 13.09.15.
  */
 
+import logger from 'winston';
+
 export function dumpError(err) {
     if (!err) return;
     if (typeof err === 'object') {
         if (err.message) {
-            console.log('\nMessage: ' + err.message);
+            logger.error('\nMessage: ' + err.message);
         }
         if (err.stack) {
-            console.log('\nStacktrace:');
-            console.log('====================');
-            console.log(err.stack);
+            logger.error('\nStacktrace:');
+            logger.error('====================');
+            logger.error(err.stack);
         }
     }
 }
