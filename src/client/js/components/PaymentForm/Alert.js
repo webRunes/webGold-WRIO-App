@@ -18,7 +18,7 @@ Alert.defaultProps = {
 Alert.propTypes = {
     type: React.PropTypes.string,
     message: React.PropTypes.string,
-    onClose: React.propTypes.func
+    onClose: React.PropTypes.func
 };
 
 export default Alert;
