@@ -213,10 +213,17 @@ router.post('/get_balance',async (request,response) => {
 });
 
 function auth(id) {
-    if ((id == "819702772935") || (id == "713372365175")) {
-        return true;
+    var admins = nconf.get('payment:admins');
+    if (!admins) {
+        return false;
     }
-    return false;
+    var result = false;
+    admins.forEach((user)=> {
+        if (id == user) {
+            result = true;
+        }
+    });
+    return result;
 }
 
 router.get('/coinadmin/master', async (request,response) => {
@@ -282,27 +289,6 @@ router.get('/coinadmin/users', async (request,response) => {
         response.status(403).send("Error");
     }
 });
-
-/*
-router.get('/coinadmin/prepayments', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (auth(user.wrioID)) {
-            console.log("Coinadmin admin detected");
-            var p = new PrePayment();
-            var prepayments = await p.getAll();
-
-            response.send(prepayments);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        console.log("Coinadmin prepayments error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});*/
 
 router.get('/coinadmin/etherfeeds', async (request,response) => {
     try {
@@ -388,17 +374,6 @@ router.post('/get_exchange_rate',async (request,response) => {
   response.send("10");
 });
 
-
-
-/*
-console.log("App start");
-init().then(async (database) => {
-    console.log("Database init");
-    await operate(database);
-
-}).catch((err)=>{
-    console.log("Failed to init db",err);
-});*/
 
 
 export default router;
