@@ -4,6 +4,7 @@
 
 import db from '../db';
 import uuid from 'node-uuid';
+import logger from 'winston';
 
 export default class Invoice {
 
@@ -42,7 +43,7 @@ export default class Invoice {
 
     recordAction(action) {
         var that = this;
-        console.log("Recording action to db....");
+        logger.debug("Recording action to db....");
         return new Promise((resolve,reject) => {
             this.payments.updateOne({_id:that.invoice_id },{$addToSet:{
                 actions: action
@@ -57,7 +58,7 @@ export default class Invoice {
 
     updateInvoiceData(invoice_data) {
         var that = this;
-        console.log("Updating invoice with data ", invoice_data);
+        logger.debug("Updating invoice with data ", invoice_data);
         return new Promise((resolve, reject) =>{
             if (this.invoice_id == null) {
                 reject("wrong invoice_id");
@@ -74,18 +75,18 @@ export default class Invoice {
 
     getInvoice(nonce) {
         var that=this;
-        console.log(nonce);
+        logger.debug(nonce);
 
         return new Promise((resolve,reject) => {
 
             this.payments.findOne({_id:nonce},function (err,data) {
                 if (err) {
-                    console.log("Error while searching invoice");
+                    logger.error("Error while searching invoice");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('No invoice found');
+                    logger.error('No invoice found');
                     reject('Invoce not found');
                     return;
                 }
@@ -98,12 +99,12 @@ export default class Invoice {
         return new Promise((resolve,reject) =>{
             this.payments.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
                 if (err) {
-                    console.log("Db invoice search error");
+                    logger.error("Db invoice search error");
                     reject(err);
                     return;
                 }
                 if (!feeds) {
-                    console.log('Db invoice not found');
+                    logger.error('Db invoice not found');
                     reject('Users not found');
                     return;
                 }
@@ -116,7 +117,7 @@ export default class Invoice {
 
         return new Promise((resolve,reject) => {
 
-                //console.log(db.db);
+                //logger.debug(db.db);
 
                 if (db.db.s.databaseName != "webrunes_test") {
                     return reject("Wipe can be made only on test db");

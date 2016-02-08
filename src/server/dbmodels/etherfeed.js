@@ -4,7 +4,7 @@
 // Ether amount, sent to users to perform operations
 
 
-
+import logger from 'winston';
 import db from '../db';
 
 export default class EtherFeed {
@@ -41,18 +41,18 @@ export default class EtherFeed {
 
     get(mask) {
         var that=this;
-        console.log(nonce);
+        logger.debug(nonce);
 
         return new Promise((resolve,reject) => {
 
             this.prepayments.findOne(mask,function (err,data) {
                 if (err) {
-                    console.log("Error while searching invoice");
+                    logger.error("Error while searching invoice");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('No invoice found');
+                    logger.error('No invoice found');
                     reject('Invoce not found');
                     return;
                 }
@@ -65,12 +65,12 @@ export default class EtherFeed {
         return new Promise((resolve,reject) =>{
             this.prepayments.find({}).sort({'timestamp':-1}).toArray(function (err,feeds) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!feeds) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('Users not found');
                     return;
                 }

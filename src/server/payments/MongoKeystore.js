@@ -2,7 +2,7 @@
  * Created by michbil on 24.01.16.
  */
 import db from '../db';
-
+import logger from 'winston';
 
 export default class mongoKeyStore {
     constructor(db) {
@@ -13,12 +13,12 @@ export default class mongoKeyStore {
         return new Promise((resolve,reject) =>{
             this.accounts.findOne({_id:key},function (err,data) {
                 if (err) {
-                    console.log("mongoKeyStore Db key search error");
+                    logger.error("mongoKeyStore Db key search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db key not found');
+                    logger.error('Db key not found');
                     reject('mongoKeyStore keyNotFound '+key);
                     return;
                 }
@@ -30,7 +30,7 @@ export default class mongoKeyStore {
     set(key,value) {
         var that = this;
         return new Promise((resolve,reject) =>{
-            console.log("Writing account to keystore");
+            logger.debug("Writing account to keystore");
             this.accounts.insertOne({
                 "_id": key,
                 "value": value
