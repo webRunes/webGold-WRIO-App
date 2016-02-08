@@ -261,7 +261,7 @@ router.get('/coinadmin/users', async (request,response) => {
             logger.debug("Coinadmin admin detected");
             var webGold = new WebGold(db.db);
             var wrioUsers = new WebRunesUsers(db.db);
-            var users = await wrioUsers.getAllUsers();
+            var users = await wrioUsers.getAllUsers({temporary:false});
             var wgUsers = [];
             for (var user of users) {
                 logger.debug(user);
