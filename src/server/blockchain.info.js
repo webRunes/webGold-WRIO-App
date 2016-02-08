@@ -195,7 +195,7 @@ export class BlockChain {
                     var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
                     wrg = wrg.times(100).toFixed(0); // multipy 100 and round to make value in centiWRG
                     await this.generateWrg(user.ethereumWallet, parseInt(wrg), user.wrioID); // send ether to user
-                    logger.debug("WRG was emitted");
+                    logger.info("WRG was emitted");
                     resp.status(200).send("*ok*"); // send success to blockchain.info server
                     return;
                 }
