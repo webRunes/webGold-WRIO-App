@@ -28,8 +28,7 @@
  meteor install silentcicero:ethereumjs-accounts
  **/
 
-'use strict';
-
+import logger from 'winston';
 var _ = require('underscore');
 var Tx = require('ethereumjs-tx');
 var BigNumber = require('bignumber.js');
@@ -269,7 +268,7 @@ class Accounts {
             locked: false,
             hash: ethUtil.sha3(publicKey.toString('hex') + privateKey.toString('hex')).toString('hex')
         };
-        console.log("NEW:",privateKey.toString('hex'),publicKey.toString('hex'),accountObject);
+        logger.debug("NEW:",privateKey.toString('hex'),publicKey.toString('hex'),accountObject);
     }
 
     async importAccount (address, privateKey, passphrase) {
@@ -454,7 +453,7 @@ class Accounts {
 
 
     log (text) {
-        console.log(text);
+        logger.debug(text);
     };
 
 
@@ -495,13 +494,13 @@ class Accounts {
         // Accounts instance
         (async () => { // async function wrapper
             try {
-                console.log("Signing transaction",tx_params);
+                logger.debug("Signing transaction",tx_params);
                 // Get the account of address set in sendTransaction options, from the accounts stored in browser
                 var account = await accounts.get(tx_params.from);
 
                 // if the account is encrypted, try to decrypt it
                 if (account.encrypted) {
-                    console.log("Trying to decrypt account....");
+                    logger.debug("Trying to decrypt account....");
                     account = await accounts.get(tx_params.from, accounts.getAccountPassphrase(account));
                 }
 
@@ -537,20 +536,20 @@ class Accounts {
                 var privateKey = new Buffer(account['private'], 'hex');
 
 
-                console.log(rawTx);
+                logger.debug(rawTx);
 
                 // init new transaction object, and sign the transaction
                 var tx = new Tx(rawTx);
                 tx.sign(privateKey);
 
-                //console.log(tx);
-                //console.log(tx.getUpfrontCost());
+                //logger.debug(tx);
+                //logger.debug(tx.getUpfrontCost());
                 // Build a serialized hex version of the Tx
                 var serializedTx = '0x' + tx.serialize().toString('hex');
 
                 callback(null, serializedTx);
             } catch (e) {
-                console.log("Error during signtransaction",e);
+                logger.error("Error during signtransaction",e);
                 dumpError(e);
                 callback(e);
             }

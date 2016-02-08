@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import logger from 'winston';
 import nconf from './wrio_nconf.js';
 
 var transporter = nodemailer.createTransport({

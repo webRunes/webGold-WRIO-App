@@ -16,27 +16,30 @@ import BigNumber from 'bignumber.js';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
+import logger from 'winston';
 
+
+logger.level = 'debug';
 var app = express();
 app.ready = () => {};
 app.override_session = {sid:null};
 
 app.use(function (request, response, next) {
-    //console.log(request);
+    //logger.log('info',request);
 
     var host = request.get('origin');
     if (host == undefined) host = "";
-    console.log(host);
+    logger.log('debug',host);
 
     var domain = nconf.get("server:workdomain");
     domain = domain.replace(/\./g,'\\.')+'$';
-    console.log(domain);
+    logger.log('debug',domain);
 
     if (host.match(new RegExp(domain,'m'))) {
         response.setHeader('Access-Control-Allow-Origin', host);
-        console.log("Allowing CORS for webrunes domains");
+        logger.log('debug',"Allowing CORS for webrunes domains");
     } else {
-        console.log('host not match');
+        logger.log('debug','host not match');
     }
 
     //response.setHeader('Access-Control-Allow-Origin', '*');
@@ -85,10 +88,10 @@ function setup_server(db) {
 
 
     app.use((req,res,next)=> {  // stub for unit testing, we can override sessionID, if app.override_session is set
-        console.log("OVERRIDE:",app.override_session.sid);
+        logger.log('info',"OVERRIDE:",app.override_session.sid);
         if (app.override_session.sid) {
              req.sessionID = app.override_session.sid;
-             console.log("Overriding session ID",app.override_session.sid);
+             logger.log('info',"Overriding session ID",app.override_session.sid);
         }
 
         return next();
@@ -103,7 +106,7 @@ function setup_routes(db) {
         response.sendFile(__dirname + '/hub/index.htm');
     });
     app.get('/coinadmin', function (request, response) {
-        console.log(request);
+        logger.log('debug',request);
         response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
     });
 
@@ -117,9 +120,9 @@ function setup_routes(db) {
 
     app.get('/add_funds_data', async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
-        console.log(loginUrl);
+        logger.log('debug',loginUrl);
 
-        console.log("WEBGOLD:Add funds data");
+        logger.log('info',"WEBGOLD:Add funds data");
 
         try {
             var user = await getLoggedInUser(request.sessionID);
@@ -137,7 +140,7 @@ function setup_routes(db) {
                 });
             }
         } catch(e) {
-            console.log('WEBGOLD:User not found',e);
+            logger.log('error','WEBGOLD:User not found',e);
             response.json({
                 username: null,
                 loginUrl: loginUrl,
@@ -149,26 +152,26 @@ function setup_routes(db) {
     });
 
     app.get('/get_user', function (request, response) {
-        console.log("WEBGOLD:/get_user");
+        logger.log('debug',"WEBGOLD:/get_user");
         loginWithSessionId(request.sessionID, (err, res) => {
             if (err) {
-                console.log('User not found');
+                logger.log('error','User not found');
                 return response.sendStatus(404);
             }
 
-            console.log(res);
+            logger.log('info',res);
             response.json({'user': res});
         });
     });
 
     app.get('/logoff', function (request, response) {
-        console.log("Logoff called");
+        logger.log('debug',"Logoff called");
         response.clearCookie('sid', {'path': '/', 'domain': DOMAIN});
         response.redirect('/');
     });
 
     app.get('/callback', function (request, response) {
-        console.log("Our callback called");
+        logger.log('debug',"Our callback called");
         response.render('callback', {});
     });
 
@@ -181,15 +184,15 @@ function setup_routes(db) {
 
 init()
     .then(function(db) {
-        console.log('Successfuly connected to Mongo');
+        logger.log('info','Successfuly connected to Mongo');
         app.listen(nconf.get("server:port"));
-        console.log("Web application opened.");
+        logger.log('info',"Web application opened.");
         setup_server(db);
         setup_routes(db);
         app.ready();
     })
     .catch(function(err) {
-        console.log('Error while init '+err);
+        logger.log('info','Error while init '+err);
     });
 
 module.exports = app;

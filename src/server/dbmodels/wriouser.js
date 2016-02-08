@@ -3,6 +3,7 @@
  * Created by michbil on 26.09.15.
  */
 
+import logger from 'winston';
 import database from '../db';
 import uuid from 'node-uuid';
 let db;
@@ -17,12 +18,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.findOne({wrioID:wrioID},function (err,data) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('User not found '+wrioID);
                     return;
                 }
@@ -35,12 +36,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.findOne({ethereumWallet:wallet},function (err,data) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('User not found '+wrioID);
                     return;
                 }
@@ -54,12 +55,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.find(query).toArray(function (err,users) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!users) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('Users not found');
                     return;
                 }
@@ -72,12 +73,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.updateOne({wrioID:wrioID},{$set:data},function (err,data) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('User not found '+wrioID);
                     return;
                 }
@@ -90,12 +91,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.updateOne({wrioID:wrioID},{$set:data},{upsert:true},function (err,data) {
                 if (err) {
-                    console.log("Db user search error");
+                    logger.error("Db user search error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db user not found');
+                    logger.error('Db user not found');
                     reject('User not found '+wrioID);
                     return;
                 }
@@ -108,12 +109,12 @@ class WebRunesUsers {
         return new Promise((resolve,reject) =>{
             this.users.insert(data,function (err,data) {
                 if (err) {
-                    console.log("Db user create error");
+                    logger.error("Db user create error");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    console.log('Db user create failed');
+                    logger.error('Db user create failed');
                     reject('User not found ');
                     return;
                 }
@@ -149,7 +150,7 @@ class WebRunesUsers {
                     if (!data) {
                         return reject("User not found");
                     }
-                    console.log('Makeprepayment result',data);
+                    logger.debug('Makeprepayment result',data);
                     resolve(data);
             });
         });
@@ -180,7 +181,7 @@ class WebRunesUsers {
                     if (!data) {
                         return reject("User not found");
                     }
-                    //console.log('cancelPrepayment result',data);
+                    //logger.debug('cancelPrepayment result',data);
                     resolve(data);
                 });
         });
@@ -193,7 +194,7 @@ class WebRunesUsers {
     clearTestDb() {
         return new Promise((resolve,reject) => {
 
-              //  console.log(db);
+              //  logger.debug(db);
 
             if (db.s.databaseName != "webrunes_test") {
                 return reject("Wipe can be made only on test db");

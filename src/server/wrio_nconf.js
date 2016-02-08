@@ -1,5 +1,6 @@
 import path from 'path';
 import nconf from 'nconf';
+import logger from 'winston';
 
 nconf.env().argv();
 
