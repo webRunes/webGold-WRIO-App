@@ -10,7 +10,7 @@ import {calc_percent,dumpError} from './utils';
 import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser} from './wriologin';
+import {loginWithSessionId,getLoggedInUser,authS2S,wrioAuth,wrap} from './wriologin';
 import db from './db';
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser';
@@ -20,8 +20,8 @@ import Donations from './dbmodels/donations.js';
 import Emissions from './dbmodels/emissions.js';
 import EtherFeeds from './dbmodels/etherfeed.js';
 import Invoices from "./dbmodels/invoice.js";
-//import PrePayment from './dbmodels/prepay.js'
 import WrioUser from "./dbmodels/wriouser.js";
+import AdminRoute from './admin/route.js';
 import logger from 'winston';
 
 
@@ -40,38 +40,23 @@ if (!masterPassword) {
 }
 
 
-
-
-
-router.get('/free_wrg',async (request,response) => {  // TODO: remove this method
+router.get('/free_wrg',wrap(async (request,response) => {  // TODO: remove this method
     logger.error("  =====  WARING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
-    try {
 
-        var amount = parseInt(request.query.amount);
-        logger.debug(typeof amount);
-        if (typeof amount !== "number") {
-            throw new Error("Can't parse amount");
-        }
-
-        amount *= 100;
-
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (user.wrioID) {
-            var webGold = new WebGold(db.db);
-            await webGold.emit(user.ethereumWallet, amount, user.wrioID);
-
-            response.send("Successfully sent "+amount);
-        } else {
-            throw new Error("User has no vaid userID, sorry");
-        }
-    } catch(e) {
-        logger.error("Errro during free_wrg ",e);
-        dumpError(e);
-        response.status(403).send("Error");
+    var amount = parseInt(request.query.amount);
+    logger.debug(typeof amount);
+    if (typeof amount !== "number") {
+        throw new Error("Can't parse amount");
     }
 
-});
+    amount *= 100;
+
+    var user = request.user;
+    var webGold = new WebGold(db.db);
+    await webGold.emit(user.ethereumWallet, amount, user.wrioID);
+    response.send("Successfully sent " + amount);
+
+}));
 
 
 /*
@@ -82,298 +67,103 @@ router.get('/free_wrg',async (request,response) => {  // TODO: remove this metho
 
  */
 
-router.get('/donate',async (request,response) => { // TODO : add authorization, important !!!!
-    try {
-        var to = request.query.to;
-        var amount = parseInt(request.query.amount) * 100;
-        if (typeof amount !== "number") {
-            throw new Error("Can't parse amount");
-        }
-        if (amount < 0) {
-            throw new Error ("Amount can't be negative");
-        }
+router.get('/donate', authS2S, wrap(async (request,response) => {
+    // TODO really BIG function!!! refactor it to few less or the class
+    var to = request.query.to;
+    var from = request.query.from;
+    var amount = parseInt(request.query.amount) * 100;
+    if (typeof amount !== "number") {
+        throw new Error("Can't parse amount");
+    }
+    if (amount < 0) {
+        throw new Error ("Amount can't be negative");
+    }
+    var userObj = new WrioUser();
 
-        var sid = request.query.sid || '';
+    var user = await userObj.getByWrioID(from);
+    if (!user) throw new Error("User not registered");
 
-        var user = await getLoggedInUser(sid);
-        if (!user) throw new Error("User not registered");
-        if (user.wrioID) {
-            var webGold = new WebGold(db.db);
+    var webGold = new WebGold(db.db);
 
-            var dest = await webGold.getEthereumAccountForWrioID(to); // ensure that source adress and destination adress have ethereum adress
-            var src = await webGold.getEthereumAccountForWrioID(user.wrioID);
+    var dest = await webGold.getEthereumAccountForWrioID(to); // ensure that source adress and destination adress have ethereum adress
+    var src = await webGold.getEthereumAccountForWrioID(user.wrioID);
 
-            if (dest === src) {
-                throw new Error("Can't donate to itself");
-            }
-
-            var dbBalance = user.dbBalance || 0;
-            var blockchainBalance = await webGold.getBalance(src);
-            blockchainBalance = blockchainBalance.toString();
-
-            logger.debug("Checking balance before donation",amount,blockchainBalance);
-
-
-            if (amount > blockchainBalance) {
-                // Do virtual payment to the database record because user has insufficient funds
-                // when funds arrive on the account, pending payments will be done
-
-                var debt = dbBalance-amount;
-
-                logger.debug("CALCULATED DEBT:",debt);
-
-                if (debt > MAX_DEBT ) { // check if we havent reached maximum debt limit
-                    throw new Error("Insufficient funds");
-                }
-
-                var userObj = new WrioUser();
-                await userObj.createPrepayment(user.wrioID,-amount,to);
-
-                logger.info("Prepayment made");
-
-
-            } else {
-
-                // Make the real payment through the blockchain
-               await webGold.makeDonate(user, to, amount);
-
-            }
-            var amountUser = amount*calc_percent(amount)/100;
-            var fee = amount - amountUser;
-
-
-            response.send({
-                "success":true,
-                "dest":dest,
-                "src":src,
-                amount:amount,
-                amountUser: amountUser,
-                fee:fee,
-                feePercent:calc_percent(amount)
-            });
-        } else {
-            throw new Error("User has no valid userID, sorry");
-        }
-
-    } catch(e) {
-        logger.error("Error during donate",e);
-        dumpError(e);
-        if (!e) {
-            response.status(403).send({"error":"Unknown error"});
-        } else {
-            response.status(403).send({"error":e.message});
-        }
-
+    if (dest === src) {
+        throw new Error("Can't donate to itself");
     }
 
-});
+    var dbBalance = user.dbBalance || 0;
+    var blockchainBalance = await webGold.getBalance(src);
+    blockchainBalance = blockchainBalance.toString();
 
-router.post('/get_balance',async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (user.wrioID) {
+    logger.debug("Checking balance before donation",amount,blockchainBalance);
 
-            // try to get temp balance stored in db record
+    if (amount > blockchainBalance) {
+        // Do virtual payment to the database record because user has insufficient funds
+        // when funds arrive on the account, pending payments will be done
 
-            var dbBalance = 0;
-            if (user.dbBalance) {
-                dbBalance = user.dbBalance / 100;
-            }
+        var debt = dbBalance-amount;
 
-            logger.debug("balance from db:", dbBalance);
+        logger.debug("CALCULATED DEBT:",debt);
 
-            var webGold = new WebGold(db.db);
-
-            var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-            var balance = await webGold.getBalance(dest) / 100;
-
-            var bal = balance - dbBalance;
-
-
-            //logger.debug("balance:",balance.add(dbBalance).toString());
-            response.send({
-                "balance": bal,
-                "promised": dbBalance,
-                "blockchain": balance
-            });
-
-            await webGold.processPendingPayments(user);
-
-
-        } else {
-            throw new Error("User has no valid userID, sorry");
+        if (debt > MAX_DEBT ) { // check if we havent reached maximum debt limit
+            throw new Error("Insufficient funds");
         }
-    } catch(e) {
-        logger.error("Error during get_balance",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
+        await userObj.createPrepayment(user.wrioID,-amount,to);
+        logger.info("Prepayment made");
 
-});
+    } else {
+        // Make the real payment through the blockchain
+       await webGold.makeDonate(user, to, amount);
 
-function auth(id) {
-    var admins = nconf.get('payment:admins');
-    if (!admins) {
-        return false;
     }
-    var result = false;
-    admins.forEach((user)=> {
-        if (id == user) {
-            result = true;
-        }
+    var amountUser = amount*calc_percent(amount)/100;
+    var fee = amount - amountUser;
+
+
+    response.send({
+        "success":true,
+        "dest":dest,
+        "src":src,
+        amount:amount,
+        amountUser: amountUser,
+        fee:fee,
+        feePercent:calc_percent(amount)
     });
-    return result;
-}
+}));
 
-router.get('/coinadmin/master', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var webGold = new WebGold(db.db);
-            var wrgBalance = await webGold.getBalance(masterAccount);
-            var ethBalance = await webGold.getEtherBalance(masterAccount);
+router.post('/get_balance', wrioAuth, wrap(async (request,response) => {
 
-            var gasprice = web3.eth.gasPrice;
-
-            response.send({
-                "ethBalance": ethBalance / wei,
-                "wrgBalance": wrgBalance / 100,
-                "gasPrice": gasprice / wei
-            });
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin error",e);
-        dumpError(e);
-        response.status(403).send("Error");
+    var user = request.user;
+    var dbBalance = 0;
+    if (user.dbBalance) {
+        dbBalance = user.dbBalance / 100;
     }
-});
+    logger.debug("balance from db:", dbBalance);
 
-router.get('/coinadmin/users', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var webGold = new WebGold(db.db);
-            var wrioUsers = new WebRunesUsers(db.db);
-            var users = await wrioUsers.getAllUsers({temporary:false});
-            var wgUsers = [];
-            for (var user of users) {
-                logger.debug(user);
-                if (user.wrioID && user.ethereumWallet) {
-
-                    wgUsers.push ({
-                        wrioID: user.wrioID,
-                        name: user.lastName,
-                        ethWallet: user.ethereumWallet,
-                        dbBalance: -(user.dbBalance || 0) / 100,
-                        ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
-                        wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
-                        prepayments: user.prepayments || []
-                    });
-                }
-            }
-
-            response.send(wgUsers);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
-
-router.get('/coinadmin/etherfeeds', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (!user) throw new Error("User not registered");
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var d = new EtherFeeds();
-            var ethFeeds = await d.getAll();
-
-            response.send(ethFeeds);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin ethFeed error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
+    var webGold = new WebGold(db.db);
+    var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
+    var balance = await webGold.getBalance(dest) / 100;
+    var bal = balance - dbBalance;
 
 
-router.get('/coinadmin/donations', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var d = new Donations();
-            var data = await d.getAll();
+    //logger.debug("balance:",balance.add(dbBalance).toString());
+    response.send({
+        "balance": bal,
+        "promised": dbBalance,
+        "blockchain": balance
+    });
 
-            response.send(data);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin donations error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
+    await webGold.processPendingPayments(user);
+
+}));
 
 
-router.get('/coinadmin/emissions', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var d = new Emissions();
-            var data = await d.getAll();
-
-            response.send(data);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin emissions error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
-
-router.get('/coinadmin/invoices', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
-        if (auth(user.wrioID)) {
-            logger.debug("Coinadmin admin detected");
-            var d = new Invoices();
-            var data = await d.getAll();
-
-            response.send(data);
-        } else {
-            throw new Error("User not admin,sorry");
-        }
-    } catch(e) {
-        logger.error("Coinadmin emissions error",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
-
-
-router.post('/get_exchange_rate',async (request,response) => {
+router.post('/get_exchange_rate', wrioAuth, async (request,response) => {
   response.send("10");
 });
 
+router.use('/coinadmin',AdminRoute);
 
 
 export default router;

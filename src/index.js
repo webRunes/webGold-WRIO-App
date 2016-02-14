@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
+import {dumpError} from './server/utils.js';
 //import braintree from './server/braintree';
 import BlockChainRoute from './server/blockchain.info';
 import {BlockChain} from './server/blockchain.info';
@@ -88,14 +89,11 @@ function setup_server(db) {
 
 
     app.use((req,res,next)=> {  // stub for unit testing, we can override sessionID, if app.override_session is set
-        logger.log('info',"OVERRIDE:",app.override_session.sid);
         if (app.override_session.sid) {
              req.sessionID = app.override_session.sid;
              logger.log('info',"Overriding session ID",app.override_session.sid);
         }
-
         return next();
-
     });
 
 
@@ -180,6 +178,13 @@ function setup_routes(db) {
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
     app.use('/assets', express.static(path.join(__dirname, '/client')));
+
+    app.use(function (err, req, res, next) {
+        dumpError(err);
+        res.status(403).send("There was error processing your request");
+    });
+
+
 }
 
 init()
