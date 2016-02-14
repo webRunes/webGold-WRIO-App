@@ -7,7 +7,7 @@ import {calc_percent,dumpError} from './utils';
 import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser} from './wriologin';
+import {loginWithSessionId,getLoggedInUser, wrap, wrioAuth} from './wriologin';
 import db from './db';
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser';
@@ -43,9 +43,8 @@ var getUserNames = async (names)=> {
 
 };
 
-router.get('/prepayments', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
+router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
+        var user = request.user;
         var Users = new WrioUser(db.db);
 
         // search in User arrays for prepayments designated for us
@@ -100,54 +99,40 @@ router.get('/prepayments', async (request,response) => {
                 };
             }
         }));
-
-    } catch(e) {
-        logger.error("Error getting prepayments",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
+}));
 
 
-router.get('/donations', async (request,response) => {
-    try {
-        var user = await getLoggedInUser(request.sessionID);
+router.get('/donations', wrioAuth, wrap(async (request,response) => {
+    var user = req.user;
+    var d = new Donations();
+    var query = {
+        $or:[
+            {srcWrioID: user.wrioID},
+            {destWrioID: user.wrioID}
+        ]
+    };
+    var data = await d.getAll(query);
+    var names = [];
+    data = data.map((item)=> {
+        names.push(item.destWrioID);
+        names.push(item.srcWrioID);
+        if (item.destWrioID === user.wrioID) {
+            item.incoming = true;
+        } else {
+            item.incoming = false;
+        }
+        return item;
+    });
+    // create mappings for usernames
+    var nameHash = await decodeUserNames(names);
+    data = data.map((item)=> {
+        item.destName = nameHash[item.destWrioID];
+        item.srcName = nameHash[item.srcWrioID];
+        return item;
+    });
+    response.send(data);
 
-
-        var d = new Donations();
-        var query = {
-            $or:[
-                {srcWrioID: user.wrioID},
-                {destWrioID: user.wrioID}
-            ]
-        };
-        var data = await d.getAll(query);
-        var names = [];
-        data = data.map((item)=> {
-            names.push(item.destWrioID);
-            names.push(item.srcWrioID);
-            if (item.destWrioID === user.wrioID) {
-                item.incoming = true;
-            } else {
-                item.incoming = false;
-            }
-            return item;
-        });
-        // create mappings for usernames
-        var nameHash = await decodeUserNames(names);
-        data = data.map((item)=> {
-            item.destName = nameHash[item.destWrioID];
-            item.srcName = nameHash[item.srcWrioID];
-            return item;
-        });
-        response.send(data);
-
-    } catch(e) {
-        logger.error("Error getting donations",e);
-        dumpError(e);
-        response.status(403).send("Error");
-    }
-});
+}));
 
 
 export default router;
