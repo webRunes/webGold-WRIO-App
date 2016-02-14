@@ -1,5 +1,6 @@
 import db from './db';
 import logger from 'winston';
+import nconf from 'nconf';
 
 // used to deserialize the user
 function deserialize(id, done) {
@@ -113,26 +114,6 @@ export function clearTestDb() {
     );
 }
 
-
-export function getTwitterCredentials(sessionId, done) {
-
-    loginWithSessionId(sessionId, function callback(err, res) {
-        if (err || !res) {
-            logger.debug("Error executing request");
-            done(err);
-        } else {
-            if (res.token && res.tokenSecret) {
-                done(null, {
-                    "token": res.token,
-                    "tokenSecret": res.tokenSecret
-                });
-            } else {
-                done("No login with twitter");
-            }
-        }
-    });
-}
-
 /*
 
 Returns logged in user id (promised)
@@ -149,4 +130,58 @@ export function getLoggedInUser(ssid) {
             resolve(res);
         });
     });
+}
+
+
+export function authS2S(request,response,next) {
+    var creds = auth(request);
+    var login = nconf.get("service2service:login");
+    var password = nconf.get("service2service:password");
+    if (creds && login && password) {
+        if ((creds.name === login) && (creds.pass === password)) {
+            next();
+            return;
+        }
+    }
+    logger.error("Access denied");
+    response.status(403).send("Access denied");
+}
+
+
+function auth(id) {
+    var admins = nconf.get('payment:admins');
+    if (!admins) {
+        return false;
+    }
+    var result = false;
+    admins.forEach((user)=> {
+        if (id == user) {
+            result = true;
+        }
+    });
+    return result;
+}
+
+export let wrap = fn => (...args) => fn(...args).catch(args[2]);
+
+export function wrioAuth(req,resp,next) {
+    getLoggedInUser(req.sessionID).then((user) => {
+        req.user = user;
+        next();
+    }).catch((e)=> {
+        logger.error("Permission denied",e);
+        dumpError(e);
+        resp.status(403).send("Error");
+    });
+}
+
+export function wrioAdmin(req,resp,next) {
+    wrioAuth(req,resp,() => {
+        if (auth(req.user.wrioID)) {
+            next();
+        } else {
+            resp.status(403).send("Error: Not admin");
+        }
+    });
+
 }

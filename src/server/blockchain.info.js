@@ -2,7 +2,7 @@ import request from 'superagent';
 import nconf from './wrio_nconf';
 import uuid from 'node-uuid';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser} from './wriologin';
+import {loginWithSessionId,getLoggedInUser,wrap,wrioAuth} from './wriologin';
 import {dumpError} from './utils';
 import BigNumber from 'bignumber.js';
 import {init} from './db';
@@ -234,69 +234,43 @@ router.get('/callback',async (request,response) => {
     }
 });
 
-router.post('/payment_history', async (request,response) => {
+router.post('/payment_history', wrioAuth, wrap(async (request,response) => {
 
-    try {
         var userID = await getLoggedInUser(request.sessionID);
-
         var blockchain = new BlockChain();
         var history = await blockchain.getInvoices(userID._id);
-       // logger.debug("History",history);
         response.send(history);
 
-    } catch (e) {
-        logger.error("Caught error: ",e);
-        dumpError(e);
-        response.status(403).send({"error":e.toString()});
-    }
+}));
 
-
-});
-
-router.post('/request_payment',function(req,response) {
+router.post('/request_payment', wrioAuth, function(req,response) {
     logger.debug("Request payment is called");
-    loginWithSessionId(req.sessionID, function(err, User) {
+    var blockchain = new BlockChain();
 
-        if (err) {
-            logger.error("User not found");
-            return response.status(403).render('index.ejs', {"error": "Not logged in", "user": undefined});
-        }
-        var blockchain = new BlockChain();
+    var userId = req.user._id;
+    var wrioId = req.user.wrioID;
 
-        //var userId =   User.userID;
-        var userId = User._id;
-        var wrioId = User.wrioID;
+    var nonce = req.body.payment_method_nonce;
+    var webRunes_webGold = db.db.collection('webRunes_webGold');
+    var amount = parseFloat(req.body.amount);
+    var amountWRG = parseFloat(req.body.amountWRG);
+    if (isNaN(amount) || (amount < 0)) {
+        response.status(400).send({"error": "bad request"});
+        return;
+    }
+    if (isNaN(amountWRG) || (amountWRG < 0)) {
+        response.status(400).send({"error": "bad request"});
+        return;
+    }
+    logger.debug("Got nonce", nonce);
 
-        logger.debug("Logged in user:",userId);
-
-        if (!userId) {
-            response.status(400).send({"error":"This user has no userID, exiting"});
-            return;
-        }
-
-        var nonce = req.body.payment_method_nonce;
-        var webRunes_webGold = db.db.collection('webRunes_webGold');
-        var amount = parseFloat(req.body.amount);
-        var amountWRG = parseFloat(req.body.amountWRG);
-        if (isNaN(amount) || (amount < 0)) {
-            response.status(400).send({"error": "bad request"});
-            return;
-        }
-        if (isNaN(amountWRG) || (amountWRG < 0)) {
-            response.status(400).send({"error": "bad request"});
-            return;
-        }
-        logger.debug("Got nonce", nonce);
-
-
-        blockchain.request_payment(userId, wrioId, amount).then(function (resp) {
-            logger.debug("Resp",resp);
-            response.send(resp);
-        },function (err) {
-            response.status(400).send({"error": "error processing your request "+err});
-        });
-
+    blockchain.request_payment(userId, wrioId, amount).then(function (resp) {
+        logger.debug("Resp",resp);
+        response.send(resp);
+    },function (err) {
+        response.status(400).send({"error": "error processing your request "+err});
     });
+
 
 });
 
