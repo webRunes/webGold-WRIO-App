@@ -143,7 +143,7 @@ export function authS2S(request,response,next) {
             return;
         }
     }
-    console.log("Access denied");
+    logger.error("Access denied");
     response.status(403).send("Access denied");
 }
 
@@ -164,21 +164,9 @@ function auth(id) {
 
 export let wrap = fn => (...args) => fn(...args).catch(args[2]);
 
-export async function wrap(request,response,fn) {
-    try {
-        await fn(request,response)
-    } catch (e) {
-        logger.error("Error during execution function: ",e);
-        dumpError(e);
-        resp.status(403).send("Error");
-    }
-
-}
-
 export function wrioAuth(req,resp,next) {
     getLoggedInUser(req.sessionID).then((user) => {
         req.user = user;
-        logger.debug("GOT",req.user);
         next();
     }).catch((e)=> {
         logger.error("Permission denied",e);

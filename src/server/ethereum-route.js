@@ -41,7 +41,7 @@ if (!masterPassword) {
 
 
 router.get('/free_wrg',wrap(async (request,response) => {  // TODO: remove this method
-    logger.error("  =====  WARING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
+    logger.error("  =====  WARNING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
 
     var amount = parseInt(request.query.amount);
     logger.debug(typeof amount);

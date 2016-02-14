@@ -12,7 +12,7 @@ dbready((app,db)=> {
                 .get('/')
                 .expect(200, done);
         });
-        it("/api/search shoud fail with empty credentials", function (done) {
+        it("/api/search should fail with empty credentials", function (done) {
             var postdata = {
                 twitterCreds: {
                     access_token: "",
