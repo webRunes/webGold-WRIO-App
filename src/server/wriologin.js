@@ -114,26 +114,6 @@ export function clearTestDb() {
     );
 }
 
-
-export function getTwitterCredentials(sessionId, done) {
-
-    loginWithSessionId(sessionId, function callback(err, res) {
-        if (err || !res) {
-            logger.debug("Error executing request");
-            done(err);
-        } else {
-            if (res.token && res.tokenSecret) {
-                done(null, {
-                    "token": res.token,
-                    "tokenSecret": res.tokenSecret
-                });
-            } else {
-                done("No login with twitter");
-            }
-        }
-    });
-}
-
 /*
 
 Returns logged in user id (promised)
