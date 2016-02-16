@@ -44,14 +44,16 @@ export default class PendingPaymentProcessor {
     }
 
 
-    async process(user) {
+    async process(user,webGold) {
+
+        this.webGold = webGold;
 
         if (user.wrioID in prepaymentProcessLock) {
             logger.debug("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
             return;
         }
 
-        var amount = await this.getBalance(user.ethereumAccount);
+        var amount = await webGold.getBalance(user.ethereumAccount);
         amount = amount.toString();
         this.setLock(user.wrioID);
 
@@ -97,8 +99,8 @@ export default class PendingPaymentProcessor {
 
     async makeDonate(user,p,left) {
         logger.info("Donating to",p.to,paym_amount);
-        await this.unlockByWrioID(user.wrioID);
-        await this.makeDonate(user, p.to, paym_amount);
+        await this.webGold.unlockByWrioID(user.wrioID);
+        await this.webGold.makeDonate(user, p.to, paym_amount);
         await this.wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
         left -= paym_amount;
     }

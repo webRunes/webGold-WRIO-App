@@ -25,7 +25,7 @@ import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
 
-import PendingPaymentProcessor from './PendingPaymentProcessor.js'
+import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -92,16 +92,18 @@ class WebGold {
                     var wrioUsers = new WebRunesUsers();
                     var user = await wrioUsers.getByEthereumWallet(receiver);
                     logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
-                    await this.pp.process(user);
+                    await this.processPendingPayments(user);
 
                 } catch (e) {
                     logger.error("Processing payment failed",e);
                     dumpError(e);
                 }
-
             }
-
         });
+    }
+
+    async processPendingPayments(user) {
+        return await this.pp.process(user,this);
     }
 
 
