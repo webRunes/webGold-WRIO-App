@@ -88,7 +88,6 @@ export class BlockChain {
                 }
 
                 logger.verbose("Server response:",result.body);
-
                 await invoice.updateInvoiceData({
                     input_address: result.body.input_address,
                     destination: result.body.destination,
@@ -97,8 +96,6 @@ export class BlockChain {
                     'state': 'request_sent',
                     'requested_amount': amount
                 });
-
-
 
                 resolve({
                     adress: result.body.input_address,

@@ -104,7 +104,6 @@ function setup_routes(db) {
         response.sendFile(__dirname + '/hub/index.htm');
     });
     app.get('/coinadmin', function (request, response) {
-        logger.log('debug',request);
         response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
     });
 
@@ -118,8 +117,6 @@ function setup_routes(db) {
 
     app.get('/add_funds_data', async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
-        logger.log('debug',loginUrl);
-
         logger.log('info',"WEBGOLD:Add funds data");
 
         try {
