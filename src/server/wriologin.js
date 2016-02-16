@@ -1,6 +1,7 @@
 import db from './db';
 import logger from 'winston';
 import nconf from 'nconf';
+import auth from 'basic-auth';
 
 // used to deserialize the user
 function deserialize(id, done) {
@@ -87,12 +88,9 @@ export function generateFakeSession(userID) {
 }
 
 /*
-
 Clears test db records when unit testing (promised)
-
 DON'T use in production environment !!!!
-
- */
+*/
 
 export function clearTestDb() {
     var sessions = db.db.collection('sessions');
@@ -137,7 +135,12 @@ export function authS2S(request,response,next) {
     var creds = auth(request);
     var login = nconf.get("service2service:login");
     var password = nconf.get("service2service:password");
+
+    console.log(creds);
+    console.log(login,password); 
+
     if (creds && login && password) {
+        logger.info('Trying to log',creds.name);
         if ((creds.name === login) && (creds.pass === password)) {
             next();
             return;
@@ -148,7 +151,7 @@ export function authS2S(request,response,next) {
 }
 
 
-function auth(id) {
+function isAdmin(id) {
     var admins = nconf.get('payment:admins');
     if (!admins) {
         return false;
@@ -177,7 +180,7 @@ export function wrioAuth(req,resp,next) {
 
 export function wrioAdmin(req,resp,next) {
     wrioAuth(req,resp,() => {
-        if (auth(req.user.wrioID)) {
+        if (isAdmin(req.user.wrioID)) {
             next();
         } else {
             resp.status(403).send("Error: Not admin");

@@ -19,7 +19,6 @@ dbready((app,db)=> {
                     access_secret: "",
                     query: "test_query"
                 }
-
             };
             request(app)
                 .post('/api/search')
@@ -29,7 +28,6 @@ dbready((app,db)=> {
 
 
         it("get_balance should fail with wrong origin header", (done) => {
-
             request(app)
                 .post('/api/webgold/get_balance')
                 .expect(200, (res) => {
