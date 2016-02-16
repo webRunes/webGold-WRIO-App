@@ -30,15 +30,15 @@ app.use(function (request, response, next) {
 
     var host = request.get('origin');
     if (host == undefined) host = "";
-    logger.log('debug',host);
+    logger.debug('Origin host:',host);
 
     var domain = nconf.get("server:workdomain");
     domain = domain.replace(/\./g,'\\.')+'$';
-    logger.log('debug',domain);
+    logger.debug('Domaintempl',domain);
 
     if (host.match(new RegExp(domain,'m'))) {
         response.setHeader('Access-Control-Allow-Origin', host);
-        logger.log('debug',"Allowing CORS for webrunes domains");
+        logger.log('debug',"Allowing CORS for ",host);
     } else {
         logger.log('debug','host not match');
     }

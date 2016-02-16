@@ -136,9 +136,6 @@ export function authS2S(request,response,next) {
     var login = nconf.get("service2service:login");
     var password = nconf.get("service2service:password");
 
-    console.log(creds);
-    console.log(login,password); 
-
     if (creds && login && password) {
         logger.info('Trying to log',creds.name);
         if ((creds.name === login) && (creds.pass === password)) {

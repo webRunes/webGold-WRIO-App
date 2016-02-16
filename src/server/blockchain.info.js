@@ -10,6 +10,7 @@ import WebGold from './ethereum';
 import db from './db';
 import Invoice from './dbmodels/invoice.js';
 import User from './dbmodels/wriouser.js';
+import RateGetter from './payments/RateGetter.js';
 import logger from 'winston';
 
 const router = Router();
@@ -53,17 +54,7 @@ export class BlockChain {
     async get_rates() {
         try {
 
-            var isInTest = typeof global.it === 'function';
-
-            if (isInTest) {
-                return new BigNumber(433.0);
-            }
-
-            let api_request = "https://blockchain.info/ru/ticker";
-            logger.verbose("Sending get_rates request",api_request);
-            var result = await request.post(api_request);
-
-            return new BigNumber(result.body.USD.buy);
+            return await RateGetter.getRates();
 
         }
         catch(e) {
