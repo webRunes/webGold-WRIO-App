@@ -30,15 +30,15 @@ app.use(function (request, response, next) {
 
     var host = request.get('origin');
     if (host == undefined) host = "";
-    logger.log('debug',host);
+    logger.debug('Origin host:',host);
 
     var domain = nconf.get("server:workdomain");
     domain = domain.replace(/\./g,'\\.')+'$';
-    logger.log('debug',domain);
+    logger.debug('Domaintempl',domain);
 
     if (host.match(new RegExp(domain,'m'))) {
         response.setHeader('Access-Control-Allow-Origin', host);
-        logger.log('debug',"Allowing CORS for webrunes domains");
+        logger.log('debug',"Allowing CORS for ",host);
     } else {
         logger.log('debug','host not match');
     }
@@ -104,7 +104,6 @@ function setup_routes(db) {
         response.sendFile(__dirname + '/hub/index.htm');
     });
     app.get('/coinadmin', function (request, response) {
-        logger.log('debug',request);
         response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
     });
 
@@ -118,8 +117,6 @@ function setup_routes(db) {
 
     app.get('/add_funds_data', async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
-        logger.log('debug',loginUrl);
-
         logger.log('info',"WEBGOLD:Add funds data");
 
         try {
