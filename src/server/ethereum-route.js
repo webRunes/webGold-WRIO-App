@@ -22,10 +22,11 @@ import EtherFeeds from './dbmodels/etherfeed.js';
 import Invoices from "./dbmodels/invoice.js";
 import WrioUser from "./dbmodels/wriouser.js";
 import AdminRoute from './admin/route.js';
+import DonateProcessor from './DonateProcessor.js';
+
 import logger from 'winston';
 
 
-let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
 let wei = 1000000000000000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
@@ -40,7 +41,13 @@ if (!masterPassword) {
 }
 
 
-router.get('/free_wrg',wrap(async (request,response) => {  // TODO: remove this method
+router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
+
+    if (nconf.get('server:workdomain') !== '.wrioos.local') {
+        logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
+        response.status(404).send('Not found');
+        return;
+    }
     logger.error("  =====  WARNING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
 
     var amount = parseInt(request.query.amount);
@@ -68,68 +75,17 @@ router.get('/free_wrg',wrap(async (request,response) => {  // TODO: remove this 
  */
 
 router.get('/donate', authS2S, wrap(async (request,response) => {
-    // TODO really BIG function!!! refactor it to few less or the class
     var to = request.query.to;
     var from = request.query.from;
-    var amount = parseInt(request.query.amount) * 100;
-    if (typeof amount !== "number") {
-        throw new Error("Can't parse amount");
+    var amount = request.query.amount;
+
+    var donate = new DonateProcessor(to,from,amount);
+    if (!(await donate.verifyDonateParameters())) {
+        logger.error("Verify failed");
+        return response.status(403).send("Wrong donate parameters");
     }
-    if (amount < 0) {
-        throw new Error ("Amount can't be negative");
-    }
-    var userObj = new WrioUser();
+    response.send(await donate.process());
 
-    var user = await userObj.getByWrioID(from);
-    if (!user) throw new Error("User not registered");
-
-    var webGold = new WebGold(db.db);
-
-    var dest = await webGold.getEthereumAccountForWrioID(to); // ensure that source adress and destination adress have ethereum adress
-    var src = await webGold.getEthereumAccountForWrioID(user.wrioID);
-
-    if (dest === src) {
-        throw new Error("Can't donate to itself");
-    }
-
-    var dbBalance = user.dbBalance || 0;
-    var blockchainBalance = await webGold.getBalance(src);
-    blockchainBalance = blockchainBalance.toString();
-
-    logger.debug("Checking balance before donation",amount,blockchainBalance);
-
-    if (amount > blockchainBalance) {
-        // Do virtual payment to the database record because user has insufficient funds
-        // when funds arrive on the account, pending payments will be done
-
-        var debt = dbBalance-amount;
-
-        logger.debug("CALCULATED DEBT:",debt);
-
-        if (debt > MAX_DEBT ) { // check if we havent reached maximum debt limit
-            throw new Error("Insufficient funds");
-        }
-        await userObj.createPrepayment(user.wrioID,-amount,to);
-        logger.info("Prepayment made");
-
-    } else {
-        // Make the real payment through the blockchain
-       await webGold.makeDonate(user, to, amount);
-
-    }
-    var amountUser = amount*calc_percent(amount)/100;
-    var fee = amount - amountUser;
-
-
-    response.send({
-        "success":true,
-        "dest":dest,
-        "src":src,
-        amount:amount,
-        amountUser: amountUser,
-        fee:fee,
-        feePercent:calc_percent(amount)
-    });
 }));
 
 router.post('/get_balance', wrioAuth, wrap(async (request,response) => {

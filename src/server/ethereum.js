@@ -25,6 +25,8 @@ import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
 
+import PendingPaymentProcessor from './PendingPaymentProcessor.js';
+
 //import PrePayment from './dbmodels/prepay.js'
 
 
@@ -32,7 +34,6 @@ let wei = 1000000000000000000;
 let SATOSHI = 100000000;
 let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
-var prepaymentProcessLock = {};
 let DAY_IN_MS = 24 * 60 * 60 * 1000;
 let prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
 
@@ -77,6 +78,7 @@ class WebGold {
         web3.setProvider(provider);
 
         this.users = new WebRunesUsers(db);
+        this.pp = new PendingPaymentProcessor();
 
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
@@ -96,94 +98,14 @@ class WebGold {
                     logger.error("Processing payment failed",e);
                     dumpError(e);
                 }
-
             }
-
         });
     }
 
-    checkPrePaymentExpired(payment) {
-        let timeLeft =new Date() - new Date(payment.timestamp);
-
-        logger.debug("Prepayment data", timeLeft);
-
-        return timeLeft < 0 ? true : false;
-    }
-
     async processPendingPayments(user) {
-
-        function setLock(id) {
-            logger.debug("Setting lock for ",id);
-            prepaymentProcessLock[id] = true; // engage lock
-        }
-        function releaseLock(id) {
-            delete prepaymentProcessLock[id]; //  make sure lock is released in unexpected situation
-            logger.debug("Releasing lock for ",id);
-        }
-
-        if (!user.wrioID) {
-            throw new Error("User have no wrioID, exit");
-        }
-
-        if (user.wrioID in prepaymentProcessLock) {
-            logger.debug("Payments already processing, exit"); // TODO make this lock multi instance wide, not only process wide
-            return;
-        }
-
-        var amount = await this.getBalance(user.ethereumAccount);
-        amount = amount.toString();
-        setLock(user.wrioID);
-
-        try {
-            logger.info("****** PROCESS_PENDING_PAYMENTS",amount);
-
-            /* Check all prepayments, if there's some, mark them as completed, */
-
-            var left = amount;
-            var pending = user['prepayments'] || [];
-
-            logger.debug("Found "+pending.length+" pending payments for"+user.wrioID);
-
-            if (pending.length == 0) {
-                releaseLock(user.wrioID);
-                return;
-            }
-
-            var wrioUser = new WebRunesUsers();
-            for (var payment in pending) {
-                console.log ("   *****  PROCESSING PAYMENT "+payment);
-
-                var p = pending[payment];
-                var paym_amount = - p.amount;
-                logger.debug(left,paym_amount);
-                if (left >=paym_amount) {
-                    logger.info("Donating to",p.to,paym_amount);
-                    await this.unlockByWrioID(user.wrioID);
-                    await this.makeDonate(user, p.to, paym_amount);
-                    await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
-                    left -= paym_amount;
-                } else {
-                    logger.error("Insufficient funds to complete the payment",payment);
-                }
-
-                if (this.checkPrePaymentExpired(pending[payment])) {
-                    logger.verbose("Deleteting expired prepayment");
-                    await wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
-                };
-
-
-            }
-            logger.debug("Pre-payments paid, left",left.toString());
-
-            releaseLock(user.wrioID);
-        } catch (e) {
-            releaseLock(user.wrioID);
-            throw e; // Throw error down through the chain
-        }
-
-
-
+        return await this.pp.process(user,this);
     }
+
 
     async unlockByWrioID (wrioID) {
         var user = await this.users.getByWrioID(wrioID);

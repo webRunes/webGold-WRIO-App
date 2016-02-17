@@ -42,7 +42,7 @@ class WebRunesUsers {
                 }
                 if (!data) {
                     logger.error('Db user not found');
-                    reject('User not found '+wrioID);
+                    reject('User not found');
                     return;
                 }
                 resolve(data);
