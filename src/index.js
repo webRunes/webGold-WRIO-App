@@ -19,6 +19,7 @@ import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
 
+require("babel/polyfill");
 
 logger.level = 'debug';
 var app = express();
