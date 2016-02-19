@@ -75,24 +75,7 @@ gulp.task('babel-server-transpile', function() {
 });
 
 
-gulp.task('babel-server', function() {
-    return gulp.src('src/index.js')
-        .on('error', function(err) {
-            console.log('Babel server:', err.toString());
-        })
-        .pipe(gulp.dest('app'))
-
-        .on('end',function (){
-            gulp.src('src/server/**/*.*')
-                .on('error', function(err) {
-                    console.log('Babel server:', err.toString());
-                })
-                .pipe(gulp.dest('app/server'))
-                .on('end',function() {
-                    restart_nodemon();
-            });
-        });
-});
+gulp.task('babel-server', ['babel-server-transpile']);
 
 gulp.task('babel-client-admin',function () {
 
@@ -184,7 +167,7 @@ gulp.task('nodemon', function() {
 gulp.task('default', ['lint','babel-server-transpile', 'babel-client', 'views']);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
-    gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server']);
+    gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);
     gulp.watch('src/client/js/**/*.*', ['babel-client']);
     gulp.watch('src/client/views/**/*.*', ['views']);
 });
