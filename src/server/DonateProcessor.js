@@ -108,7 +108,7 @@ export default class DonateProcessor {
             amountUser: amountUser,
             fee:fee,
             feePercent:calc_percent(this.amount)
-        }
+        };
 
     }
 
