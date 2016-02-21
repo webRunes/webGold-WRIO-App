@@ -4,7 +4,6 @@
 
 import WebGold from './ethereum.js';
 import {calc_percent,dumpError} from './utils';
-import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser, wrap, wrioAuth} from './wriologin';

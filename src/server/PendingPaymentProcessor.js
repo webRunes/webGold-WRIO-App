@@ -2,11 +2,9 @@
  * Created by michbil on 16.02.16.
  */
 
-import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {dumpError,calc_percent} from './utils';
 import Accounts from './ethereum-node';
-import HookedWeb3Provider from 'hooked-web3-provider';
 import db from './db';
 import {init} from './db';
 import fs from 'fs';

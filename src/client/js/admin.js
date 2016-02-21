@@ -37,13 +37,13 @@ class EthereumStats extends React.Component {
     }
 
     componentWillMount() {
-       var that = this;
        this.requestStats((err,state) => {
            if (err) {
                alert('Cant get stats');
                return;
            }
-           that.setState(state);
+           console.log(state);
+           this.setState(state);
        });
     }
 
@@ -55,6 +55,7 @@ class EthereumStats extends React.Component {
                 <p> Master account: { this.state.ethBalance } ETH </p>
                 <p> Master account: { this.state.wrgBalance } WRG </p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
+                <p> Block sync: #{this.state.currentBlock} /  #{this.state.highestBlock} </p>
             </div>
 
         );
