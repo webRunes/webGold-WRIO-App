@@ -47,10 +47,20 @@ if (!masterPassword) {
 }
 
 
+let instance = null;
+
 
 class WebGold {
     constructor(db) {
-        var that = this;
+
+        if(!instance){ // make webgold behave like singlenon
+            instance = this;
+            this.initWG(db);
+        }
+        return instance;
+    }
+
+    initWG(db) {
         this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
         var abi_file = path.resolve(__dirname, '../../contract/token.abi');
         this.abi = eval(fs.readFileSync(abi_file).toString());
@@ -61,7 +71,7 @@ class WebGold {
                     return;
                 }
                 logger.info("Contract init finished");
-        }); // change to contract address
+            }); // change to contract address
 
         this.KeyStore =  new mongoKeyStore(db);
         this.accounts = new Accounts(
