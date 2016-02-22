@@ -523,15 +523,10 @@ class Accounts {
                 };
 
                 if (tx_params.gasPrice != null) rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));
-
                 if (tx_params.gas != null) rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));
-
                 if (tx_params.to != null) rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));
-
                 if (tx_params.value != null) rawTx.value = formatHex(ethUtil.stripHexPrefix(tx_params.value));
-
                 if (tx_params.data != null) rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));
-
                 // convert string private key to a Buffer Object
                 var privateKey = new Buffer(account['private'], 'hex');
 

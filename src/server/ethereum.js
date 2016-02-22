@@ -60,7 +60,7 @@ class WebGold {
         return instance;
     }
 
-    initWG(db) {
+    contractInit() {
         this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
         var abi_file = path.resolve(__dirname, '../../contract/token.abi');
         this.abi = eval(fs.readFileSync(abi_file).toString());
@@ -72,24 +72,30 @@ class WebGold {
                 }
                 logger.info("Contract init finished");
             }); // change to contract address
+    }
 
+    keyStoreInit(db) {
         this.KeyStore =  new mongoKeyStore(db);
         this.accounts = new Accounts(
             {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-
-        var provider = new HookedWeb3Provider({
+        this.provider = new HookedWeb3Provider({
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.accounts
         });
-        logger.debug("Creating Hoooked web3 provider");
-        web3.setProvider(provider);
+        logger.debug("Provider.set");
+        web3.setProvider(this.provider);
+    }
+
+    initWG(db) {
+
+        this.contractInit();
+        this.keyStoreInit(db);
 
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
-
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
@@ -172,7 +178,7 @@ class WebGold {
         return new Promise((resolve, reject) => {
             this.token.coinBalanceOf(account, (err, balance)=> {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
                 resolve(balance);
             });
@@ -200,9 +206,6 @@ class WebGold {
             });
         });
     }
-
-
-
 
     coinTransfer(from,to,amount) {
 
@@ -323,31 +326,6 @@ class WebGold {
         });
     }
 
-    // actual donate wrapper
-
-    async makeDonate (user, to, amount)  {
-
-        var dest = await this.getEthereumAccountForWrioID(to);
-        var src = await this.getEthereumAccountForWrioID(user.wrioID);
-
-        if (dest === src) {
-            throw new Error("Can't donate to itself");
-        }
-
-        await this.unlockByWrioID(user.wrioID);
-        await this.ensureMinimumEther(user.ethereumWallet,user.wrioID);
-
-        logger.debug("Prepare for transfer",dest,src,amount);
-        await this.donate(src,dest,amount);
-
-        var donate = new Donation();
-        await donate.create(user.wrioID,to,amount,0);
-
-        var amountUser = amount*calc_percent(amount)/100;
-        var fee = amount - amountUser;
-
-    };
-
 
     /*
 
@@ -357,20 +335,13 @@ class WebGold {
 
     btc - bitcoin sum, in satoshi, bignumber
     btcrate - bitcoin to usd rate, as bignumber
-
     formulae - WRG = (btc * btcrate * 10000) / WRGExchangeRate
-
     WRGExchangeRate is taken from config
-
     return value = WRG
-
      */
 
     convertBTCtoWRG(btc,btcrate) {
-
-
         return btc.times(btcrate).times(10000).div(this.WRGExchangeRate).div(SATOSHI);
-
     }
 
     /*
@@ -396,6 +367,30 @@ class WebGold {
         //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
         return btc;
 
+    }
+
+    getBlockSync() {
+        return new Promise((resolve,reject) => {
+            web3.eth.getSyncing((error, result) => {
+                if (error) {
+                    return reject(error);
+                }
+                resolve(result);
+
+            });
+        });
+    }
+
+    getGasPrice() {
+        return new Promise((resolve,reject) => {
+            web3.eth.getGasPrice((error, result) => {
+                if (error) {
+                    return reject(error);
+                }
+                resolve(result);
+
+            });
+        });
     }
 
 
