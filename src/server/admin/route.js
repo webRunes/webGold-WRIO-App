@@ -7,7 +7,6 @@
 
 import WebGold from '../ethereum.js';
 import {calc_percent,dumpError} from '../utils';
-import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
 import {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap} from '../wriologin';
@@ -45,12 +44,17 @@ router.get('/master', wrioAdmin, wrap(async (request,response) => {
     var webGold = new WebGold(db.db);
     var wrgBalance = await webGold.getBalance(masterAccount);
     var ethBalance = await webGold.getEtherBalance(masterAccount);
+    var syncing = await webGold.getBlockSync();
 
-    var gasprice = web3.eth.gasPrice;
+    var gasprice = await webGold.getGasPrice();
+
     response.send({
         "ethBalance": ethBalance / wei,
         "wrgBalance": wrgBalance / 100,
-        "gasPrice": gasprice / wei
+        "gasPrice": gasprice / wei,
+        "currentBlock": syncing.currentBlock,
+        "highestBlock": syncing.highestBlock
+
     });
 }));
 
