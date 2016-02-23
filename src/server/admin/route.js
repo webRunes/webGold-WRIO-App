@@ -45,17 +45,23 @@ router.get('/master', wrioAdmin, wrap(async (request,response) => {
     var wrgBalance = await webGold.getBalance(masterAccount);
     var ethBalance = await webGold.getEtherBalance(masterAccount);
     var syncing = await webGold.getBlockSync();
-
     var gasprice = await webGold.getGasPrice();
 
-    response.send({
+    var syncingFlag = true;
+    if (syncing === false) {
+        syncingFlag = false;
+    }
+
+    var resp = {
         "ethBalance": ethBalance / wei,
         "wrgBalance": wrgBalance / 100,
         "gasPrice": gasprice / wei,
+        "syncing": syncingFlag,
         "currentBlock": syncing.currentBlock,
         "highestBlock": syncing.highestBlock
+    };
 
-    });
+    response.send(resp);
 }));
 
 async function formatUserData(user, wgUsers, webGold) {

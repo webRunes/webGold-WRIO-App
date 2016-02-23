@@ -44,8 +44,14 @@ export default class DonateProcessor {
             throw new Error("Can't donate to itself");
         }
 
-        this.srcUser = await this.userObj.getByWrioID(this.from);
-        this.destUser = await this.userObj.getByWrioID(this.to);
+        try {
+            this.srcUser = await this.userObj.getByWrioID(this.from);
+            this.destUser = await this.userObj.getByWrioID(this.to);
+        } catch (e){
+            dumpError(e);
+            logger.error("Cannot resolve user id's from=>to ", this.from,this.to);
+            return false;
+        }
         this.formatTranasactionLog();
         return true;
 
@@ -58,8 +64,11 @@ export default class DonateProcessor {
 
     async process() {
 
-        var destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
-        var srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
+
+            var destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
+            var srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
+
+
 
         var dbBalance = this.srcUser.dbBalance || 0;
         var blockchainBalance = await this.webGold.getBalance(srcEthId);
