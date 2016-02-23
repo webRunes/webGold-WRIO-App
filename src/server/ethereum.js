@@ -285,6 +285,8 @@ class WebGold {
     }
 
 
+
+
     donate(from,to,amount) {
 
         var that = this;

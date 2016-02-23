@@ -4,7 +4,7 @@ import {Promise} from 'es6-promise';
 import db from './db';
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
-import Donations from './dbmodels/donations.js';
+import Donation from './dbmodels/donations.js';
 import WrioUser from "./dbmodels/wriouser.js";
 import logger from 'winston';
 
@@ -63,15 +63,11 @@ export default class DonateProcessor {
 
 
     async process() {
-
-
-            var destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
-            var srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
-
-
+        this.destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
+        this.srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
 
         var dbBalance = this.srcUser.dbBalance || 0;
-        var blockchainBalance = await this.webGold.getBalance(srcEthId);
+        var blockchainBalance = await this.webGold.getBalance(this.srcEthId);
         blockchainBalance = blockchainBalance.toString();
 
         logger.debug("Checking balance before donation", this.amount, blockchainBalance);
@@ -92,7 +88,7 @@ export default class DonateProcessor {
 
         } else {
             // Make the real payment through the blockchain
-            await this.webGold.makeDonate(this.srcUser, this.to, this.amount);
+            await this.makeDonate(this.srcUser, this.to, this.amount);
 
         }
         var amountUser = this.amount*calc_percent(this.amount)/100;
@@ -101,8 +97,8 @@ export default class DonateProcessor {
 
        return {
             "success":true,
-            "dest":destEthId,
-            "src":srcEthId,
+            "dest":this.from,
+            "src":this.to,
             amount:this.amount,
             amountUser: amountUser,
             fee:fee,
@@ -110,5 +106,19 @@ export default class DonateProcessor {
         };
 
     }
+
+    async makeDonate (user, to, amount)  {
+
+        await this.webGold.unlockByWrioID(user.wrioID);
+        await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+
+        logger.debug("Prepare for transfer",this.destEthId,this.srcEthId,amount);
+        await this.webGold.donate(this.srcEthId,this.destEthId,amount);
+
+        var donate = new Donation();
+        await donate.create(user.wrioID,to,amount,0);
+
+
+    };
 
 }
