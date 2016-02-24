@@ -43,7 +43,7 @@ contract token {
     }
 
     function donate(address receiver, uint amount) returns(bool sufficient) {
-        if (amount <= 1*wrgMul) return false;
+        if (amount < 1*wrgMul) return false;
 
         uint sum_receiver = 0;
         uint sum_master = 0;
