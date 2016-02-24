@@ -42,8 +42,6 @@ require('browserify-cryptojs/components/cipher-core');
 require('browserify-cryptojs/components/aes');
 
 
-
-
 import Web3 from 'web3'; var web3 = new Web3();
 import {dumpError} from '../utils.js';
 
@@ -77,7 +75,7 @@ var KeyStore = new KeyStoreClass();
  **/
 
 function formatHex(str) {
-    return String(str).length % 2 ? '0' + String(str) : String(str);
+    return '0x'+ (String(str).length % 2 ? '0' + String(str) : String(str));
 }
 
 /**
@@ -368,13 +366,19 @@ class Accounts {
         var accountObject = await KeyStore.get(address);
         address = formatAddress(address);
 
+
+
         // If a passphrase is provided, decrypt private and public key
         if (this.isPassphrase(passphrase) && accountObject.encrypted) {
             try {
                 accountObject['private'] = CryptoJS.AES.decrypt(accountObject['private'], passphrase).toString(CryptoJS.enc.Utf8);
                 accountObject['public'] = CryptoJS.AES.decrypt(accountObject['public'], passphrase).toString(CryptoJS.enc.Utf8);
 
-                if (ethUtil.sha3(accountObject['public'] + accountObject['private']).toString('hex') == accountObject.hash) accountObject.locked = false;
+                var hash = ethUtil.sha3(accountObject['public'] + accountObject['private']).toString('hex');
+
+                if (hash == accountObject.hash) {
+                    accountObject.locked = false;
+                }
             } catch (e) {
                 this.log('Error while decrypting public/private keys: ' + String(e));
             }
@@ -489,23 +493,24 @@ class Accounts {
      @method (signTransaction)
      **/
 
+
+
     signTransaction (tx_params, callback) {
-        var accounts = this;
-        // Accounts instance
         (async () => { // async function wrapper
             try {
                 logger.debug("Signing transaction",tx_params);
                 // Get the account of address set in sendTransaction options, from the accounts stored in browser
-                var account = await accounts.get(tx_params.from);
+                var account = await this.get(tx_params.from);
 
                 // if the account is encrypted, try to decrypt it
                 if (account.encrypted) {
                     logger.debug("Trying to decrypt account....");
-                    account = await accounts.get(tx_params.from, accounts.getAccountPassphrase(account));
+                    account = await this.get(tx_params.from, this.getAccountPassphrase(account));
                 }
 
                 // if account is still locked, quit
                 if (account.locked) {
+                    logger.error("Still locked, can't decrypt account");
                     callback(new Error("Cannot sign transaction. Account locked!"));
                     return;
                 }
@@ -518,7 +523,7 @@ class Accounts {
                     nonce: formatHex(ethUtil.stripHexPrefix(tx_params.nonce)),
                     gasPrice: formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice)),
                     gasLimit: formatHex(new BigNumber('314159').toString(16)),
-                    value: '00',
+                    value: '0x00',
                     data: ''
                 };
 
@@ -529,7 +534,6 @@ class Accounts {
                 if (tx_params.data != null) rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));
                 // convert string private key to a Buffer Object
                 var privateKey = new Buffer(account['private'], 'hex');
-
 
                 logger.debug(rawTx);
 
