@@ -47,7 +47,10 @@ class EthereumStats extends React.Component {
        });
     }
 
+
+
     render() {
+        var sync = this.getSyncBlock();
         return (
             <div>
                 <h1>Webgold admin</h1>
@@ -55,10 +58,18 @@ class EthereumStats extends React.Component {
                 <p> Master account: { this.state.ethBalance } ETH </p>
                 <p> Master account: { this.state.wrgBalance } WRG </p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
-                <p> Block sync: #{this.state.currentBlock} /  #{this.state.highestBlock} </p>
+                {sync}
             </div>
 
         );
+    }
+
+    getSyncBlock() {
+        if (this.state.syncing) {
+            return (<p>Sync ok</p>);
+        } else {
+            return (<p> Sync in progress: #{this.state.currentBlock} /  #{this.state.highestBlock} </p>);
+        }
     }
 }
 

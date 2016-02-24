@@ -11,7 +11,7 @@ contract token {
     /* Initializes contract with initial supply tokens to the creator of the contract */
 
     function token(uint supply) {
-     coinBalanceOf[msg.sender] = (1000000*wrgMul);
+     coinBalanceOf[msg.sender] = (5000000*wrgMul);
      master = msg.sender;
     }
 
@@ -43,7 +43,7 @@ contract token {
     }
 
     function donate(address receiver, uint amount) returns(bool sufficient) {
-        if (amount <= 0) return false;
+        if (amount < 1*wrgMul) return false;
 
         uint sum_receiver = 0;
         uint sum_master = 0;

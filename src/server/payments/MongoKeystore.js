@@ -7,6 +7,7 @@ import logger from 'winston';
 export default class mongoKeyStore {
     constructor(db) {
         this.accounts = db.collection('ethereum_accounts');
+        logger.debug("===Mongo keystore init");
     }
 
     get(key) {

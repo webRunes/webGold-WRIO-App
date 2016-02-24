@@ -102,6 +102,8 @@ router.post('/get_balance', wrioAuth, wrap(async (request,response) => {
     var bal = balance - dbBalance;
 
 
+    await webGold.processPendingPayments(user);
+
     //logger.debug("balance:",balance.add(dbBalance).toString());
     response.send({
         "balance": bal,
@@ -109,7 +111,7 @@ router.post('/get_balance', wrioAuth, wrap(async (request,response) => {
         "blockchain": balance
     });
 
-    await webGold.processPendingPayments(user);
+
 
 }));
 

@@ -17,6 +17,7 @@ import Emissions from './dbmodels/emissions.js';
 import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
+import DonateProcessor from "./DonateProcessor.js";
 
 var prepaymentProcessLock = {};
 
@@ -51,12 +52,18 @@ export default class PendingPaymentProcessor {
             return;
         }
 
-        var amount = await webGold.getBalance(user.ethereumAccount);
+        if (!user.ethereumWallet) {
+            throw new Error("User have no ethereum wallet, stopping");
+        }
+
+        var amount = await webGold.getBalance(user.ethereumWallet);
         amount = amount.toString();
         this.setLock(user.wrioID);
 
+        logger.debug(user);
+
         try {
-            logger.info("****** PROCESS_PENDING_PAYMENTS",amount);
+            logger.info("****** PROCESS_PENDING_PAYMENTS, total eth=",amount);
             /* Check all prepayments, if there's some, mark them as completed, */
 
             var pending = user['prepayments'] || [];
@@ -66,24 +73,26 @@ export default class PendingPaymentProcessor {
                 this.releaseLock(user.wrioID);
                 return;
             }
-            this.iteratePayments(pending,amount);
-            this.releaseLock(user.wrioID);
-        } catch (e) {
-            this.releaseLock(user.wrioID);
-            throw e; // Throw error down through the chain
+            await this.iteratePayments(pending,amount,user);
         }
+        finally {
+            this.releaseLock(user.wrioID);
+        }
+
     }
 
-    async iteratePayments(pending,amount) {
+
+    async iteratePayments(pending,amount,user) {
         var left = amount;
         for (var payment in pending) {
             var p = pending[payment];
             var paym_amount = - p.amount;
-            logger.info ("   *****  PROCESSING PREPAYMENT "+payment);
+            logger.info ("   *****  PROCESSING PREPAYMENT "+payment,p);
             logger.debug(left,paym_amount);
 
             if (left >=paym_amount) {
-                this.makeDonate(user,p,left);
+                logger.info ("Have sufficent sum, forcing donate");
+                await this.makeDonate(user,p,left);
             } else {
                 logger.error("Insufficient funds to complete the payment", payment);
             }
@@ -96,9 +105,15 @@ export default class PendingPaymentProcessor {
     }
 
     async makeDonate(user,p,left) {
+        var paym_amount = - p.amount;
         logger.info("Donating to",p.to,paym_amount);
         await this.webGold.unlockByWrioID(user.wrioID);
-        await this.webGold.makeDonate(user, p.to, paym_amount);
+        var donate = new DonateProcessor(p.to,user.wrioID,paym_amount);
+        if (!(await donate.verifyDonateParameters())) {
+            logger.error("Verify failed");
+            throw new Error("Verify donate failed");
+        }
+        await donate.process();
         await this.wrioUser.cancelPrepayment(user.wrioID,p.id,-paym_amount); // remove payment amount from user's debt
         left -= paym_amount;
     }
