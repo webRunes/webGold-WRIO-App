@@ -1,1 +1,2 @@
-cat webgold.sol | solc --json-abi file  --binary file
+cd bin
+cat ../src/webgold.sol | solc --json-abi file  --binary file

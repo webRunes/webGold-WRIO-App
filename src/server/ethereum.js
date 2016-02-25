@@ -61,8 +61,9 @@ class WebGold {
     }
 
     contractInit() {
-        this.contractadress = '0xfa15b8c872f533cd40abfd055507f2907bcf1581';
-        var abi_file = path.resolve(__dirname, '../../contract/token.abi');
+        var abi_file = path.resolve(__dirname, '../../contract/bin/token.abi');
+        var addr_file = path.resolve(__dirname, '../../contract/bin/token.addr');
+        this.contractadress = fs.readFileSync(addr_file).toString();
         this.abi = eval(fs.readFileSync(abi_file).toString());
         this.token = web3.eth.contract(this.abi)
             .at(this.contractadress,(err,res) => {
@@ -393,6 +394,14 @@ class WebGold {
 
             });
         });
+    }
+
+    getWeb3() {
+        return web3;
+    }
+
+    unlockMaster() {
+        this.accounts.unlockAccount(masterAccount,masterPassword);
     }
 
 
