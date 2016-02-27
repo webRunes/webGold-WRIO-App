@@ -18,6 +18,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
+import Const from './constant.js';
 
 require("babel/polyfill");
 
@@ -126,7 +127,7 @@ function setup_routes(db) {
                 var bc = new BlockChain();
                 var btc_rate = await bc.get_rates();
                 var wg = new WebGold(db);
-                var bitRate = wg.convertWRGtoBTC(new BigNumber(10000),btc_rate);
+                var bitRate = wg.convertWRGtoBTC(new BigNumber(Const.WRG_UNIT),btc_rate);
                 response.json({
                     username: user.lastName,
                     loginUrl: loginUrl,

@@ -9,9 +9,10 @@ import EthereumClient from './components/EthereumClient';
 import { Router,Route, Link } from 'react-router';
 import moment from 'moment';
 import {Modal,Button} from 'react-bootstrap';
+import Const from '../../constant.js';
 
 import numeral from 'numeral';
-let SATOSHI = 100000000;
+const SATOSHI = Const.SATOSHI;
 
 class EthereumStats extends React.Component {
 

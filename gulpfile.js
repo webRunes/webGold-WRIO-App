@@ -55,7 +55,7 @@ gulp.task('lint', function () {
 
 
 gulp.task('babel-server-transpile', function() {
-    return gulp.src('src/index.js')
+    return gulp.src(['src/index.js','src/constant.js'])
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })

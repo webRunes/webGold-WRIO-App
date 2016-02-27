@@ -22,13 +22,13 @@ import Invoices from "./dbmodels/invoice.js";
 import WrioUser from "./dbmodels/wriouser.js";
 import AdminRoute from './admin/route.js';
 import DonateProcessor from './DonateProcessor.js';
-
+import Const from '../constant.js';
 import logger from 'winston';
 
 
 
-let wei = 1000000000000000000;
-let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+let wei = Const.WEI;
+let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");
@@ -39,6 +39,20 @@ if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
 }
 
+router.get('/giveaway',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
+
+    if (nconf.get('server:workdomain') !== '.wrioos.local') {
+        logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
+        response.status(404).send('Not found');
+        return;
+    }
+    logger.error("  =====  WARNING: GIVEAWAY CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
+    var user = request.user;
+    var webGold = new WebGold(db.db);
+    await webGold.unlockByWrioID(user.wrioID);
+    await webGold.giveAwayEther(user.ethereumWallet);
+    response.send("Successfully given away");
+}));
 
 router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
 

@@ -10,9 +10,10 @@ import UnitConverter from './libs/units.js';
 
 import TransactionStore from './stores/TransactionStore.js';
 import BalanceStore from './stores/BalanceStore.js';
+import Const from '../../constant.js';
 
 import numeral from 'numeral';
-let SATOSHI = 100000000;
+let SATOSHI = Const.SATOSHI;
 
 class Transactions extends React.Component {
 
@@ -213,7 +214,7 @@ class Transactions extends React.Component {
                         <span>&nbsp; { wrgBalance }
                             <small className="currency">WRG</small><sup className="currency">{ usdBalance } USD</sup></span></li>
                     <li><span>Exchange Rate&nbsp;</span>
-                        <span>&nbsp;10000
+                        <span>&nbsp;{Const.WRG_UNIT}
                             <small className="currency">WRG</small>
                             =&nbsp;{ exchangeRate }
                             <small className="currency">USD</small></span></li>
