@@ -8,8 +8,9 @@ import BincoinForm from './BitcoinForm';
 import PaymentStore from '../../stores/PaymentStore';
 import PaymentData from "./PaymentData";
 import request from 'superagent';
+import Const from '../../../../constant.js';
 
-let SATOSHI = 100000000;
+let SATOSHI = Const.SATOSHI;
 
 class PaymentForm extends React.Component {
     constructor(props) {

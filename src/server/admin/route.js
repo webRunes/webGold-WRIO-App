@@ -21,12 +21,13 @@ import EtherFeeds from '../dbmodels/etherfeed.js';
 import Invoices from "../dbmodels/invoice.js";
 import WrioUser from "../dbmodels/wriouser.js";
 import logger from 'winston';
+import Const from '../../constant.js';
 
 
-let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
+let MAX_DEBT = Const.MAX_DEBT; // maximum allowed user debt to perfrm operations
 
-let wei = 1000000000000000000;
-let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+let wei = Const.WEI;
+let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");
