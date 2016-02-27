@@ -6,8 +6,9 @@ import request from 'superagent';
 import PaymentHistory from './components/PaymentHistory';
 import EthereumClient from './components/EthereumClient';
 import BigNumber from 'bignumber.js';
+import Const from '../../constant.js';
 
-let SATOSHI = 100000000;
+let SATOSHI = Const.WRG_UNIT;
 
 /*
 

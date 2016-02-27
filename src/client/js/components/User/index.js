@@ -2,6 +2,7 @@ import React from 'react';
 import UserInfo from './UserInfo';
 import request from 'superagent';
 import BigNumber from 'bignumber.js';
+import Const from '../../../../constant.js';
 
 class User extends React.Component {
     constructor(props) {
@@ -35,7 +36,7 @@ class User extends React.Component {
         var usdBalance = "...";
         var wrgBalance = "....";
         if (this.state.balance) {
-            usdBalance =  this.state.balance.mul(this.props.btcExchangeRate).div(10000).toFixed(8);
+            usdBalance =  this.state.balance.mul(this.props.btcExchangeRate).div(Const.WRG_UNIT).toFixed(8);
             wrgBalance = this.state.balance.toFixed(2);
         }
 

@@ -22,13 +22,13 @@ import Invoices from "./dbmodels/invoice.js";
 import WrioUser from "./dbmodels/wriouser.js";
 import AdminRoute from './admin/route.js';
 import DonateProcessor from './DonateProcessor.js';
-
+import Const from '../constant.js';
 import logger from 'winston';
 
 
 
-let wei = 1000000000000000000;
-let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+let wei = Const.WEI;
+let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
 let masterAccount = nconf.get("payment:ethereum:masterAdr");
 let masterPassword = nconf.get("payment:ethereum:masterPass");

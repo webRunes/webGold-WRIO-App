@@ -4,7 +4,7 @@
 import Reflux from 'reflux';
 import Actions from '../actions/transactions.js';
 import request from 'superagent';
-
+import Const from '../../../constant.js';
 // {
 //    title:"sdfsd",
 //        date:'121',
@@ -19,9 +19,7 @@ function limitBTCDigits(x) {
     return Math.floor(x * 100000000) / 100000000;
 }
 
-let SATOSHI = 100000000;
-
-
+let SATOSHI = Const.SATOSHI;
 
 
 module.exports = Reflux.createStore({

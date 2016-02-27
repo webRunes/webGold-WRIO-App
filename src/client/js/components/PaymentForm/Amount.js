@@ -1,6 +1,7 @@
 import React from 'react';
 import Actions from '../../stores/PaymentActions';
 import BigNumber from 'bignumber.js';
+import Const from '../../../../constant.js';
 
 class Amount extends React.Component {
     constructor(props) {
@@ -13,7 +14,7 @@ class Amount extends React.Component {
 
         this.state = {
             BTC: new BigNumber(0.1),
-            WRG: (new BigNumber(10000)).mul(0.1).div(rate)
+            WRG: (new BigNumber(Const.WRG_UNIT)).mul(0.1).div(rate)
         };
         Actions.changeAmount(this.state);
     }
@@ -26,13 +27,13 @@ class Amount extends React.Component {
         }
         this.setState({
             BTC: this.state.BTC,
-            WRG: this.state.BTC.mul(10000).div(rate)
+            WRG: this.state.BTC.mul(Const.WRG_UNIT).div(rate)
         });
     }
     
     onBTCChange(e) {
         var BTC = new BigNumber(e.target.value.replace(",","."));
-        var wrg = BTC.mul(10000).div(this.props.exchangeRate);
+        var wrg = BTC.mul(Const.WRG_UNIT).div(this.props.exchangeRate);
         var amount = {
             BTC: BTC,
             WRG: wrg
@@ -43,7 +44,7 @@ class Amount extends React.Component {
     
     onWRGChange(e) {
         var wrg = new BigNumber(e.target.value.replace(",","."));
-        var BTC = wrg.mul(this.props.exchangeRate).div(10000);
+        var BTC = wrg.mul(this.props.exchangeRate).div(Const.WRG_UNIT);
         var amount = {
             BTC: BTC,
             WRG: wrg

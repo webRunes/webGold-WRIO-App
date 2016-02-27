@@ -24,15 +24,16 @@ import Emissions from './dbmodels/emissions.js';
 import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
+import Const from '../constant.js';
 
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 
 //import PrePayment from './dbmodels/prepay.js'
 
 
-let wei = 1000000000000000000;
-let SATOSHI = 100000000;
-let min_amount = 0.02; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+let wei = Const.WEI;
+let SATOSHI = Const.SATOSHI;
+let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
 let DAY_IN_MS = 24 * 60 * 60 * 1000;
 let prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
@@ -134,10 +135,7 @@ class WebGold {
     }
 
     async estimateGas(trans) {
-        var result = web3.eth.estimateGas({
-            to: "0xc4abd0339eb8d57087278718986382264244252f",
-            data: "0xc6888fa10000000000000000000000000000000000000000000000000000000000000003"
-        });
+        var result = web3.eth.estimateGas(trans);
         logger.debug(result); //
     }
 
@@ -338,13 +336,13 @@ class WebGold {
 
     btc - bitcoin sum, in satoshi, bignumber
     btcrate - bitcoin to usd rate, as bignumber
-    formulae - WRG = (btc * btcrate * 10000) / WRGExchangeRate
+    formulae - WRG = (btc * btcrate * WRG_UNIT) / WRGExchangeRate
     WRGExchangeRate is taken from config
     return value = WRG
      */
 
     convertBTCtoWRG(btc,btcrate) {
-        return btc.times(btcrate).times(10000).div(this.WRGExchangeRate).div(SATOSHI);
+        return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
     /*
@@ -356,7 +354,7 @@ class WebGold {
      btc - bitcoin sum, in satoshi, bignumber
      btcrate - bitcoin to usd rate, as bignumber
 
-     formulae - BTC = (wrg * WRGExchangeRate) / (btcrate * 10000)
+     formulae - BTC = (wrg * WRGExchangeRate) / (btcrate * WRG_UNIT)
 
      WRGExchangeRate is taken from config
 
@@ -366,7 +364,7 @@ class WebGold {
 
     convertWRGtoBTC(wrg,btcrate) {
 
-        var btc = wrg.div(btcrate).div(10000).times(this.WRGExchangeRate).times(SATOSHI);
+        var btc = wrg.div(btcrate).div(Const.WRG_UNIT).times(this.WRGExchangeRate).times(SATOSHI);
         //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
         return btc;
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import request from 'superagent';
 import numeral from 'numeral';
+import Const from '../../../../constant.js';
 
-let SATOSHI = 100000000;
+let SATOSHI = Const.SATOSHI;
 
 class PaymentsHistory extends React.Component {
 

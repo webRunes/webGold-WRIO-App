@@ -2,8 +2,9 @@
  * Created by michbil on 03.09.15.
  */
 import React from 'react';
+import Const from '../../../../constant.js';
 
-let SATOSHI = 100000000;
+let SATOSHI = Const.SATOSHI;
 
 class BitcoinForm extends React.Component {
     render() {

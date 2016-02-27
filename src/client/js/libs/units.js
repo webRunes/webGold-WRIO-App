@@ -2,7 +2,8 @@
  * Created by michbil on 10.12.15.
  */
 
-let SATOSHI = 100000000;
+import Const from '../../../constant.js';
+let SATOSHI = Const.SATOSHI;
 
 export default class UnitCoverter {
 
@@ -11,19 +12,19 @@ export default class UnitCoverter {
     }
 
     wrgToBtc(wrg) {
-        return btc * this.rates.btcExchangeRate / (SATOSHI * 10000);
+        return btc * this.rates.btcExchangeRate / (SATOSHI * Const.WRG_UNIT);
     }
 
     btcToWrg(btc) {
-        return btc * SATOSHI * 10000/ this.rates.btcExchangeRate;
+        return btc * SATOSHI * Const.WRG_UNIT/ this.rates.btcExchangeRate;
     }
 
     wrgToUsd(wrg) {
-        return wrg * this.rates.exchangeRate / 10000;
+        return wrg * this.rates.exchangeRate / Const.WRG_UNIT;
     }
 
     usdToWrg(usd) {
-        return 10000 * usd / this.rates.exchangeRate;
+        return Const.WRG_UNIT * usd / this.rates.exchangeRate;
     }
 
 
