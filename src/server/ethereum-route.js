@@ -39,6 +39,20 @@ if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
 }
 
+router.get('/giveaway',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
+
+    if (nconf.get('server:workdomain') !== '.wrioos.local') {
+        logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
+        response.status(404).send('Not found');
+        return;
+    }
+    logger.error("  =====  WARNING: GIVEAWAY CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
+    var user = request.user;
+    var webGold = new WebGold(db.db);
+    await webGold.unlockByWrioID(user.wrioID);
+    await webGold.giveAwayEther(user.ethereumWallet);
+    response.send("Successfully given away");
+}));
 
 router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
 

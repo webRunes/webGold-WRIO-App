@@ -184,11 +184,8 @@ class WebGold {
         });
     }
 
-    etherTransfer(to,amount) {
+    etherSend(sender,recipient,amount) {
         return new Promise((resolve,reject)=> {
-            var sender = masterAccount;
-            var recipient = to;
-
             this.accounts.unlockAccount(masterAccount,masterPassword);
 
             logger.verbose("Preparing to transfer",amount,"ETH");
@@ -196,15 +193,36 @@ class WebGold {
             var amountWEI = web3.toWei(amount, "ether");
             web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
                 if (err) {
-                    logger.error("etherTransfer failed");
+                    logger.error("etherTransfer failed",err);
                     reject("Ether transfer failed");
                     return;
                 }
-                logger.info("Ether transfer succeeded: ",to, amount,amountWEI,result);
+                logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
                 resolve(result);
             });
         });
     }
+
+    async etherTransfer(to,amount) {
+        var sender = masterAccount;
+        var recipient = to;
+        return await this.etherSend(sender,recipient,amount);
+    }
+
+    /*
+     DEBUG function!!!
+     give away all ether to master account, for debugging purposes
+     */
+
+    async giveAwayEther(from) {
+        logger.info("Giveaway started");
+        var amount = await this.getEtherBalance(from)/Const.WEI;
+
+        logger.info("Residual amount:", amount);
+        return await this.etherSend(from,masterAccount,amount/10);
+
+    }
+
 
     coinTransfer(from,to,amount) {
 
@@ -247,6 +265,31 @@ class WebGold {
 
     }
 
+    getTime() {
+        var d = new Date();
+        return d.getTime();
+    }
+
+    /*
+      This functions waits for one minute for ether to be received by account
+     */
+
+    async waitForEther (acc) {
+        var start_time = this.getTime();
+        var max_time = 60 * 1000;
+        logger.info("Waiting to Ether arrive");
+        while ((this.getTime() - start_time) < max_time) {
+            var ethBalance = await this.getEtherBalance(acc)/wei;
+            if (ethBalance >= Const.MIN_ETH_AMOUNT) {
+                logger.info("Ether arrived, ok");
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
     /*
     This function checks if minimum required amount of ether is available for specified account
      */
@@ -260,10 +303,16 @@ class WebGold {
 
             var feed = new EtherFeed();
             await feed.create(dest,min_amount,toWrio);
+
+            if (!(await this.waitForEther(dest))) {
+                logger.error("Failed to wait for ether to arrive");
+            }
+
         } else {
             logger.verbose("Account has minimum ether, cancelling");
         }
     }
+
 
 
     /*

@@ -8,4 +8,4 @@ export default {
     WEI: 1000000000000000000,
     MIN_ETH_AMOUNT: 0.02,
     MAX_DEBT: -500*100
-}
+};
