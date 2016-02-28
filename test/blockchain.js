@@ -48,7 +48,7 @@ var serialize = (obj) => {
 
 let testObjId = "55da495d0d925e152e73f5f6";
 let testID = '1234567890';
-let input_address = "30450221008949f0cb400094ad2b5eb3";
+let address = "30450221008949f0cb400094ad2b5eb3";
 let destination = 'b388ab8935022079656090d7f6bac4c9';
 var invoiceID;
 
@@ -71,7 +71,7 @@ describe("Blockchain unit tests", function() {
         });
         invoiceID = await invoice.createInvoice(user._id,user.wrioID);
         await invoice.updateInvoiceData({
-            input_address: input_address,
+            address: address,
             destination: destination,
             fee_percent: 0,
             callback: '',
@@ -93,19 +93,18 @@ describe("Blockchain unit tests", function() {
     });
 
     it ("should fail with blockchain callback with no nonce",function (done){
-        let secret = nconf.get("payment:blockchain:secret");
+        let secret = nconf.get("payment:blockchain_v2:secret");
         request(app)
             .get('/api/blockchain/callback?secret='+encodeURIComponent(secret))
             .expect(400,done);
     });
 
     it ("should fail with blockchain callback with wrong nonce",function (done){
-        let secret = nconf.get("payment:blockchain:secret");
+        let secret = nconf.get("payment:blockchain_v2:secret");
         let tparams = {
             invoice_id: invoiceID,
             transaction_hash: "2323232",
-            input_transaction_hash: "2323232",
-            input_address:input_address,
+            address:address,
             confirmations:2,
             secret:secret,
             nonce: "232323-11234-112-2",
@@ -119,12 +118,11 @@ describe("Blockchain unit tests", function() {
     });
 
     it ("should succed with blockchain callback with correct nonce",function (done){
-        let secret = nconf.get("payment:blockchain:secret");
+        let secret = nconf.get("payment:blockchain_v2:secret");
         let tparams = {
             invoice_id: invoiceID,
             transaction_hash: "2323232",
-            input_transaction_hash: "2323232",
-            input_address:input_address,
+            address:address,
             confirmations:2,
             secret:secret,
             nonce: invoiceID,
@@ -138,12 +136,11 @@ describe("Blockchain unit tests", function() {
             .expect(200,done);
     });
     it ("should send  *ok* when 6 confirmations received",function (done){
-        let secret = nconf.get("payment:blockchain:secret");
+        let secret = nconf.get("payment:blockchain_v2:secret");
         let tparams = {
             invoice_id: invoiceID,
             transaction_hash: "2323232",
-            input_transaction_hash: "2323232",
-            input_address:input_address,
+            address:address,
             confirmations:7,
             secret:secret,
             nonce: invoiceID,
