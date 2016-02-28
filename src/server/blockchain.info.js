@@ -70,14 +70,14 @@ export class BlockChain {
         return new Promise(async (resolve,reject) => {
 
            try {
-               let key = nconf.get("")
+               let key = nconf.get("");
                let invoice = new Invoice();
                let invoiceID = await invoice.createInvoice(userID,wrioID);
                let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
-               let api_request = "https://api.blockchain.info/v2/receive?xpub=" + this.xpub + "&key=" + this.key + "&callback="+ encodeURIComponent(callback);
+               let api_request = "https://api.blockchain.info/v2/receive?xpub=" + this.xpub + "&callback="+ encodeURIComponent(callback) + "&key=" + this.key ;
 
                logger.info("Sending payment request",api_request);
-                var result = await request.post(api_request);
+                var result = await request.get(api_request);
                 if (result.error) {
                     logger.debug("Error",result.error);
                     return;
@@ -117,7 +117,6 @@ export class BlockChain {
                 let nonce = req.query.nonce;
 
                 let transaction_hash = req.query.transaction_hash;
-               // let input_transaction_hash = req.query.input_transaction_hash;
                 let address = req.query.address;
                 let value = req.query.value; // value in satoshi
                 let confirmations = req.query.confirmations;
