@@ -58,7 +58,7 @@ class User extends React.Component {
                     <li>
                         <span>Exchange rate</span>
                         <span>
-                            10 000<small className="currency">WRG</small>
+                            1 000<small className="currency">WRG</small>
                             = { btcRate }<small className="currency">BTC</small>
 
                         </span>
@@ -66,7 +66,7 @@ class User extends React.Component {
                     <li>
                         <span>Exchange rate</span>
                          <span>
-                            10 000<small className="currency">WRG</small>
+                            1 000<small className="currency">WRG</small>
                              = { this.props.exchangeRate }<small className="currency">USD</small>
                         </span>
                     </li>

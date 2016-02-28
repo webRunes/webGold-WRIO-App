@@ -8,7 +8,7 @@ import EthereumClient from './components/EthereumClient';
 import BigNumber from 'bignumber.js';
 import Const from '../../constant.js';
 
-let SATOSHI = Const.WRG_UNIT;
+let SATOSHI = Const.SATOSHI;
 
 /*
 
