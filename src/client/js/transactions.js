@@ -79,15 +79,19 @@ class Transactions extends React.Component {
 
         });
 
+        var that = this;
+
         Actions.Rate.listen((val)=>{
-            this.setState({
+            that.setState({
                 rates: val
             });
+            console.log("Rates:",val);
         });
         Actions.Balance.listen((val)=> {
-            this.setState({
+            that.setState({
                 balance: val
             });
+            console.log("Balance:",val);
         });
 
     }
@@ -98,7 +102,7 @@ class Transactions extends React.Component {
         var usdBalance = "...";
         var wrgBalance = "...";
         var exchangeRate = "...";
-        if (this.state.balance && this.state.rates) {
+        if (this.state.balance !== undefined && this.state.rates !== undefined) {
             this.exchange = new UnitConverter(this.state.rates);
             usdBalance =  (this.exchange.wrgToUsd(this.state.balance)).toFixed(2);
             wrgBalance = this.state.balance.toFixed(2);
@@ -213,11 +217,11 @@ class Transactions extends React.Component {
                     <li><span>Current Balance&nbsp;</span>
                         <span>&nbsp; { wrgBalance }
                             <small className="currency">WRG</small><sup className="currency">{ usdBalance } USD</sup></span></li>
-                    <li><span>Exchange Rate&nbsp;</span>
-                        <span>&nbsp;{Const.WRG_UNIT}
-                            <small className="currency">WRG</small>
-                            =&nbsp;{ exchangeRate }
-                            <small className="currency">USD</small></span></li>
+
+                    <li><span>Exchange rate&nbsp;</span>
+                        <span>&nbsp; { Const.WRG_UNIT }
+                            <small className="currency">WRG</small><sup className="currency">{ exchangeRate } USD</sup></span></li>
+                   
                 </ul>
                 {this.state.loading?loader:""}
                 {showtable?table:<div className="alert alert-warning">{nomsg}</div>}
