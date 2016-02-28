@@ -413,9 +413,10 @@ class WebGold {
 
     convertWRGtoBTC(wrg,btcrate) {
 
-        var btc = wrg.div(btcrate).div(Const.WRG_UNIT).times(this.WRGExchangeRate).times(SATOSHI);
+        var btc = wrg.times(this.WRGExchangeRate).div(btcrate*Const.WRG_UNIT);
+        console.log(btc.toString());
         //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
-        return btc;
+        return btc.times(SATOSHI);
 
     }
 
