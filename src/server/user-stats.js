@@ -102,7 +102,7 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
 
 
 router.get('/donations', wrioAuth, wrap(async (request,response) => {
-    var user = req.user;
+    var user = request.user;
     var d = new Donations();
     var query = {
         $or:[
