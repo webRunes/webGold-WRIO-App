@@ -221,7 +221,7 @@ class Transactions extends React.Component {
                     <li><span>Exchange rate&nbsp;</span>
                         <span>&nbsp; { Const.WRG_UNIT }
                             <small className="currency">WRG</small><sup className="currency">{ exchangeRate } USD</sup></span></li>
-                   
+
                 </ul>
                 {this.state.loading?loader:""}
                 {showtable?table:<div className="alert alert-warning">{nomsg}</div>}
