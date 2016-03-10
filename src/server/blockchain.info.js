@@ -73,7 +73,7 @@ export class BlockChain {
                let key = nconf.get("");
                let invoice = new Invoice();
                let invoiceID = await invoice.createInvoice(userID,wrioID);
-               let callback = 'http://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
+               let callback = 'https://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
                let api_request = "https://api.blockchain.info/v2/receive?xpub=" + this.xpub + "&callback="+ encodeURIComponent(callback) + "&key=" + this.key ;
 
                logger.info("Sending payment request",api_request);
