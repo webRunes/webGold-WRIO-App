@@ -11,7 +11,7 @@
     "node": ">= v0.8.0"
   },
   "devDependencies": {
-    "babel-eslint": "*",
+    "babel-eslint": "5.0.0",
     "chai": "^2.1.2",
     "eslint": "^1.4.3",
     "eslint-plugin-ideal": "^0.1.2",
