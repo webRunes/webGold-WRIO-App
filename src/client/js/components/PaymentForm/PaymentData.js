@@ -14,7 +14,7 @@ class PaymentData extends React.Component {
     render() {
         return (
             <div>
-              <h2>Please pay <b>{this.props.amount}</b>BTC to the bitcoin adress <b>{this.props.adress}</b></h2>
+              <h2>Please send <b>{this.props.amount}</b>BTC to the bitcoin adress <b>{this.props.adress}</b></h2>
               <div id="qrcode"></div>
 
             </div>
