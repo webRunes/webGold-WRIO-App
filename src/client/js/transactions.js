@@ -11,6 +11,7 @@ import UnitConverter from './libs/units.js';
 import TransactionStore from './stores/TransactionStore.js';
 import BalanceStore from './stores/BalanceStore.js';
 import Const from '../../constant.js';
+import BalanceLine from "./components/BalanceLine.js";
 
 import numeral from 'numeral';
 let SATOSHI = Const.SATOSHI;
@@ -152,7 +153,7 @@ class Transactions extends React.Component {
                                 title = "Sent donation to @" + item.destName;
                                 item.amount = -item.amount;
                             }
-                            status = "Completed";
+                            status = "Complete";
                         }
 
                         if (item.type === "prepayment") {
@@ -196,11 +197,11 @@ class Transactions extends React.Component {
             showtable = false;
 
         } else {
-            if (this.state.data == []) {
+            if (this.state.data.length === 0) {
                 showtable = false;
                 nomsg = "No records";
             } else {
-                showtable = "true";
+                showtable = true;
                 nomsg = "";
             }
         }
@@ -214,14 +215,8 @@ class Transactions extends React.Component {
         return (
             <div>
                 <ul className="leaders">
-                    <li><span>Current Balance&nbsp;</span>
-                        <span>&nbsp; { wrgBalance }
-                            <small className="currency">WRG</small><sup className="currency">{ usdBalance } USD</sup></span></li>
-
-                    <li><span>Exchange rate&nbsp;</span>
-                        <span>&nbsp; { Const.WRG_UNIT }
-                            <small className="currency">WRG</small><sup className="currency">{ exchangeRate } USD</sup></span></li>
-
+                    <BalanceLine wrg={wrgBalance} usd={usdBalance} label="Current Balance"/>
+                    <BalanceLine wrg={Const.WRG_UNIT} usd ={exchangeRate} label="Exchange rate" />
                 </ul>
                 {this.state.loading?loader:""}
                 {showtable?table:<div className="alert alert-warning">{nomsg}</div>}
