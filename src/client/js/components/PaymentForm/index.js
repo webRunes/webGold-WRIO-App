@@ -67,7 +67,6 @@ class PaymentForm extends React.Component {
                 }
 
                 var result = JSON.parse(res.text);
-
                 this.setState({
                     payment_data: {
                         amount: result.amount,
@@ -84,6 +83,11 @@ class PaymentForm extends React.Component {
     }
     
     render() {
+
+        if (this.state.payment_data) {
+            setTimeout(frameReady,600); // TODO using global function, this is wrong, make properly next time
+        }
+
         // <form id="checkout" method="post" action="/api/braintree/payment-methods">
         // <BrainTreeForm />
         //<input type="hidden" name="amount" value={this.state.amount.USD} />
@@ -100,8 +104,12 @@ class PaymentForm extends React.Component {
                         type={ this.state.alert.type } 
                         message={ this.state.alert.message}
                         onClose={ this.onAlertClose.bind(this) }/> : '' }
-                <Amount exchangeRate={ this.props.exchangeRate } />
-                <AddFunds loginUrl={ this.props.loginUrl } />
+
+              { this.state.payment_data ? "" :
+                  <div>
+                    <Amount exchangeRate={ this.props.exchangeRate } />
+                    <AddFunds loginUrl={ this.props.loginUrl } />
+                  </div>}
             </form>
         );
     }
