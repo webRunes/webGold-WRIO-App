@@ -48,7 +48,7 @@ class User extends React.Component {
 
                     <li>
                         <span>Current Balance&nbsp;</span>
-                        <span>{wrgBalance}<small className="currency">WRG</small><sup className="currency">{usdBalance} USD</sup></span>
+                        <span>{wrgBalance}<small className="currency">WRG</small><sup className="currency" ref="usdBalance">{usdBalance} USD</sup></span>
                     </li>
                     <li>
                         <span>Exchange Rate&nbsp;</span>

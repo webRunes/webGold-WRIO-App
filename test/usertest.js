@@ -37,6 +37,6 @@ describe('User test', () => {
             <User username={data.username} btcExchangeRate={data.btcExchangeRate} exchangeRate={data.exchangeRate}/>
         );
 
-        expect(user.refs.wrgBalance.textContent).to.equal('...');
+        expect(user.refs.usdBalance.textContent).to.equal('... USD');
     });
 });
