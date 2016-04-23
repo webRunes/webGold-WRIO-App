@@ -7,28 +7,23 @@ class Amount extends React.Component {
     constructor(props) {
         super(props);
 
-        var rate = this.props.exchangeRate;
-        if (!rate) {
-            rate = new BigNumber(1);
-        }
-
         this.state = {
             BTC: new BigNumber(0.1),
-            WRG: (new BigNumber(Const.WRG_UNIT)).mul(0.1).div(rate)
+            WRG: new BigNumber(0)
         };
         Actions.changeAmount(this.state);
     }
     
     componentWillReceiveProps(props) {
 
-        var rate = this.props.exchangeRate;
-        if (!rate) {
-            rate = new BigNumber(1);
+        var rate = props.exchangeRate;
+        if (rate) {
+            this.setState({
+                BTC: this.state.BTC,
+                WRG: this.state.BTC.mul(Const.WRG_UNIT).div(rate)
+            });
         }
-        this.setState({
-            BTC: this.state.BTC,
-            WRG: this.state.BTC.mul(Const.WRG_UNIT).div(rate)
-        });
+
     }
     
     onBTCChange(e) {
