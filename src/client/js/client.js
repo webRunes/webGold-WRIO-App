@@ -74,6 +74,7 @@ class App extends React.Component {
                 });
                 console.log("BTC exchange rate", this.state.btcExchangeRate.toString());
                 console.log("USD exchange rate", this.state.exchangeRate );
+                frameReady();
             });
     }
 

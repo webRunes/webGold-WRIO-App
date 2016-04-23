@@ -152,7 +152,7 @@ function setup_routes(db) {
         logger.log('debug',"WEBGOLD:/get_user");
         loginWithSessionId(request.sessionID, (err, res) => {
             if (err) {
-                logger.log('error','User not found');
+                logger.log('error','User not found '+err);
                 return response.sendStatus(404);
             }
 
