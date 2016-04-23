@@ -43,8 +43,6 @@ class User extends React.Component {
 
         return (
             <div className="form-group">
-                { this.props.username ? 
-                    <UserInfo username={ this.props.username } /> : '' }
                 <ul className="leaders">
                     <li>
                         <span>Current balance</span>
