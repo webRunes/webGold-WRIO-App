@@ -143,6 +143,11 @@ class Transactions extends React.Component {
                             if (item.state == "payment_confirmed") {
                                 status = "Payment confirmed";
                             }
+
+                            if (item.state == "payment_checking") {
+                                status = "Initiated";
+                            }
+
                         }
                         if (item.type === "donation") {
                             if (item.incoming) {
