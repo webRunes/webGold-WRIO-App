@@ -36,7 +36,8 @@ class User extends React.Component {
         var usdBalance = "...";
         var wrgBalance = "....";
         if (this.state.balance) {
-            usdBalance =  this.state.balance.mul(this.props.btcExchangeRate).div(Const.WRG_UNIT).toFixed(8);
+            var coef = (new BigNumber(Const.WRG_UNIT)).div(this.props.exchangeRate);
+            usdBalance =  this.state.balance.div(coef).toFixed(2);
             wrgBalance = this.state.balance.toFixed(2);
         }
 
@@ -44,29 +45,14 @@ class User extends React.Component {
         return (
             <div className="form-group">
                 <ul className="leaders">
-                    <li>
-                        <span>Current balance</span>
-                        <span>
-                            { wrgBalance }<small className="currency">WRG</small>
-                            <sup className="currency">
-                                <span ref="usdBalance">{ usdBalance }</span><span className="currency">BTC</span>
-                            </sup>
-                        </span>
-                    </li>
-                    <li>
-                        <span>Exchange rate</span>
-                        <span>
-                            1 000<small className="currency">WRG</small>
-                            = { btcRate }<small className="currency">BTC</small>
 
-                        </span>
+                    <li>
+                        <span>Current Balance&nbsp;</span>
+                        <span>{wrgBalance}<small className="currency">WRG</small><sup className="currency" ref="usdBalance">{usdBalance} USD</sup></span>
                     </li>
                     <li>
-                        <span>Exchange rate</span>
-                         <span>
-                            1 000<small className="currency">WRG</small>
-                             = { this.props.exchangeRate }<small className="currency">USD</small>
-                        </span>
+                        <span>Exchange Rate&nbsp;</span>
+                        <span>&nbsp;1 000<small className="currency">WRG = </small>{btcRate}<small className="currency">BTC</small><sup className="currency">{this.props.exchangeRate} USD</sup></span>
                     </li>
                 </ul>
             </div>
