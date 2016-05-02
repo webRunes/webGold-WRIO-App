@@ -44,18 +44,19 @@ class Amount extends React.Component {
             BTC: BTC,
             WRG: wrg
         };
+
+        if (!this.validateAmount(wrg)) {
+            var w = new BigNumber(Const.MAX_DONATE);
+            var b = wrg.mul(this.props.exchangeRate).div(Const.WRG_UNIT);
+            amount = {
+                BTC:b,
+                WRG: w
+            }
+        }
+
         this.setState(amount);
         Actions.changeAmount(amount);
 
-        if (!this.validateAmount(wrg)) {
-            this.setState({
-                error: "Donate sum too big, cannot donate more than " + this.formatWRG(Const.MAX_DONATE) + " WRG"
-            });
-        } else {
-            this.setState({
-                error: null
-            });
-        }
     }
     
     onBTCChange(e) {
@@ -75,7 +76,6 @@ class Amount extends React.Component {
         var BTC = this.state.BTC.toString();
         var wrg = this.state.WRG.toFixed(2).toString();
 
-
         var cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
 
         return (
@@ -88,7 +88,6 @@ class Amount extends React.Component {
                         <span className="input-group-addon">BTC</span>
                         <input type="number" step="any" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
                     </div>
-                    <div class="help-block"> {this.state.error} </div>
                 </div>
                 <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
                     <label className="control-label">{'='}</label>

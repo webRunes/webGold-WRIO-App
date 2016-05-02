@@ -63,8 +63,8 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
         var names = [user.wrioID];
         var prepayments = [];
 
-        if (user.prepayments) { // add user's pening payments to the output list
-            prepayments = prepayments.concat(user.prepayments.map((item)=>{
+        if (user.widgets) { // add user's pening payments to the output list
+            prepayments = prepayments.concat(user.widgets.map((item)=>{
                 item.from = user.wrioID;
                 item.incoming = false;
                 names.push(item.to);
@@ -74,7 +74,7 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
 
         matchingUsers.map((u) => {
             names.push(u.wrioID);
-            var payments = u.prepayments.map((item)=> {
+            var payments = u.widgets.map((item)=> {
                 item.from = u.wrioID; // add from reference
                 item.incoming = true;
                 return item;

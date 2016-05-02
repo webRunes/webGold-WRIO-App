@@ -6,13 +6,13 @@ import logger from 'winston';
 
 export default class mongoKeyStore {
     constructor(db) {
-        this.accounts = db.collection('ethereum_accounts');
+        this.widgets = db.collection('ethereum_accounts');
         logger.debug("===Mongo keystore init");
     }
 
     get(key) {
         return new Promise((resolve,reject) =>{
-            this.accounts.findOne({_id:key},function (err,data) {
+            this.widgets.findOne({_id:key},function (err,data) {
                 if (err) {
                     logger.error("mongoKeyStore Db key search error");
                     reject(err);
@@ -32,7 +32,7 @@ export default class mongoKeyStore {
         var that = this;
         return new Promise((resolve,reject) =>{
             logger.debug("Writing account to keystore");
-            this.accounts.insertOne({
+            this.widgets.insertOne({
                 "_id": key,
                 "value": value
 

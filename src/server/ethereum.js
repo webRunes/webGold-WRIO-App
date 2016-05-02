@@ -78,14 +78,14 @@ class WebGold {
 
     keyStoreInit(db) {
         this.KeyStore =  new mongoKeyStore(db);
-        this.accounts = new Accounts(
+        this.widgets = new Accounts(
             {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
         this.provider = new HookedWeb3Provider({
             host: nconf.get('payment:ethereum:host'),
-            transaction_signer: this.accounts
+            transaction_signer: this.widgets
         });
         logger.debug("Provider.set");
         web3.setProvider(this.provider);
@@ -130,7 +130,7 @@ class WebGold {
         //logger.debug(user);
         if (user.ethereumWallet) {
             logger.debug("Unlocking existing wallet for " + wrioID);
-            this.accounts.unlockAccount(user.ethereumWallet,wrioID);
+            this.widgets.unlockAccount(user.ethereumWallet,wrioID);
         }
     }
 
@@ -153,7 +153,7 @@ class WebGold {
     }
 
     async createEthereumAccountForWRIOID (wrioID) {
-        var accountObject = await this.accounts.newAccount(wrioID);
+        var accountObject = await this.widgets.newAccount(wrioID);
         logger.verbose("Created account for WRIOID: "+wrioID+": ", accountObject);
         await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
         return accountObject.address;
@@ -186,7 +186,7 @@ class WebGold {
 
     etherSend(sender,recipient,amount) {
         return new Promise((resolve,reject)=> {
-            this.accounts.unlockAccount(masterAccount,masterPassword);
+            this.widgets.unlockAccount(masterAccount,masterPassword);
 
             logger.verbose("Preparing to transfer",amount,"ETH");
 
@@ -230,7 +230,7 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_sendcoin() {
-                that.accounts.unlockAccount(masterAccount,masterPassword);
+                that.widgets.unlockAccount(masterAccount,masterPassword);
                 that.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         logger.error("cointransfer failed",err);
@@ -325,7 +325,7 @@ class WebGold {
         if (!toWrio) throw new Error("toWrio address not specified");
 
         logger.info("Emitting new wrg to",dest,"Amount=",amount);
-        this.accounts.unlockAccount(masterAccount,masterPassword);
+        this.widgets.unlockAccount(masterAccount,masterPassword);
         await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest,toWrio);
         var emission = new Emissions();
@@ -341,7 +341,7 @@ class WebGold {
         return new Promise((resolve,reject)=> {
 
             function actual_donate() {
-                that.accounts.unlockAccount(masterAccount,masterPassword);
+                that.widgets.unlockAccount(masterAccount,masterPassword);
                 that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         logger.error("donate failed",err);
@@ -449,7 +449,7 @@ class WebGold {
     }
 
     unlockMaster() {
-        this.accounts.unlockAccount(masterAccount,masterPassword);
+        this.widgets.unlockAccount(masterAccount,masterPassword);
     }
 
 

@@ -75,7 +75,7 @@ async function formatUserData(user, wgUsers, webGold) {
             dbBalance: -(user.dbBalance || 0) / 100,
             ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
             wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
-            prepayments: user.prepayments || []
+            widgets: user.widgets || []
         });
     }
 }

@@ -66,7 +66,7 @@ export default class PendingPaymentProcessor {
             logger.info("****** PROCESS_PENDING_PAYMENTS, total eth=",amount);
             /* Check all prepayments, if there's some, mark them as completed, */
 
-            var pending = user['prepayments'] || [];
+            var pending = user['widgets'] || [];
             logger.debug("Found "+pending.length+" pending payments for"+user.wrioID);
 
             if (pending.length == 0) {

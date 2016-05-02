@@ -60,8 +60,6 @@ function setup_server(db) {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
 
-
-
 //For app pages
     app.set('view engine', 'ejs');
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
