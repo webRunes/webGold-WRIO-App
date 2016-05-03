@@ -20,6 +20,8 @@ import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from './constant.js';
 
+import {server,db,utils,login} from 'wriocommon';
+
 require("babel/polyfill");
 
 logger.level = 'debug';
