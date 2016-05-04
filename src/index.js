@@ -2,15 +2,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import nconf from './server/wrio_nconf.js';
 import path from 'path';
-import {dumpError} from './server/utils.js';
-//import braintree from './server/braintree';
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import BlockChainRoute from './server/blockchain.info';
 import {BlockChain} from './server/blockchain.info';
 import EthereumRoute from './server/ethereum-route';
 import UserStatsRoute from './server/user-stats.js';
 
-import {init} from './server/db';
-import {loginWithSessionId,getLoggedInUser} from './server/wriologin';
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import WebGold from './server/ethereum';
 import BigNumber from 'bignumber.js';
 
@@ -20,6 +18,8 @@ import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from './constant.js';
 
+import {server,db,login} from 'wriocommon';
+
 require("babel/polyfill");
 
 logger.level = 'debug';
@@ -27,68 +27,37 @@ var app = express();
 app.ready = () => {};
 app.override_session = {sid:null};
 
-app.use(function (request, response, next) {
-    //logger.log('info',request);
 
-    var host = request.get('origin');
-    if (host == undefined) host = "";
-    logger.debug('Origin host:',host);
-
-    var domain = nconf.get("server:workdomain");
-    domain = domain.replace(/\./g,'\\.')+'$';
-    logger.debug('Domaintempl',domain);
-
-    if (host.match(new RegExp(domain,'m'))) {
-        response.setHeader('Access-Control-Allow-Origin', host);
-        logger.log('debug',"Allowing CORS for ",host);
-    } else {
-        logger.log('debug','host not match');
+async function init_env() {
+    try {
+        await init();
+    } catch (e) {
+        console.log("Caught error during server init");
+        utils.dumpError(e);
     }
+}
 
-    //response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    response.setHeader('Access-Control-Allow-Credentials', true);
-    next();
-});
+async function init() {
+    var dbInstance =  await db.init();
+    logger.log('info','Successfuly connected to Mongo');
+    server.initserv(app,dbInstance);
+    app.listen(nconf.get("server:port"));
+    console.log('app listening on port ' + nconf.get('server:port') + '...');
+    setup_server(dbInstance);
+    setup_routes(dbInstance);
+    app.ready();
+}
 
+init_env();
 
 const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
 
 function setup_server(db) {
 
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({extended: true}));
-
-
-
-//For app pages
+    //For app pages
     app.set('view engine', 'ejs');
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
-
     const DOMAIN = nconf.get("db:workdomain");
-
-    var SessionStore = MongoStore(session);
-    var cookie_secret = nconf.get("server:cookiesecret");
-    app.use(cookieParser(cookie_secret));
-    var sessionStore = new SessionStore({db: db});
-    app.use(session(
-        {
-
-            secret: cookie_secret,
-            saveUninitialized: true,
-            store: sessionStore,
-            resave: true,
-            cookie: {
-                secure: false,
-                domain: DOMAIN,
-                maxAge: 1000 * 60 * 60 * 24 * 30
-            },
-            key: 'sid'
-        }
-    ));
-
-
 
     app.use((req,res,next)=> {  // stub for unit testing, we can override sessionID, if app.override_session is set
         if (app.override_session.sid) {
@@ -117,12 +86,12 @@ function setup_routes(db) {
         response.sendFile(__dirname + '/client/views/index.htm');
     });
 
-    app.get('/add_funds_data', async (request, response) => {
+    app.get('/add_funds_data', wrioAuth, async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
         logger.log('info',"WEBGOLD:Add funds data");
 
         try {
-            var user = await getLoggedInUser(request.sessionID);
+            var user = request.user;
             if (user) {
                 var bc = new BlockChain();
                 var btc_rate = await bc.get_rates();
@@ -137,7 +106,7 @@ function setup_routes(db) {
                 });
             }
         } catch(e) {
-            logger.log('error','WEBGOLD:User not found',e);
+            utils.dumpError(e);
             response.json({
                 username: null,
                 loginUrl: loginUrl,
@@ -148,20 +117,12 @@ function setup_routes(db) {
         }
     });
 
-    app.get('/get_user', function (request, response) {
+    app.get('/get_user', wrioAuth, function (request, response) {
         logger.log('debug',"WEBGOLD:/get_user");
-        loginWithSessionId(request.sessionID, (err, res) => {
-            if (err) {
-                logger.log('error','User not found '+err);
-                return response.sendStatus(404);
-            }
-
-            logger.log('info',res);
-            response.json({'user': res});
-        });
+        response.json({'user': request.user});
     });
 
-    app.get('/logoff', function (request, response) {
+    app.get('/logoff', wrioAuth,function (request, response) {
         logger.log('debug',"Logoff called");
         response.clearCookie('sid', {'path': '/', 'domain': DOMAIN});
         response.redirect('/');
@@ -179,24 +140,11 @@ function setup_routes(db) {
     app.use('/assets', express.static(path.join(__dirname, '/client')));
 
     app.use(function (err, req, res, next) {
-        dumpError(err);
+        utils.dumpError(err);
         res.status(403).send("There was error processing your request");
     });
 
 
 }
-
-init()
-    .then(function(db) {
-        logger.log('info','Successfuly connected to Mongo');
-        app.listen(nconf.get("server:port"));
-        logger.log('info',"Web application opened.");
-        setup_server(db);
-        setup_routes(db);
-        app.ready();
-    })
-    .catch(function(err) {
-        logger.log('info','Error while init '+err);
-    });
 
 module.exports = app;

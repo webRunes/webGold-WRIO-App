@@ -157,7 +157,7 @@ class Balances extends React.Component {
                                 <td>{ item.name }</td>
                                 <td>{ item.ethWallet}</td>
                                 <td>{ item.ethBalance}</td>
-                                <td onClick={this.showModal.bind(this,item.prepayments)}>{ item.dbBalance}</td>
+                                <td onClick={this.showModal.bind(this,item.widgets)}>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
 
                             </tr>);

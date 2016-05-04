@@ -6,8 +6,9 @@ import WebGold from './ethereum.js';
 import {calc_percent,dumpError} from './utils';
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser, wrap, wrioAuth} from './wriologin';
-import db from './db';
+
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser';
 import nconf from './wrio_nconf';
@@ -63,8 +64,8 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
         var names = [user.wrioID];
         var prepayments = [];
 
-        if (user.prepayments) { // add user's pening payments to the output list
-            prepayments = prepayments.concat(user.prepayments.map((item)=>{
+        if (user.widgets) { // add user's pening payments to the output list
+            prepayments = prepayments.concat(user.widgets.map((item)=>{
                 item.from = user.wrioID;
                 item.incoming = false;
                 names.push(item.to);
@@ -74,7 +75,7 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
 
         matchingUsers.map((u) => {
             names.push(u.wrioID);
-            var payments = u.prepayments.map((item)=> {
+            var payments = u.widgets.map((item)=> {
                 item.from = u.wrioID; // add from reference
                 item.incoming = true;
                 return item;

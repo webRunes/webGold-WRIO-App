@@ -4,14 +4,12 @@
  */
 
 import logger from 'winston';
-import database from '../db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import uuid from 'node-uuid';
-let db;
 
 class WebRunesUsers {
     constructor() {
-        db = database.db;
-        this.users = db.collection('webRunes_Users');
+        this.users = db.db.collection('webRunes_Users');
     }
 
     getByWrioID(wrioID) {
@@ -196,7 +194,7 @@ class WebRunesUsers {
 
               //  logger.debug(db);
 
-            if (db.s.databaseName != "webrunes_test") {
+            if (db.db.s.databaseName != "webrunes_test") {
                 return reject("Wipe can be made only on test db");
             }
             this.users.remove({},(err) => {

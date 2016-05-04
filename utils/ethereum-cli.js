@@ -14,13 +14,13 @@ var operate = async (db) => {
     try {
         var webGold = new WebGold(db);
 
-        console.log(web3.eth.accounts);
+        console.log(web3.eth.widgets);
 
         var dest = await webGold.getEthereumAccountForWrioID("819702772935");
 
-        console.log("Master balance ",await webGold.getEtherBalance(web3.eth.accounts[0]));
+        console.log("Master balance ",await webGold.getEtherBalance(web3.eth.widgets[0]));
 
-        var balance1 = await webGold.getBalance(web3.eth.accounts[0]);
+        var balance1 = await webGold.getBalance(web3.eth.widgets[0]);
         var balance2 = await webGold.getBalance(dest);
 
         //webGold.accounts.createUnencryptedAccount();
