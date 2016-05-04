@@ -1,7 +1,5 @@
 import WebGold from './ethereum.js';
-import {calc_percent,dumpError} from './utils';
-import {Promise} from 'es6-promise';
-import db from './db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
 import Donation from './dbmodels/donations.js';

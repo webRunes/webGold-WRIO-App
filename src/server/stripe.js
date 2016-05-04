@@ -1,5 +1,6 @@
 import {Router} from 'express';
-let wrioLogin = require('./wriologin');
+
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import nconf from './wrio_nconf';
 import Stripe from 'stripe';
 import {sendEmail} from './wrio_mailer.js';
@@ -16,8 +17,7 @@ export function setDB(db_link) {
 
 router.post('/add_funds', async (request, response) => {
     try {
-        logger.debug(wrioLogin);
-        let user = await wrioLogin.getLoggedInUser(request.sessionID);
+        let user = await getLoggedInUser(request);
         logger.debug(user);
         let token = await stripe.tokens.create({
             card: {

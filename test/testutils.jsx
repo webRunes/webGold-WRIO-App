@@ -4,11 +4,10 @@ import request from 'supertest';
 import assert from 'assert';
 import should from 'should';
 
-import db from '../src/server/db.js'
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoices from '../src/server/dbmodels/invoice.js'
 import Users from '../src/server/dbmodels/wriouser.js'
 import apitest from "./apitest"
-import {generateFakeSession,clearTestDb} from "../src/server/wriologin.js"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -20,6 +19,58 @@ var ready = false;
 app.ready = () => {
     ready = true;
 };
+
+export function generateFakeSession(userID) {
+    var sessions = db.db.collection('sessions');
+
+    return new Promise((resolve,reject) => {
+        var item = {
+            _id: "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW",
+            expires: new Date(909090909090990),
+            session: JSON.stringify({
+                cookie: {
+                    "originalMaxAge": 0,
+                    expires: "2025-11-22"
+                },
+                passport: {
+                    user: userID
+                }
+            })
+        };
+
+        sessions.insertOne(item,(err,res) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve();
+        });
+    });
+
+}
+
+/*
+ Clears test db records when unit testing (promised)
+ DON'T use in production environment !!!!
+ */
+
+export function clearTestDb() {
+    var sessions = db.db.collection('sessions');
+    return new Promise((resolve,reject) => {
+
+
+            if (db.db.s.databaseName != "webrunes_test") {
+                return reject("Wipe can be made only on test db");
+            }
+            sessions.remove({},(err) => {
+                if (err)  {
+                    return reject(err);
+                }
+                resolve("Wipe ok");
+            });
+        }
+
+    );
+}
 
 
 function waitdb() {

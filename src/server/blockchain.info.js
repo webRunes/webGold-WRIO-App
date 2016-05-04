@@ -2,12 +2,11 @@ import request from 'superagent';
 import nconf from './wrio_nconf';
 import uuid from 'node-uuid';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser,wrap,wrioAuth} from './wriologin';
-import {dumpError} from './utils';
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import BigNumber from 'bignumber.js';
-import {init} from './db';
 import WebGold from './ethereum';
-import db from './db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoice from './dbmodels/invoice.js';
 import User from './dbmodels/wriouser.js';
 import RateGetter from './payments/RateGetter.js';
@@ -28,6 +27,7 @@ export class BlockChain {
         if (!this.key || !this.xpub || !this.secret) {
             throw "Blockchain.info configuration is not defined, please edit config.json to fix";
         }
+
 
         this.payments = db.db.collection('webGold_invoices');
         this.webgold = new WebGold(db.db);
@@ -222,7 +222,7 @@ router.get('/callback',async (request,response) => {
 
 router.post('/payment_history', wrioAuth, wrap(async (request,response) => {
 
-        var userID = await getLoggedInUser(request.sessionID);
+        var userID = await getLoggedInUser(request);
         var blockchain = new BlockChain();
         var history = await blockchain.getInvoices(userID._id);
         response.send(history);

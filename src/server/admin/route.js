@@ -9,8 +9,8 @@ import WebGold from '../ethereum.js';
 import {calc_percent,dumpError} from '../utils';
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
-import {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap} from '../wriologin';
-import db from '../db';
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap} = loginImp;
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 const router = Router();
 import WebRunesUsers from '../dbmodels/wriouser';
 import nconf from '../wrio_nconf';
@@ -22,6 +22,7 @@ import Invoices from "../dbmodels/invoice.js";
 import WrioUser from "../dbmodels/wriouser.js";
 import logger from 'winston';
 import Const from '../../constant.js';
+
 
 
 let MAX_DEBT = Const.MAX_DEBT; // maximum allowed user debt to perfrm operations
@@ -75,7 +76,7 @@ async function formatUserData(user, wgUsers, webGold) {
             dbBalance: -(user.dbBalance || 0) / 100,
             ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
             wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
-            prepayments: user.prepayments || []
+            widgets: user.widgets || []
         });
     }
 }

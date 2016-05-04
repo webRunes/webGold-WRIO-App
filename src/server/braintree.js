@@ -3,7 +3,7 @@ import wrioLogin from './wriologin';
 import nconf from './wrio_nconf';
 import braintree from 'braintree';
 import {sendEmail} from './wrio_mailer.js';
-import db from './db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import path from 'path';
 import logger from 'winston';
 
@@ -81,7 +81,7 @@ router.post("/payment-methods", function  (req, res)  {
 router.post('/add_funds', async (request, response) => {
     try {
 /*        logger.debug(wrioLogin);
-        let user = await wrioLogin.getLoggedInUser(request.sessionID);
+        let user = await wrioLogin.getLoggedInUser(request);
         logger.debug(user);
         let token = await stripe.tokens.create({
             card: {

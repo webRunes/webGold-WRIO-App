@@ -9,5 +9,8 @@ COPY package.json /srv/package.json
 RUN cd /srv/ && npm install # packages are installed globally to not modify titter directory
 COPY . /srv/www/
 
+WORKDIR /srv/www
+RUN gulp
+
 EXPOSE 5003
 CMD cd /srv/www/ && rm -fr node_modules && gulp watch

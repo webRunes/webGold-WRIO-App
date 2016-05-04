@@ -31,7 +31,7 @@ class WebGoldDeploy extends WebGold {
         var token = tokenContract.new(
             supply,
             {
-                from:web3.eth.accounts[3],
+                from:web3.eth.widgets[3],
                 data:this.tokenCompiled.token.code,
                 gas: 1000000
             }, (e, contract) => {

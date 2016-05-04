@@ -4,11 +4,11 @@ import request from 'supertest';
 import assert from 'assert';
 import should from 'should';
 
-import db from '../src/server/db.js'
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoices from '../src/server/dbmodels/invoice.js'
 import Users from '../src/server/dbmodels/wriouser.js'
 import apitest from "./apitest"
-import {generateFakeSession,clearTestDb} from "../src/server/wriologin.js"
+import {generateFakeSession,clearTestDb} from "./testutils.jsx"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;

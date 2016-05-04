@@ -4,9 +4,12 @@ sudo: false
 node_js:
   - 0.12
 
-install: 
-  - npm install
+install:
+  - npm install -g npm@3
   - npm install -g gulp
+   -npm install -g babel@5.6.14
+  - npm install
+
 
 services: mongodb
 
