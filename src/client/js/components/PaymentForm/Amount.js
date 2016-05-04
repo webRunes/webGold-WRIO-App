@@ -27,8 +27,8 @@ class Amount extends React.Component {
     }
 
     formatWRG(num) {
-            var str = num;
-            if (str.length >= 4) {
+            var str = num.toString();
+            if (str.length >= 3) {
                 str = str.replace(/(\d)(?=(\d{3})+$)/g, '$1 ');
             }
 
@@ -83,22 +83,26 @@ class Amount extends React.Component {
                 <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
                     <label className="col-sm-12 control-label" htmlFor="amountBTC">Amount</label>
                 </div>
-                <div className={cls}>
-                    <div className="input-group input-group-sm tooltip-demo">
-                        <span className="input-group-addon">BTC</span>
-                        <input type="number" step="any" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
-                    </div>
-                </div>
-                <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
-                    <label className="control-label">{'='}</label>
-                </div>
+
                 <div className={cls}>
                     <div className="input-group input-group-sm">
                         <span className="input-group-addon">WRG</span>
-                        <input type="number" step="any" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
+                        <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
                     </div>
                     <div className="help-block">Max {this.formatWRG(Const.MAX_DONATE)} WRG per day</div>
                 </div>
+
+                 <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
+                     <label className="control-label">{'='}</label>
+                 </div>
+
+                 <div className={cls}>
+                     <div className="input-group input-group-sm tooltip-demo">
+                         <span className="input-group-addon">BTC</span>
+                         <input type="number" step="0.001" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
+                     </div>
+                 </div>
+
             </div>
         );
     }
