@@ -9,11 +9,11 @@
 
 import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
-import {dumpError,calc_percent} from './utils';
+import {calc_percent} from './utils';
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import Accounts from './ethereum-node';
 import HookedWeb3Provider from 'hooked-web3-provider';
-import db from './db';
-import {init} from './db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import fs from 'fs';
 import path from 'path';
 import nconf from './wrio_nconf';
@@ -53,6 +53,10 @@ let instance = null;
 
 class WebGold {
     constructor(db) {
+
+        if (!db) {
+            throw  new Error("No db specified");
+        }
 
         if(!instance){ // make webgold behave like singlenon
             instance = this;

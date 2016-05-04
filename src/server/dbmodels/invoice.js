@@ -2,7 +2,7 @@
  * Created by michbil on 03.10.15.
  */
 
-import db from '../db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import uuid from 'node-uuid';
 import logger from 'winston';
 

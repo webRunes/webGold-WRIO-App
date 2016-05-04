@@ -1,7 +1,7 @@
 /**
  * Created by michbil on 24.01.16.
  */
-import db from '../db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import logger from 'winston';
 
 export default class mongoKeyStore {

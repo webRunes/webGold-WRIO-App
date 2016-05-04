@@ -5,7 +5,7 @@
 
 
 import logger from 'winston';
-import db from '../db';
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 
 export default class PrePayments {
 

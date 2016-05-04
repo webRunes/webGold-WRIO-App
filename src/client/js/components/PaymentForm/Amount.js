@@ -51,7 +51,7 @@ class Amount extends React.Component {
             amount = {
                 BTC:b,
                 WRG: w
-            }
+            };
         }
 
         this.setState(amount);

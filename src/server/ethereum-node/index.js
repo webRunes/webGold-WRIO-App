@@ -43,7 +43,7 @@ require('browserify-cryptojs/components/aes');
 
 
 import Web3 from 'web3'; var web3 = new Web3();
-import {dumpError} from '../utils.js';
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 
 
 class KeyStoreClass {

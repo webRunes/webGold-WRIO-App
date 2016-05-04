@@ -3,10 +3,9 @@
  */
 
 import {Promise} from 'es6-promise';
-import {dumpError,calc_percent} from './utils';
-import Accounts from './ethereum-node';
-import db from './db';
-import {init} from './db';
+import {calc_percent} from './utils';
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
+import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import fs from 'fs';
 import path from 'path';
 import nconf from './wrio_nconf';
