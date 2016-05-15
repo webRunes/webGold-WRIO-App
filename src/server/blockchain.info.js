@@ -222,7 +222,7 @@ router.get('/callback',async (request,response) => {
 
 router.post('/payment_history', wrioAuth, wrap(async (request,response) => {
 
-        var userID = await getLoggedInUser(request);
+        var userID = request.user;
         var blockchain = new BlockChain();
         var history = await blockchain.getInvoices(userID._id);
         response.send(history);
