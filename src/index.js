@@ -72,18 +72,18 @@ function setup_server(db) {
 }
 function setup_routes(db) {
     app.get('/', function (request, response) {
-        response.sendFile(__dirname + '/hub/index.htm');
+        response.sendFile(__dirname + '/hub/index.html');
     });
     app.get('/coinadmin', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH, '/admin.htm'));
+        response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
     });
 
     app.get('/transactions', function (request, response) {
-        response.sendFile(__dirname + '/client/views/webgold-transactions.htm');
+        response.sendFile(__dirname + '/client/views/webgold-transactions.html');
     });
 
     app.get('/add_funds', function (request, response) {
-        response.sendFile(__dirname + '/client/views/index.htm');
+        response.sendFile(__dirname + '/client/views/index.html');
     });
 
     app.get('/add_funds_data', wrioAuth, async (request, response) => {
