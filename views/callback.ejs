@@ -13,7 +13,7 @@
                 results = regex.exec(location.search);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-    window.opener.setWRIOAuthData(getParameterByName('sid'));
+    window.opener.location.reload(false);
     window.close();
 </script>
 
