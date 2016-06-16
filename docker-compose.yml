@@ -1,0 +1,15 @@
+mongo:
+  image: mongo:latest
+  ports:
+  - "27017:27017"
+
+webgold:
+  build: .
+  ports:
+   - "5003:5003"
+  volumes:
+   - .:/srv/www/
+  command:
+  - "/bin/bash"
+  links:
+  - mongo
