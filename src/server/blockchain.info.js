@@ -2,7 +2,7 @@ import request from 'superagent';
 import nconf from './wrio_nconf';
 import uuid from 'node-uuid';
 import {Router} from 'express';
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;
 import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import BigNumber from 'bignumber.js';
 import WebGold from './ethereum';
@@ -220,7 +220,7 @@ router.get('/callback',async (request,response) => {
     }
 });
 
-router.post('/payment_history', wrioAuth, wrap(async (request,response) => {
+router.get('/payment_history', restOnly, wrioAuth, wrap(async (request,response) => {
 
         var userID = request.user;
         var blockchain = new BlockChain();
@@ -229,7 +229,7 @@ router.post('/payment_history', wrioAuth, wrap(async (request,response) => {
 
 }));
 
-router.post('/request_payment', wrioAuth, function(req,response) {
+router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
     logger.debug("Request payment is called");
     var blockchain = new BlockChain();
 

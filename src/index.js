@@ -86,6 +86,15 @@ function setup_routes(db) {
         response.sendFile(__dirname + '/client/views/index.html');
     });
 
+    app.get('/sign_tx', function (request, response) {
+        response.sendFile(__dirname + '/client/views/txsigner.html');
+    });
+
+    app.get('/create_wallet', function (request, response) {
+        response.sendFile(__dirname + '/client/views/createwallet.html');
+    });
+
+
     app.get('/add_funds_data', wrioAuth, async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
         logger.log('info',"WEBGOLD:Add funds data");

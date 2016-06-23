@@ -22,7 +22,10 @@ class User extends React.Component {
     }
 
     requestBalance(cb) {
-        request.post('/api/webgold/get_balance').end((err,balance)=> {
+        request.get('/api/webgold/get_balance').
+            withCredentials().
+            set('X-Requested-With',"XMLHttpRequest").
+            end((err,balance)=> {
             if (err) {
                 cb(err);
                 return;

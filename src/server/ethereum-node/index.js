@@ -1,7 +1,9 @@
 /**
- * Created by michbil on 26.09.15.
- */
-/**
+ *
+ * * Created by michbil on 26.09.15.
+ *
+ * This file is based on https://github.com/SilentCicero/ethereumjs-accounts and adaped for our needs
+
  ethereumjs-accounts - A suite for managing Ethereum accounts in browser.
 
  Welcome to ethereumjs-accounts. Generate, encrypt, manage, export and remove Ethereum accounts and store them in your browsers local storage. You may also choose to extendWeb3 so that transactions made from accounts stored in browser, can be signed with the private key provided. EthereumJs-Accounts also supports account encryption using the AES encryption protocol. You may choose to optionally encrypt your Ethereum account data with a passphrase to prevent others from using or accessing your account.
@@ -28,7 +30,9 @@
  meteor install silentcicero:ethereumjs-accounts
  **/
 
+
 import logger from 'winston';
+import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './utils.js';
 var _ = require('underscore');
 var Tx = require('ethereumjs-tx');
 var BigNumber = require('bignumber.js');
@@ -63,124 +67,18 @@ class KeyStoreClass {
     }
 }
 
-var window = {};
+
 var KeyStore = new KeyStoreClass();
 
-/**
- Pad the given string with a prefix zero, if length is uneven.
-
- @method (formatHex)
- @param {String} str    The string to pad for use as hex
- @return {String} The padded or formatted string for use as a hex string
- **/
-
-function formatHex(str) {
-    return '0x'+ (String(str).length % 2 ? '0' + String(str) : String(str));
-}
-
-/**
- Prepair numbers for raw transactions.
-
- @method (formatNumber)
- @param {Number|String|BigNumber} The object to be used as a number
- @return {String} The padded, toString hex value of the number
- **/
-
-function formatNumber(num) {
-    if (_.isUndefined(num) || num == 0) num = '00';
-
-    if (_.isString(num) || _.isNumber(num)) num = new BigNumber(String(num));
-
-    if (isBigNumber(num)) num = num.toString(16);
-
-    return formatHex(num);
-};
-
-/**
- Prepair Ethereum address for either raw transactions or browser storage.
-
- @method (formatAddress)
- @param {String} addr    An ethereum address to prep
- @param {String} format          The format type (i.e. 'raw' or 'hex')
- @return {String} The prepaired ethereum address
- **/
-
-function formatAddress(addr, format) {
-    if (_.isUndefined(format) || !_.isString(format)) format = 'hex';
-
-    if (_.isUndefined(addr) || !_.isString(addr)) addr = '0000000000000000000000000000000000000000';
-
-    if (addr.substr(0, 2) == '0x' && format == 'raw') addr = addr.substr(2);
-
-    if (addr.substr(0, 2) != '0x' && format == 'hex') addr = '0x' + addr;
-
-    return addr;
-};
-
-/**
- Generate 16 random alpha numeric bytes.
-
- @method (randomBytes)
- @param {Number} length      The string length that should be generated
- @return {String} A 16 char/UTF-8 byte string of random alpha-numeric characters
- **/
-
-function randomBytes(length) {
-    var charset = "abcdef0123456789";
-    var i;
-    var result = "";
-    var isOpera = Object.prototype.toString.call(window.opera) == '[object Opera]';
-
-    var values = crypto.randomBytes(length);
-    for (i = 0; i < length; i++) {
-        result += charset[values[i] % charset.length];
-    }
-
-    return result;
-};
-
-/**
- Is the object provided a Bignumber object.
-
- @method (isBigNumber)
- **/
-
-function isBigNumber(value) {
-    if (_.isUndefined(value) || !_.isObject(value)) return false;
-
-    return value instanceof BigNumber ? true : false;
-};
-
-/**
- * Checks if the given string is an address
- *
- * @method isAddress
- * @param {String} address the given HEX adress
- * @return {Boolean}
- **/
-
-function isAddress(address) {
-    return (/^(0x)?[0-9a-f]{40}$/.test(address)
-    );
-};
-
-
-
-/**
- The Accounts constructor method. This method will construct the in browser Ethereum accounts manager.
-
- @class Accounts
- @constructor
- @method (Accounts)
- @param {Object} options       The accounts object options.
- **/
 
 class Accounts {
 
 
     constructor (options) {
         this.unlockedAccounts = {};
-        if (_.isUndefined(options)) options = {};
+        if (_.isUndefined(options)) {
+            options = {};
+        }
 
         // setup default options
         var defaultOptions = {
@@ -396,8 +294,10 @@ class Accounts {
     async select (address) {
     var accounts = await KeyStore.get(this.options.varName);
 
-    if(!this.contains(address))
+    if(!this.contains(address)) {
         return;
+    }
+
 
     accounts['selected'] = address;
     LocalStore.set(this.options.varName, accounts);
@@ -527,11 +427,11 @@ class Accounts {
                     data: ''
                 };
 
-                if (tx_params.gasPrice != null) rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));
-                if (tx_params.gas != null) rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));
-                if (tx_params.to != null) rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));
-                if (tx_params.value != null) rawTx.value = formatHex(ethUtil.stripHexPrefix(tx_params.value));
-                if (tx_params.data != null) rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));
+                if (tx_params.gasPrice != null) {rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));}
+                if (tx_params.gas != null) {rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));}
+                if (tx_params.to != null) {rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));}
+                if (tx_params.value != null) {rawTx.value = formatHex(ethUtil.stripHexPrefix(tx_params.value));}
+                if (tx_params.data != null) {rawTx.data = formatHex(ethUtil.stripHexPrefix(tx_params.data));}
                 // convert string private key to a Buffer Object
                 var privateKey = new Buffer(account['private'], 'hex');
 

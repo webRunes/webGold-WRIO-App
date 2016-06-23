@@ -148,7 +148,7 @@ class WebRunesUsers {
                     if (!data) {
                         return reject("User not found");
                     }
-                    logger.debug('Makeprepayment result',data);
+                  //  logger.debug('Makeprepayment result',data);
                     resolve(data);
             });
         });

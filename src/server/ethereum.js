@@ -25,8 +25,10 @@ import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
 import Const from '../constant.js';
-
+import {txutils} from 'eth-lightwallet';
+import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './ethereum-node/utils.js';
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
+import Tx from 'ethereumjs-tx';
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -337,29 +339,101 @@ class WebGold {
     }
 
 
+    async makeTx(data,from) {
 
+        var currentGasPrice = await this.getGasPrice();
+        console.log("Current gas price",currentGasPrice);
+
+        var gasPrice = formatHex(currentGasPrice.toString(16));
+        var nonce = await this.getTransactionCount(from);
+
+
+        var txObject = {
+            nonce: formatHex(nonce),
+            gasPrice: formatHex(ethUtil.stripHexPrefix(gasPrice)),
+            gasLimit: formatHex(new BigNumber('314159').toString(16)),
+            value: '0x00',
+            from: formatHex(from),
+            to: formatHex(this.contractadress),
+            data: data
+        };
+
+
+        console.log("Resulting transaction",txObject);
+       // console.log("Estimate gas ", await this.estimateGas({to:formatHex(this.contractadress),data:data}));
+
+
+        var tx = new Tx(txObject);
+        var hex = tx.serialize().toString('hex');
+
+
+        return hex;
+    }
+
+
+
+    /* Prepare transaction to be signed by the userspace */
+    async makeDonateTx(from,to,amount) {
+
+        this.token.donate.estimateGas(to, amount, {from: from},async (err, callResult) => {
+            var gasPrice = await this.getGasPrice();
+            console.log('Max transcation', gasPrice.mul(314159 * 14).div(Const.WEI).toString());
+            console.log('Estimated gas',callResult," ",gasPrice.mul(callResult).mul(14).div(Const.WEI).toString()+'$');
+        });
+
+        var data = this.token.donate.getData(to, amount);
+        console.log("Data",data,to,amount);
+        return await this.makeTx(data,from);
+    }
+
+    getTransactionCount(adr) {
+        console.log("Getting trans count for ",adr);
+        return new Promise((resolve,reject) => {
+            web3.eth.getTransactionCount(adr,function(err,res) {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(res);
+            });
+        });
+    }
+
+    /* executeSignedTransaction*/
+
+    executeSignedTransaction(tx) {
+        return new Promise((resolve,reject) => {
+            web3.eth.sendRawTransaction(tx, function(err, hash) {
+                if (!err) {
+                    console.log("Transaction has been executed, HASH:", hash);
+                    resolve();
+                } else {
+                    reject(err);
+                }
+
+            });
+        });
+
+    }
+
+
+    /* check and verify transaction , return RAW transaction to be signed by client */
 
     donate(from,to,amount) {
 
-        var that = this;
+
         return new Promise((resolve,reject)=> {
 
             function actual_donate() {
-                that.widgets.unlockAccount(masterAccount,masterPassword);
-                that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
-                    if (err) {
-                        logger.error("donate failed",err);
-                        reject(err);
-                        return;
-                    }
-                    logger.info("donate succeeded",result);
+                this.makeDonateTx(from,to,amount).then((result)=>{
                     resolve(result);
+                }).catch((err)=>{
+                    logger.error("donate failed",err);
+                    reject(err);
                 });
             }
 
             logger.debug("Starting donate cointransfer");
             //logger.debug(this.token.donate);
-
 
             this.token.donate.call(to, amount, {from: from},(err, callResult) => {
                 logger.debug("Trying donate pre-transcation execution",err,callResult);

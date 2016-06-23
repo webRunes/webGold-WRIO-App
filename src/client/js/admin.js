@@ -520,18 +520,19 @@ class Invoices extends React.Component {
     }
 }
 
-
-
+export function renderAdmin() {
 
 //console.log(Router,Route);
-ReactDOM.render((
-    <Router>
-        <Route path="/" component={EthereumStats} />
-        <Route path="/balances" component={Balances}/>
-        <Route path="/etherfeeds" component={EtherFeeds}/>
-        <Route path="/donations" component={Donations}/>
-        <Route path="/emissions" component={Emissions}/>
-        <Route path="/invoices" component={Invoices}/>
-    </Router>
-), document.getElementById('main'));
+    ReactDOM.render((
+        <Router>
+            <Route path="/" component={EthereumStats} />
+            <Route path="/balances" component={Balances}/>
+            <Route path="/etherfeeds" component={EtherFeeds}/>
+            <Route path="/donations" component={Donations}/>
+            <Route path="/emissions" component={Emissions}/>
+            <Route path="/invoices" component={Invoices}/>
+        </Router>
+    ), document.getElementById('main'));
+
+}
 
