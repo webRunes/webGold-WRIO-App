@@ -341,20 +341,18 @@ class WebGold {
 
     async makeTx(data,from) {
 
-        var currentGasPrice = await this.getGasPrice();
+        var currentGasPrice = 3*(await this.getGasPrice());
         console.log("Current gas price",currentGasPrice);
 
         var gasPrice = formatHex(currentGasPrice.toString(16));
         var nonce = await this.getTransactionCount(from);
 
-
         var txObject = {
             nonce: formatHex(nonce),
             gasPrice: formatHex(ethUtil.stripHexPrefix(gasPrice)),
-            gasLimit: formatHex(new BigNumber('314159').toString(16)),
+            gasLimit: formatHex(new BigNumber('414159').toString(16)),
             value: '0x00',
-            from: formatHex(from),
-            to: formatHex(this.contractadress),
+            to: this.contractadress,
             data: data
         };
 
@@ -405,6 +403,30 @@ class WebGold {
             web3.eth.sendRawTransaction(tx, function(err, hash) {
                 if (!err) {
                     console.log("Transaction has been executed, HASH:", hash);
+
+                    var trans = web3.eth.getTransaction(hash);
+                    console.log(trans);
+
+               /*         var filter = web3.eth.filter('latest');
+                        filter.watch(function(error, result) {
+                        if (error) {
+                            console.log("Watch error",error);
+                            return;
+                        }
+                        // XXX this should be made asynchronous as well.  time
+                        // to get the async library out...
+                        var receipt = web3.eth.getTransactionReceipt(hash);
+                        console.log(result,receipt);
+                        // XXX should probably only wait max 2 events before failing XXX
+                        if (receipt && receipt.transactionHash == hash) {
+                            var res = myContract.getData.call();
+                            console.log('the transactionally incremented data was: ' + res.toString(10));
+                            filter.stopWatching();
+                        }
+                    });*/
+
+
+
                     resolve();
                 } else {
                     reject(err);
@@ -412,7 +434,6 @@ class WebGold {
 
             });
         });
-
     }
 
 

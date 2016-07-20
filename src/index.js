@@ -71,9 +71,9 @@ function setup_server(db) {
 
 }
 function setup_routes(db) {
-    app.get('/', function (request, response) {
+    /*app.get('/', function (request, response) {
         response.sendFile(__dirname + '/hub/index.html');
-    });
+    });*/
     app.get('/coinadmin', function (request, response) {
         response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
     });
@@ -147,6 +147,7 @@ function setup_routes(db) {
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
     app.use('/assets', express.static(path.join(__dirname, '/client')));
+    app.use('/', express.static(path.join(__dirname, '/hub')));
 
     app.use(function (err, req, res, next) {
         utils.dumpError(err);

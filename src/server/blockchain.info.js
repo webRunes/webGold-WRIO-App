@@ -38,7 +38,7 @@ export class BlockChain {
 
 
     getInvoices(userID) {
-        logger.verbose("Getting invoice list for",userID); //   wrioID: userID
+        logger.verbose("Getting invoice list"); //   wrioID: userID
         return new Promise((resolve,reject) => {
             this.payments.find({userID:db.ObjectID(userID)}).toArray((err,res) => {
 

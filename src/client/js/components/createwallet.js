@@ -14,8 +14,6 @@ export default class CreateWallet extends React.Component {
             entropy: "",
             walletCode: ""
         };
-
-
     }
 
     newWallet() {

@@ -1,4 +1,5 @@
-require('babel/register');
+require('babel-core/register');
+require('regenerator-runtime/runtime');
 
 var gulp = require('gulp');
 var browserify = require('browserify');

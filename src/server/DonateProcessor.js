@@ -1,11 +1,13 @@
 import WebGold from './ethereum.js';
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
 import Donation from './dbmodels/donations.js';
 import WrioUser from "./dbmodels/wriouser.js";
 import logger from 'winston';
 import {calc_percent} from './utils.js';
+import Tx from 'ethereumjs-tx';
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
@@ -161,7 +163,18 @@ export class TransactionSigner {
     }
 
     async checkTx() {
-        return true;
+        try {
+            var tx = new Tx(this.tx);
+            var v = tx.validate();
+            var s = tx.verifySignature();
+            console.log(tx.toJSON());
+            console.log("VALID=",v," SIGNED=",s);
+            return  v && s;
+        } catch(e) {
+            console.log("CHECKTX error",e);
+            dumpError(e);
+            return false;
+        }
     }
     async executeTx() {
         console.log("Executing signed transaction", this.tx);
@@ -169,8 +182,13 @@ export class TransactionSigner {
     }
 
     async process() {
-        await this.checkTx();
-        await this.executeTx();
+        if (await this.checkTx()) {
+            console.log("CheckTX succeeded");
+            await this.executeTx();
+        } else {
+            console.log("CheckTX failed",this.tx);
+        }
+
     }
 
 }

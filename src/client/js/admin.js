@@ -150,12 +150,11 @@ class Balances extends React.Component {
                     <tbody>
                     {
                         this.state.data.map(function (item) {
-
-
+                            var explorerLink = "https://testnet.etherscan.io/address/"+item.ethWallet;
                             return  (<tr>
                                 <td>{ item.wrioID }</td>
                                 <td>{ item.name }</td>
-                                <td>{ item.ethWallet}</td>
+                                <td><a href={explorerLink}>{ item.ethWallet}</a></td>
                                 <td>{ item.ethBalance}</td>
                                 <td onClick={this.showModal.bind(this,item.widgets)}>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
@@ -520,7 +519,7 @@ class Invoices extends React.Component {
     }
 }
 
-export function renderAdmin() {
+export function RenderAdmin() {
 
 //console.log(Router,Route);
     ReactDOM.render((

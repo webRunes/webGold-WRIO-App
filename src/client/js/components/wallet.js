@@ -1,6 +1,7 @@
 import React from 'react';
 import KeyStore from '../crypto/keystore.js';
 import request from 'superagent';
+import Tx from 'ethereumjs-tx';
 
 function parse(val) {
     var result = "Not found",
@@ -30,8 +31,7 @@ export default class EthWallet extends React.Component {
             this.ks.deserialize(ksdata);
             this.savedKeystore = true;
         }
-
-
+        window.txA = this.dbgTransaction(this.tx);
     }
 
     sendSignedTransaction (tx) {
@@ -40,6 +40,14 @@ export default class EthWallet extends React.Component {
             withCredentials().end((err,res) => {
                 console.log('transaction sent');
         });
+    }
+
+    dbgTransaction(tx) {
+        var stx = new Tx(tx);
+        console.log("Validating signed   transaction....",stx.validate(),stx.verifySignature());
+        console.log(stx.toJSON());
+        console.log(stx);
+        return stx;
     }
 
 
@@ -51,6 +59,7 @@ export default class EthWallet extends React.Component {
                 var signed = lightwallet.signing.signTx(this.ks.keystore, pwDerivedKey, this.tx, addr);
                 console.log(signed);
                 this.sendSignedTransaction(signed);
+                this.dbgTransaction(signed);
             });
         });
     }
@@ -74,13 +83,12 @@ export default class EthWallet extends React.Component {
             } else {
                 console.log("Keystore init error",err);
             }
-
         });
-
     }
 
     render () {
         return (<div>
+            <h1> Unlock your account </h1>
             <div className="input-group">
                 { this.savedKeystore? "" : <input className="form-control" type="text" ref="seed" placeholder="Enter 12 word seed" size="80"></input> }
                 <input className="form-control" type="text" ref="password" placeholder="Passphrase" size="80"></input>
