@@ -20,7 +20,6 @@ import Const from './constant.js';
 
 import {server,db,login} from 'wriocommon';
 
-require("babel/polyfill");
 
 logger.level = 'debug';
 var app = express();
