@@ -1,15 +1,15 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import nconf from './server/wrio_nconf.js';
+import nconf from './wrio_nconf.js';
 import path from 'path';
 import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
-import BlockChainRoute from './server/blockchain.info';
-import {BlockChain} from './server/blockchain.info';
-import EthereumRoute from './server/ethereum-route';
-import UserStatsRoute from './server/user-stats.js';
+import BlockChainRoute from './blockchain.info';
+import {BlockChain} from './blockchain.info';
+import EthereumRoute from './ethereum-route';
+import UserStatsRoute from './user-stats.js';
 
 import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
-import WebGold from './server/ethereum';
+import WebGold from './ethereum';
 import BigNumber from 'bignumber.js';
 
 import session from 'express-session';
