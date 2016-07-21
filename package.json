@@ -11,25 +11,25 @@
     "node": ">= v0.8.0"
   },
   "devDependencies": {
+    "babel-eslint": "5.0.0",
+    "babel-preset-es2015-node4": "2.1.0",
+    "browserify": "^10.2.4",
     "chai": "^2.1.2",
     "eslint": "2.2.0",
-    "gulp-eslint": "2.0.0",
-    "babel-eslint": "5.0.0",
     "eslint-plugin-ideal": "^0.1.2",
     "eslint-plugin-react": "^3.1.0",
-    "babel-preset-es2015-node4":"2.1.0",
+    "ethereumjs-testrpc": "^2.0.9",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "2.0.0",
     "gulp-mocha": "^2.2.0",
+    "gulp-nodemon": "^2.0.4",
     "jsdom": "^3.0.2",
     "mocha": "^2.2.5",
     "react-addons-test-utils": "^0.14.6",
     "should": "^6.0.3",
     "supertest": "^1.0.1",
-    "winston": "^2.1.1",
-    "gulp": "^3.9.0",
-    "gulp-babel": "^6.1.2",
-    "gulp-nodemon": "^2.0.4",
-    "browserify": "^10.2.4"
-
+    "winston": "^2.1.1"
   },
   "dependencies": {
     "babel-register": "^6.9.0",

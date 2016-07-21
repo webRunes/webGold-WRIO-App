@@ -33,11 +33,13 @@
 
 import logger from 'winston';
 import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './utils.js';
-var _ = require('underscore');
-var Tx = require('ethereumjs-tx');
-var BigNumber = require('bignumber.js');
-var JSZip = require("jszip");
-var crypto = require('crypto');
+import _ from 'underscore';
+import Tx from 'ethereumjs-tx';
+import BigNumber from 'bignumber.js';
+import JSZip from "jszip";
+import crypto from 'crypto';
+import ethUtil from 'ethereumjs-util';
+
 global.CryptoJS = require('browserify-cryptojs');
 require('browserify-cryptojs/components/enc-base64');
 require('browserify-cryptojs/components/md5');

@@ -29,6 +29,7 @@ import {txutils} from 'eth-lightwallet';
 import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './ethereum-node/utils.js';
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 import Tx from 'ethereumjs-tx';
+import ethUtil from 'ethereumjs-util';
 
 //import PrePayment from './dbmodels/prepay.js'
 
@@ -89,10 +90,16 @@ class WebGold {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-        this.provider = new HookedWeb3Provider({
-            host: nconf.get('payment:ethereum:host'),
-            transaction_signer: this.widgets
-        });
+        if (process.env.WRIO_CONFIG) {
+            var TestRPC = require("ethereumjs-testrpc");
+            this.provider = TestRPC.provider();
+            logger.info("Using fake test web3 provider");
+        } else {
+            this.provider = new HookedWeb3Provider({
+                host: nconf.get('payment:ethereum:host'),
+                transaction_signer: this.widgets
+            });
+        }
         logger.debug("Provider.set");
         web3.setProvider(this.provider);
     }
@@ -356,14 +363,11 @@ class WebGold {
             data: data
         };
 
-
         console.log("Resulting transaction",txObject);
        // console.log("Estimate gas ", await this.estimateGas({to:formatHex(this.contractadress),data:data}));
 
-
         var tx = new Tx(txObject);
         var hex = tx.serialize().toString('hex');
-
 
         return hex;
     }

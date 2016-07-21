@@ -8,7 +8,7 @@ before_install:
   - docker run --name mongo -p 27017:27017 -d mongo mongod --smallfiles
   - docker build --tag webgold .
   - docker ps -a
-  - docker run --link mongo:mongo -v `pwd`:/srv/host webgold /bin/sh -c "cp /srv/host/config.json.travis /srv/www/config.json && gulp test"
+  - docker run --link mongo:mongo -v `pwd`:/srv/host webgold /bin/sh -c "export WRIO_CONFIG=config.json.travis && gulp test"
 
 script:
   - docker ps -a
