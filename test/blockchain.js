@@ -1,5 +1,5 @@
 import nconf from '../src/server/wrio_nconf';
-import app from "../src/index.js";
+import app from "../src/server/index.js";
 import request from 'supertest';
 import assert from 'assert';
 import should from 'should';

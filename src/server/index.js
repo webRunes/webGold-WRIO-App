@@ -16,7 +16,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
-import Const from './constant.js';
+import Const from '../constant.js';
 
 import {server,db,login} from 'wriocommon';
 
@@ -49,7 +49,7 @@ async function init() {
 
 init_env();
 
-const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
+const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 function setup_server(db) {
 
@@ -78,19 +78,19 @@ function setup_routes(db) {
     });
 
     app.get('/transactions', function (request, response) {
-        response.sendFile(__dirname + '/client/views/webgold-transactions.html');
+        response.sendFile(path.join(TEMPLATE_PATH,'/webgold-transactions.html'));
     });
 
     app.get('/add_funds', function (request, response) {
-        response.sendFile(__dirname + '/client/views/index.html');
+        response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
     });
 
     app.get('/sign_tx', function (request, response) {
-        response.sendFile(__dirname + '/client/views/txsigner.html');
+        response.sendFile(path.join(TEMPLATE_PATH, '/txsigner.html'));
     });
 
     app.get('/create_wallet', function (request, response) {
-        response.sendFile(__dirname + '/client/views/createwallet.html');
+        response.sendFile(path.join(TEMPLATE_PATH,'/createwallet.html'));
     });
 
 
@@ -145,8 +145,8 @@ function setup_routes(db) {
     app.use('/api/blockchain/',BlockChainRoute);
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
-    app.use('/assets', express.static(path.join(__dirname, '/client')));
-    app.use('/', express.static(path.join(__dirname, '/hub')));
+    app.use('/assets', express.static(path.join(__dirname, '../client')));
+    app.use('/', express.static(path.join(__dirname, '../hub')));
 
     app.use(function (err, req, res, next) {
         utils.dumpError(err);
