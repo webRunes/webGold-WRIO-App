@@ -1,6 +1,6 @@
 import React from 'react';
 import KeyStore from '../crypto/keystore.js';
-
+import request from 'superagent';
 
 
 
@@ -14,6 +14,20 @@ export default class CreateWallet extends React.Component {
             entropy: "",
             walletCode: ""
         };
+    }
+
+    saveEthereumId(id) {
+        return new Promise((resolve,reject) => {
+            request.post(`/api/webgold/save_wallet?wallet=${id}`).
+                set('X-Requested-With',"XMLHttpRequest").
+                withCredentials().end((err,res) => {
+                    if (err) {
+                        return reject(res);
+                    }
+                    resolve(res);
+                });
+        });
+
     }
 
     newWallet() {
@@ -36,6 +50,7 @@ export default class CreateWallet extends React.Component {
                     address: addr
                 });
                 window.localStorage.setItem('key',cs.keystore.serialize());
+                this.saveEthereumId("0x"+addr).then(()=>window.opener.location.reload()).catch(()=>console.warn("error saving"));
             });
         });
 
@@ -59,7 +74,7 @@ export default class CreateWallet extends React.Component {
 
         var result = (
             <div className="well">
-             <span><h2>Remeber theese words, they will be essential to get access for your wallet</h2></span>
+             <span><h2>Write down theese words, they will be essential to get access for your wallet</h2></span>
              <div>
                  <h1>{this.state.walletCode}</h1>
                  </div>

@@ -94,11 +94,39 @@ router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: re
 
  */
 
+router.get('/get_wallet', restOnly, wrioAuth, wrap(async(request,response) => {
+    var user = request.user;
+    if (user.ethereumWallet) {
+        return response.send(user.ethereumWallet);
+    } else {
+        return response.status(403).send("User don't have ethereum wallet yet");
+    }
+
+}));
+
+
+router.post('/save_wallet', restOnly, wrioAuth, wrap(async(request,response) => {
+    let wallet = request.query.wallet;
+
+    if (!wallet) { // TODO: validate vallet there
+        return response.status(403).send("Wrong parameters");
+    }
+    var user = request.user;
+
+    if (user.ethereumWallet) {
+        return response.status(403).send("User already have ethereum wallet, aborting");
+    }
+    var Users = new WrioUser();
+    await Users.updateByWrioID(user.wrioID,{
+        ethereumWallet: wallet
+    });
+    response.send("Success");
+
+}));
 
 router.get('/signtx', restOnly, wrioAuth, wrap(async (request,response) => {
-    var tx = request.query.tx;
-
-    var signer = new TransactionSigner(tx);
+    const tx = request.query.tx;
+    let signer = new TransactionSigner(tx);
     response.send(await signer.process());
 
 }));

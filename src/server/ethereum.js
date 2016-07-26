@@ -31,8 +31,6 @@ import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
 
-//import PrePayment from './dbmodels/prepay.js'
-
 
 let wei = Const.WEI;
 let SATOSHI = Const.SATOSHI;
@@ -61,7 +59,7 @@ class WebGold {
             throw  new Error("No db specified");
         }
 
-        if(!instance){ // make webgold behave like singlenon
+        if(!instance){ // make webgold singlenon
             instance = this;
             this.initWG(db);
         }
@@ -117,20 +115,26 @@ class WebGold {
             if (error) {
                 logger.error("Cointransfer listener error");
             } else {
-                try {
-                    var sender = result.args.sender;
-                    var receiver = result.args.receiver;
-                    var wrioUsers = new WebRunesUsers();
-                    var user = await wrioUsers.getByEthereumWallet(receiver);
-                    logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user);
-
-                } catch (e) {
-                    logger.error("Processing payment failed",e);
-                    dumpError(e);
-                }
+                this.onTransfer(result);
             }
         });
+    }
+    /*
+       Called when every coin transfer operation
+    */
+    async onTransfer() {
+        try {
+            var sender = result.args.sender;
+            var receiver = result.args.receiver;
+            var wrioUsers = new WebRunesUsers();
+            var user = await wrioUsers.getByEthereumWallet(receiver);
+            logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
+            await this.processPendingPayments(user);
+
+        } catch (e) {
+            logger.error("Processing payment failed",e);
+            dumpError(e);
+        }
     }
 
     async processPendingPayments(user) {
@@ -161,17 +165,16 @@ class WebGold {
             logger.debug("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;
         } else {
-            return await this.createEthereumAccountForWRIOID(wrioID);
+            return null;
         }
     }
 
-    async createEthereumAccountForWRIOID (wrioID) {
+    /*async createEthereumAccountForWRIOID (wrioID) {
         var accountObject = await this.widgets.newAccount(wrioID);
         logger.verbose("Created account for WRIOID: "+wrioID+": ", accountObject);
         await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
         return accountObject.address;
-
-    }
+    }*/
 
 
     getEtherBalance(account) {
@@ -347,12 +350,12 @@ class WebGold {
 
 
     async makeTx(data,from) {
-
         var currentGasPrice = 3*(await this.getGasPrice());
         console.log("Current gas price",currentGasPrice);
 
         var gasPrice = formatHex(currentGasPrice.toString(16));
-        var nonce = await this.getTransactionCount(from);
+        var nonce = (await this.getTransactionCount(from)).toString(16);
+        console.log('Making nonce ',from, nonce);
 
         var txObject = {
             nonce: formatHex(nonce),
@@ -362,7 +365,6 @@ class WebGold {
             to: this.contractadress,
             data: data
         };
-
         console.log("Resulting transaction",txObject);
        // console.log("Estimate gas ", await this.estimateGas({to:formatHex(this.contractadress),data:data}));
 
