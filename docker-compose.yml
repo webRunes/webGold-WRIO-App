@@ -9,7 +9,6 @@ webgold:
    - "5003:5003"
   volumes:
    - .:/srv/www/
-  command:
-  - "/bin/bash"
+  command: bash -c "export WRIO_CONFIG=config.json.travis; gulp test"
   links:
   - mongo

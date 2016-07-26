@@ -25,10 +25,11 @@ import Donation from './dbmodels/donations.js';
 import mongoKeyStore from './payments/MongoKeystore.js';
 import logger from 'winston';
 import Const from '../constant.js';
-
+import {txutils} from 'eth-lightwallet';
+import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './ethereum-node/utils.js';
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
-
-//import PrePayment from './dbmodels/prepay.js'
+import Tx from 'ethereumjs-tx';
+import ethUtil from 'ethereumjs-util';
 
 
 let wei = Const.WEI;
@@ -58,7 +59,7 @@ class WebGold {
             throw  new Error("No db specified");
         }
 
-        if(!instance){ // make webgold behave like singlenon
+        if(!instance){ // make webgold singlenon
             instance = this;
             this.initWG(db);
         }
@@ -87,10 +88,16 @@ class WebGold {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-        this.provider = new HookedWeb3Provider({
-            host: nconf.get('payment:ethereum:host'),
-            transaction_signer: this.widgets
-        });
+        if (process.env.WRIO_CONFIG) {
+            var TestRPC = require("ethereumjs-testrpc");
+            this.provider = TestRPC.provider();
+            logger.info("Using fake test web3 provider");
+        } else {
+            this.provider = new HookedWeb3Provider({
+                host: nconf.get('payment:ethereum:host'),
+                transaction_signer: this.widgets
+            });
+        }
         logger.debug("Provider.set");
         web3.setProvider(this.provider);
     }
@@ -108,20 +115,26 @@ class WebGold {
             if (error) {
                 logger.error("Cointransfer listener error");
             } else {
-                try {
-                    var sender = result.args.sender;
-                    var receiver = result.args.receiver;
-                    var wrioUsers = new WebRunesUsers();
-                    var user = await wrioUsers.getByEthereumWallet(receiver);
-                    logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
-                    await this.processPendingPayments(user);
-
-                } catch (e) {
-                    logger.error("Processing payment failed",e);
-                    dumpError(e);
-                }
+                this.onTransfer(result);
             }
         });
+    }
+    /*
+       Called when every coin transfer operation
+    */
+    async onTransfer() {
+        try {
+            var sender = result.args.sender;
+            var receiver = result.args.receiver;
+            var wrioUsers = new WebRunesUsers();
+            var user = await wrioUsers.getByEthereumWallet(receiver);
+            logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
+            await this.processPendingPayments(user);
+
+        } catch (e) {
+            logger.error("Processing payment failed",e);
+            dumpError(e);
+        }
     }
 
     async processPendingPayments(user) {
@@ -152,17 +165,16 @@ class WebGold {
             logger.debug("Returning existing wallet for "+wrioID);
             return user.ethereumWallet;
         } else {
-            return await this.createEthereumAccountForWRIOID(wrioID);
+            return null;
         }
     }
 
-    async createEthereumAccountForWRIOID (wrioID) {
+    /*async createEthereumAccountForWRIOID (wrioID) {
         var accountObject = await this.widgets.newAccount(wrioID);
         logger.verbose("Created account for WRIOID: "+wrioID+": ", accountObject);
         await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
         return accountObject.address;
-
-    }
+    }*/
 
 
     getEtherBalance(account) {
@@ -337,29 +349,118 @@ class WebGold {
     }
 
 
+    async makeTx(data,from) {
+        var currentGasPrice = 3*(await this.getGasPrice());
+        console.log("Current gas price",currentGasPrice);
 
+        var gasPrice = formatHex(currentGasPrice.toString(16));
+        var nonce = (await this.getTransactionCount(from)).toString(16);
+        console.log('Making nonce ',from, nonce);
+
+        var txObject = {
+            nonce: formatHex(nonce),
+            gasPrice: formatHex(ethUtil.stripHexPrefix(gasPrice)),
+            gasLimit: formatHex(new BigNumber('414159').toString(16)),
+            value: '0x00',
+            to: this.contractadress,
+            data: data
+        };
+        console.log("Resulting transaction",txObject);
+       // console.log("Estimate gas ", await this.estimateGas({to:formatHex(this.contractadress),data:data}));
+
+        var tx = new Tx(txObject);
+        var hex = tx.serialize().toString('hex');
+
+        return hex;
+    }
+
+
+
+    /* Prepare transaction to be signed by the userspace */
+    async makeDonateTx(from,to,amount) {
+
+        this.token.donate.estimateGas(to, amount, {from: from},async (err, callResult) => {
+            var gasPrice = await this.getGasPrice();
+            console.log('Max transcation', gasPrice.mul(314159 * 14).div(Const.WEI).toString());
+            console.log('Estimated gas',callResult," ",gasPrice.mul(callResult).mul(14).div(Const.WEI).toString()+'$');
+        });
+
+        var data = this.token.donate.getData(to, amount);
+        console.log("Data",data,to,amount);
+        return await this.makeTx(data,from);
+    }
+
+    getTransactionCount(adr) {
+        console.log("Getting trans count for ",adr);
+        return new Promise((resolve,reject) => {
+            web3.eth.getTransactionCount(adr,function(err,res) {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(res);
+            });
+        });
+    }
+
+    /* executeSignedTransaction*/
+
+    executeSignedTransaction(tx) {
+        return new Promise((resolve,reject) => {
+            web3.eth.sendRawTransaction(tx, function(err, hash) {
+                if (!err) {
+                    console.log("Transaction has been executed, HASH:", hash);
+
+                    var trans = web3.eth.getTransaction(hash);
+                    console.log(trans);
+
+               /*         var filter = web3.eth.filter('latest');
+                        filter.watch(function(error, result) {
+                        if (error) {
+                            console.log("Watch error",error);
+                            return;
+                        }
+                        // XXX this should be made asynchronous as well.  time
+                        // to get the async library out...
+                        var receipt = web3.eth.getTransactionReceipt(hash);
+                        console.log(result,receipt);
+                        // XXX should probably only wait max 2 events before failing XXX
+                        if (receipt && receipt.transactionHash == hash) {
+                            var res = myContract.getData.call();
+                            console.log('the transactionally incremented data was: ' + res.toString(10));
+                            filter.stopWatching();
+                        }
+                    });*/
+
+
+
+                    resolve();
+                } else {
+                    reject(err);
+                }
+
+            });
+        });
+    }
+
+
+    /* check and verify transaction , return RAW transaction to be signed by client */
 
     donate(from,to,amount) {
 
-        var that = this;
+
         return new Promise((resolve,reject)=> {
 
             function actual_donate() {
-                that.widgets.unlockAccount(masterAccount,masterPassword);
-                that.token.donate.sendTransaction(to, amount, {from: from}, (err,result)=>{
-                    if (err) {
-                        logger.error("donate failed",err);
-                        reject(err);
-                        return;
-                    }
-                    logger.info("donate succeeded",result);
+                this.makeDonateTx(from,to,amount).then((result)=>{
                     resolve(result);
+                }).catch((err)=>{
+                    logger.error("donate failed",err);
+                    reject(err);
                 });
             }
 
             logger.debug("Starting donate cointransfer");
             //logger.debug(this.token.donate);
-
 
             this.token.donate.call(to, amount, {from: from},(err, callResult) => {
                 logger.debug("Trying donate pre-transcation execution",err,callResult);

@@ -1,6 +1,6 @@
 {
  "db": {
-    "host": "localhost",
+    "host": "mongo",
     "dbname": "webrunes_test",
     "user": "",
     "password": "",
@@ -9,7 +9,7 @@
     "mongodbname": "webrunes_test"
   },
   "mongo": {
-    "host": "localhost",
+    "host": "mongo",
     "dbname": "webrunes_test",
     "user": "",
     "password": ""
