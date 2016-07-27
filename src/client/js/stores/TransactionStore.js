@@ -152,7 +152,9 @@ module.exports = Reflux.createStore({
     },
 
     requestPaymentHistory(cb) {
-        request.post('/api/blockchain/payment_history').end((err,users)=> {
+        request.get('/api/blockchain/payment_history').
+            set('X-Requested-With',"XMLHttpRequest").
+            end((err,users)=> {
             if (err) {
                 cb(err);
                 return;
@@ -162,7 +164,9 @@ module.exports = Reflux.createStore({
     },
 
     requestDonations(cb) {
-        request.get('/api/user/donations').end((err,users)=> {
+        request.get('/api/user/donations').
+            set('X-Requested-With',"XMLHttpRequest")
+            .end((err,users)=> {
             if (err) {
                 cb(err);
                 return;
@@ -172,7 +176,9 @@ module.exports = Reflux.createStore({
     },
 
     requestPrepayments(cb) {
-        request.get('/api/user/prepayments').end((err,users)=> {
+        request.get('/api/user/prepayments').
+        set('X-Requested-With',"XMLHttpRequest")
+            .end((err,users)=> {
             if (err) {
                 cb(err);
                 return;

@@ -231,7 +231,10 @@ class Transactions extends React.Component {
     }
 }
 
+export function RenderTransactions() {
 
 //console.log(Router,Route);
-ReactDOM.render((<Transactions />), document.getElementById('transactionsholder'));
+    ReactDOM.render((<Transactions />), document.getElementById('transactionsholder'));
+}
+
 

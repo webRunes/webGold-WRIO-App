@@ -1,4 +1,4 @@
-FROM michbil/wrio:latest
+FROM webrunes/wriobase:latest
 MAINTAINER denso.ffff@gmail.com
 #RUN add-apt-repository -y ppa:ethereum/ethereum
 #RUN add-apt-repository -y ppa:ethereum/ethereum-dev
