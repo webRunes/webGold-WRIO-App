@@ -39,13 +39,8 @@ import BigNumber from 'bignumber.js';
 import JSZip from "jszip";
 import crypto from 'crypto';
 import ethUtil from 'ethereumjs-util';
+import CryptoJS from 'crypto-js';
 
-global.CryptoJS = require('browserify-cryptojs');
-require('browserify-cryptojs/components/enc-base64');
-require('browserify-cryptojs/components/md5');
-require('browserify-cryptojs/components/evpkdf');
-require('browserify-cryptojs/components/cipher-core');
-require('browserify-cryptojs/components/aes');
 
 
 import Web3 from 'web3'; var web3 = new Web3();
