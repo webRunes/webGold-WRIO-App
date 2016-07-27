@@ -424,6 +424,8 @@ class Accounts {
                     data: ''
                 };
 
+                console.log(rawTx);
+
                 if (tx_params.gasPrice != null) {rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));}
                 if (tx_params.gas != null) {rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));}
                 if (tx_params.to != null) {rawTx.to = formatHex(ethUtil.stripHexPrefix(tx_params.to));}
