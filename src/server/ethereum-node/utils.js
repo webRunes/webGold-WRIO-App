@@ -15,12 +15,7 @@ var Tx = require('ethereumjs-tx');
 var BigNumber = require('bignumber.js');
 var JSZip = require("jszip");
 var crypto = require('crypto');
-global.CryptoJS = require('browserify-cryptojs');
-require('browserify-cryptojs/components/enc-base64');
-require('browserify-cryptojs/components/md5');
-require('browserify-cryptojs/components/evpkdf');
-require('browserify-cryptojs/components/cipher-core');
-require('browserify-cryptojs/components/aes');
+import CryptoJS from 'crypto-js';
 
 var window = {};
 
