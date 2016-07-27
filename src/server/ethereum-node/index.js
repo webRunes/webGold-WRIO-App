@@ -39,13 +39,8 @@ import BigNumber from 'bignumber.js';
 import JSZip from "jszip";
 import crypto from 'crypto';
 import ethUtil from 'ethereumjs-util';
+import CryptoJS from 'crypto-js';
 
-global.CryptoJS = require('browserify-cryptojs');
-require('browserify-cryptojs/components/enc-base64');
-require('browserify-cryptojs/components/md5');
-require('browserify-cryptojs/components/evpkdf');
-require('browserify-cryptojs/components/cipher-core');
-require('browserify-cryptojs/components/aes');
 
 
 import Web3 from 'web3'; var web3 = new Web3();
@@ -428,6 +423,8 @@ class Accounts {
                     value: '0x00',
                     data: ''
                 };
+
+                console.log(rawTx);
 
                 if (tx_params.gasPrice != null) {rawTx.gasPrice = formatHex(ethUtil.stripHexPrefix(tx_params.gasPrice));}
                 if (tx_params.gas != null) {rawTx.gasLimit = formatHex(ethUtil.stripHexPrefix(tx_params.gas));}
