@@ -88,7 +88,7 @@ export default class EthWallet extends React.Component {
         console.log("Keystore init ok!");
         this.ks.newAddress(password,(addr) => {
             console.log(addr);
-           // this.tryTransaction(addr);
+           // this.sampleTransaction(addr);
             lightwallet.keystore.deriveKeyFromPassword(password, (err, pwDerivedKey) => {
                 var signed = lightwallet.signing.signTx(this.ks.keystore, pwDerivedKey, this.tx, addr);
                 console.log(signed);
@@ -117,17 +117,7 @@ export default class EthWallet extends React.Component {
         });
     }
 
-    tryTransaction(addr) {
-        const tx = {
-            nonce: '0x100001',
-            gasPrice: '0x0df8475800',
-           gasLimit: '0x0651cf',
-           value: '0x00',
-           to: '0x61bb0b7df66ab82880c032401a5deb218f8faf3a',
-           data: '0xe69d849d000000000000000000000000e8ac9e205afebc8d038116e383a63b60120b8a750000000000000000000000000000000000000000000000000000000000002af8'
-        };
-        this.tx = txutils.createContractTx(addr, tx).tx;
-    }
+
 
     render() {
 
@@ -153,6 +143,24 @@ export default class EthWallet extends React.Component {
                 <button className="btn btn-default" onClick={this.checkCreds.bind(this)}>Load wallet</button>
             </div>
         </div>);
+    }
+
+    /*
+
+    Sample transaction, first nonce should be '0x100000' for the testnet
+
+     */
+
+    sampleTransaction(addr) {
+        const tx = {
+            nonce: '0x100000',
+            gasPrice: '0x0df8475800',
+            gasLimit: '0x0651cf',
+            value: '0x00',
+            to: '0x61bb0b7df66ab82880c032401a5deb218f8faf3a',
+            data: '0xe69d849d000000000000000000000000e8ac9e205afebc8d038116e383a63b60120b8a750000000000000000000000000000000000000000000000000000000000002af8'
+        };
+        this.tx = txutils.createContractTx(addr, tx).tx;
     }
 
 }
