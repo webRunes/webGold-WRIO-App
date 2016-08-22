@@ -35,47 +35,38 @@ export default class Emissions {
                 resolve(invoice_data._id);
             });
         });
+    }
 
+    async haveRecentEmission(hours) {
+        let target = new Date(new Date-hours* 60 * 60 *1000)
+        return await this.get({
+            timestamp: {
+                $gte: target
+            }
+        })
     }
 
     get(mask) {
-        var that=this;
         logger.debug(nonce);
-
         return new Promise((resolve,reject) => {
-
             this.widgets.findOne(mask,function (err,data) {
                 if (err) {
-                    logger.error("Error while searching invoice");
+                    logger.error("Error while searching emission");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    logger.error('No invoice found');
-                    reject('Invoce not found');
+                    logger.error('No emission found');
+                    reject('Emission not found');
                     return;
                 }
-                that.invoice_id = data._id;
+                this.invoice_id = data._id;
                 resolve(data);
             });
         });
     }
-    getAll() {
-        return new Promise((resolve,reject) =>{
-            this.widgets.find({}).sort({'timestamp':-1}).toArray(function (err,data) {
-                if (err) {
-                    logger.error("Db user search error");
-                    reject(err);
-                    return;
-                }
-                if (!data) {
-                    logger.error('Db user not found');
-                    reject('Users not found');
-                    return;
-                }
-                resolve(data);
-            });
-        });
+    async getAll() {
+        return await this.get({});
     }
 
 }

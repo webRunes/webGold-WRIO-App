@@ -36,7 +36,7 @@ export default class CreateWallet extends React.Component {
         var entropy = this.refs.entropy.value;
 
         if (passphrase !== passphrase2) {
-            alert("Passwords shoud match");
+            alert("Passwords should match");
             return;
         }
 
@@ -45,7 +45,11 @@ export default class CreateWallet extends React.Component {
 
         var cs = new KeyStore();
         cs.init_keystore(randomSeed,passphrase,() => {
-            cs.newAddress(passphrase,(addr) => {
+            cs.newAddress(passphrase,(err,addr) => {
+                if (err) {
+                    console.warn("Unable to create new adress!")
+                    return;
+                }
                 this.setState({
                     address: addr
                 });

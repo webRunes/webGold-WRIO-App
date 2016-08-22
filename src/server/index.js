@@ -81,6 +81,10 @@ function setup_routes(db) {
         response.sendFile(path.join(TEMPLATE_PATH,'/webgold-transactions.html'));
     });
 
+    app.get('/wrg_faucet', function (request, response) {
+        response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
+    });
+
     app.get('/add_funds', function (request, response) {
         response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
     });
