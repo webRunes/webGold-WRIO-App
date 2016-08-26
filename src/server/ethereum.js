@@ -111,6 +111,8 @@ class WebGold {
         this.pp = new PendingPaymentProcessor();
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
+        logger.info("Wrg exchange rate is", this.WRGExchangeRate);
+
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
                 logger.error("Cointransfer listener error");
@@ -122,7 +124,7 @@ class WebGold {
     /*
        Called when every coin transfer operation
     */
-    async onTransfer(result) {
+    async onTransfer(re) {
         try {
             var sender = result.args.sender;
             var receiver = result.args.receiver;
@@ -496,7 +498,6 @@ class WebGold {
      */
 
     convertBTCtoWRG(btc,btcrate) {
-        console.log(this.WRGExchangeRate,SATOSHI);
         return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
