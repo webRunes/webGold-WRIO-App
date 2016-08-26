@@ -47,7 +47,7 @@ export default class CreateWallet extends React.Component {
         cs.init_keystore(randomSeed,passphrase,() => {
             cs.newAddress(passphrase,(err,addr) => {
                 if (err) {
-                    console.warn("Unable to create new adress!")
+                    console.warn("Unable to create new adress!");
                     return;
                 }
                 this.setState({

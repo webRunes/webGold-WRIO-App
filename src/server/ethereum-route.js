@@ -63,10 +63,16 @@ router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: re
         response.status(404).send('Not found');
         return;
     }*/
-    var user = request.user;
+    let user = request.user;
     logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
 
-    var amount = parseInt(request.query.amount);
+    let emissions = new Emissions();
+    if (await emissions.haveRecentEmission(user,24)) {
+        return response.status(403).send("Please wait");
+    };
+
+    //let amount = parseInt(request.query.amount);
+    let amount = 100;
     logger.debug(typeof amount);
     if (typeof amount !== "number") {
         throw new Error("Can't parse amount");
@@ -74,8 +80,7 @@ router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: re
 
     amount *= 100;
 
-    var user = request.user;
-    var webGold = new WebGold(db.db);
+    let webGold = new WebGold(db.db);
     await webGold.emit(user.ethereumWallet, amount, user.wrioID);
     response.send("Successfully sent " + amount);
 

@@ -47,7 +47,6 @@ class App extends React.Component {
             <div>
                 <CreateWallet />
             </div>
-
         );
     }
 }
