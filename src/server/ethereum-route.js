@@ -58,31 +58,22 @@ router.get('/giveaway',wrioAuth, wrap(async (request,response) => {  // TODO: re
 
 router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
 
-    /*if (nconf.get('server:workdomain') !== '.wrioos.local') {
-        logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
-        response.status(404).send('Not found');
-        return;
-    }*/
-    let user = request.user;
-    logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
+    setTimeout(async () => { // SAFETY DELAY TO PREVENT MULTIPLE EMISSIONS
+        let user = request.user;
+        logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
 
-    let emissions = new Emissions();
-    if (await emissions.haveRecentEmission(user,24)) {
-        return response.status(403).send("Please wait");
-    };
+        let emissions = new Emissions();
+        if (await emissions.haveRecentEmission(user,1)) { // allom emission every hour
+            return response.status(403).send("Please wait");
+        };
 
-    //let amount = parseInt(request.query.amount);
-    let amount = 100;
-    logger.debug(typeof amount);
-    if (typeof amount !== "number") {
-        throw new Error("Can't parse amount");
-    }
+        let amount = 10 * 100; // We can give 10 WRG every hour
 
-    amount *= 100;
+        let webGold = new WebGold(db.db);
+        await webGold.emit(user.ethereumWallet, amount, user.wrioID);
+        response.send("Successfully sent " + amount);
+    },3000);
 
-    let webGold = new WebGold(db.db);
-    await webGold.emit(user.ethereumWallet, amount, user.wrioID);
-    response.send("Successfully sent " + amount);
 
 }));
 
