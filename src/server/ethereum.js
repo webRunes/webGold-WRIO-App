@@ -506,7 +506,7 @@ class WebGold {
      */
 
     convertBTCtoWRG(btc,btcrate) {
-//
+
         return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
