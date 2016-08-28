@@ -15,9 +15,12 @@ export default class KeyStore {
             password = prompt('Enter password to retrieve addresses', 'Password');
         }
         lightwallet.keystore.deriveKeyFromPassword(password, (err, pwDerivedKey) =>  {
+            if (err) {
+                return cb(err);
+            }
             this.keystore.generateNewAddress(pwDerivedKey, 1);
             var addresses = this.keystore.getAddresses();
-            cb(addresses[0]);
+            cb(null,addresses[0]);
         });
     }
 
