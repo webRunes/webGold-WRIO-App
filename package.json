@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "echo \"Build Completed.\" ",
-    "test": "export NODE_ENV=testing && gulp test"
+    "test": "export NODE_ENV=testing && gulp test",
+    "test_local": "export WRIO_CONFIG=config.json.tests && gulp test"
   },
   "engines": {
     "node": ">= v0.8.0"

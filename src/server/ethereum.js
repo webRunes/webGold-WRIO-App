@@ -104,6 +104,8 @@ class WebGold {
 
     initWG(db) {
 
+        console.log("INIT WG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
         this.contractInit();
         this.keyStoreInit(db);
 
@@ -498,6 +500,7 @@ class WebGold {
      */
 
     convertBTCtoWRG(btc,btcrate) {
+        console.log('GOT EXCHANGE', this);
         return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
