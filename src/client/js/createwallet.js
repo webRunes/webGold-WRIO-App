@@ -35,10 +35,7 @@ class App extends React.Component {
 
         };
     }
-
-
     componentWillMount() {
-
     }
 
     componentDidMount() {
@@ -46,14 +43,10 @@ class App extends React.Component {
     }
 
     render() {
-
-        var that = this;
-
         return (
             <div>
                 <CreateWallet />
             </div>
-
         );
     }
 }

@@ -88,21 +88,26 @@ class WebGold {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-        if (process.env.WRIO_CONFIG) {
+        /*if (process.env.WRIO_CONFIG) {
+            logger.info("Using fake test web3 provider");
             var TestRPC = require("ethereumjs-testrpc");
             this.provider = TestRPC.provider();
-            logger.info("Using fake test web3 provider");
-        } else {
+            console.log("RESULT PROVIDER",this.provider);
+
+        } else {*/
             this.provider = new HookedWeb3Provider({
                 host: nconf.get('payment:ethereum:host'),
                 transaction_signer: this.widgets
             });
-        }
+        //}
         logger.debug("Provider.set");
         web3.setProvider(this.provider);
     }
 
     initWG(db) {
+
+        try {
+
 
         this.contractInit();
         this.keyStoreInit(db);
@@ -111,6 +116,8 @@ class WebGold {
         this.pp = new PendingPaymentProcessor();
         this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
+        logger.info("Wrg exchange rate is", this.WRGExchangeRate);
+
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
                 logger.error("Cointransfer listener error");
@@ -118,11 +125,14 @@ class WebGold {
                 this.onTransfer(result);
             }
         });
+        } catch (e) {
+            dumpError(e);
+        }
     }
     /*
        Called when every coin transfer operation
     */
-    async onTransfer() {
+    async onTransfer(re) {
         try {
             var sender = result.args.sender;
             var receiver = result.args.receiver;
@@ -496,6 +506,7 @@ class WebGold {
      */
 
     convertBTCtoWRG(btc,btcrate) {
+
         return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
