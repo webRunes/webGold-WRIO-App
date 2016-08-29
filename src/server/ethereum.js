@@ -88,21 +88,26 @@ class WebGold {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-        if (process.env.WRIO_CONFIG) {
+        /*if (process.env.WRIO_CONFIG) {
+            logger.info("Using fake test web3 provider");
             var TestRPC = require("ethereumjs-testrpc");
             this.provider = TestRPC.provider();
-            logger.info("Using fake test web3 provider");
-        } else {
+            console.log("RESULT PROVIDER",this.provider);
+
+        } else {*/
             this.provider = new HookedWeb3Provider({
                 host: nconf.get('payment:ethereum:host'),
                 transaction_signer: this.widgets
             });
-        }
+        //}
         logger.debug("Provider.set");
         web3.setProvider(this.provider);
     }
 
     initWG(db) {
+
+        try {
+
 
         this.contractInit();
         this.keyStoreInit(db);
@@ -120,6 +125,9 @@ class WebGold {
                 this.onTransfer(result);
             }
         });
+        } catch (e) {
+            dumpError(e);
+        }
     }
     /*
        Called when every coin transfer operation
@@ -498,6 +506,7 @@ class WebGold {
      */
 
     convertBTCtoWRG(btc,btcrate) {
+
         return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
     }
 
