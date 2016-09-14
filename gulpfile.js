@@ -85,7 +85,7 @@ gulp.task('babel-client',function() {
         })
         .pipe(gulp.dest('app/client/3rdparty'));
 
-    gulp.src('hub/*.*')
+    gulp.src('hub/**/*.*')
         .on('error',function (err) {
 
         })
