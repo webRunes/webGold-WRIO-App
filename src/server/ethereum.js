@@ -311,9 +311,7 @@ class WebGold {
                 return true;
             }
         }
-
         return false;
-
     }
 
     /*
