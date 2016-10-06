@@ -27,8 +27,6 @@ module.exports = Reflux.createStore({
     transactions: [],
 
     // donation sorter
-
-
     adjustUnits() {
         this.transactions = this.transactions.map((transaction) => {
             if (transaction.amountBTC) {

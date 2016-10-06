@@ -40,7 +40,7 @@ class EthereumStats extends React.Component {
     componentWillMount() {
        this.requestStats((err,state) => {
            if (err) {
-               alert('Cant get stats');
+               alert('Cant get stats. \n'+err);
                return;
            }
            console.log(state);
@@ -51,12 +51,13 @@ class EthereumStats extends React.Component {
 
 
     render() {
-        var sync = this.getSyncBlock();
+        let sync = this.getSyncBlock();
+        let master = "https://testnet.etherscan.io/address/" + this.state.masterAddr;
         return (
             <div>
                 <h1>Webgold admin</h1>
                 <h2>Feed account stats</h2>
-                <p> Master account: { this.state.ethBalance } ETH </p>
+                <p> Master account:<a href={master}> { this.state.ethBalance } ETH </a>  </p>
                 <p> Master account: { this.state.wrgBalance } WRG </p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
                 {sync}
@@ -104,7 +105,7 @@ class Balances extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -211,7 +212,7 @@ class Emissions extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -283,7 +284,7 @@ class Donations extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -356,7 +357,7 @@ class EtherFeeds extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({

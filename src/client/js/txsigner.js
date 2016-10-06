@@ -24,36 +24,21 @@ function getLoginUrl() {
 
 class App extends React.Component {
 
-
     constructor(props) {
         super(props);
-
         this.state = {
             username: null,
             exchangeRate: 10,
             showpending: false
-
         };
     }
 
-
-    componentWillMount() {
-
-    }
-
-    componentDidMount() {
-      //  frameReady();
-    }
-
     render() {
-
         var that = this;
-
         return (
             <div>
                 <EthWallet />
             </div>
-
         );
     }
 }

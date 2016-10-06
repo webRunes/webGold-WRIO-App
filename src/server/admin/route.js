@@ -55,6 +55,7 @@ router.get('/master', wrioAdmin, wrap(async (request,response) => {
     }
 
     var resp = {
+        "masterAddr": nconf.get('payment:ethereum:masterAdr'),
         "ethBalance": ethBalance / wei,
         "wrgBalance": wrgBalance / 100,
         "gasPrice": gasprice / wei,

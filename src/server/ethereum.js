@@ -132,7 +132,7 @@ class WebGold {
     /*
        Called when every coin transfer operation
     */
-    async onTransfer(re) {
+    async onTransfer(result) {
         try {
             var sender = result.args.sender;
             var receiver = result.args.receiver;
