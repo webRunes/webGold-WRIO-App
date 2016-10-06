@@ -352,10 +352,11 @@ class WebGold {
 
         logger.info("Emitting new wrg to",dest,"Amount=",amount);
         this.widgets.unlockAccount(masterAccount,masterPassword);
-        await this.coinTransfer(masterAccount,dest,amount);
+        let txId = await this.coinTransfer(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest,toWrio);
         var emission = new Emissions();
         await emission.create(toWrio,amount);
+        return txId;
     }
 
 
@@ -534,6 +535,10 @@ class WebGold {
         //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
         return btc.times(SATOSHI);
 
+    }
+
+    getLatestBlock() {
+        return web3.eth.blockNumber;
     }
 
     getBlockSync() {

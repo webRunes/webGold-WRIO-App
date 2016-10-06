@@ -46,6 +46,19 @@ class EthereumStats extends React.Component {
            console.log(state);
            this.setState(state);
        });
+        this.getLatestBlockEtherscan();
+    }
+
+    getLatestBlockEtherscan() {
+        let url = 'https://testnet.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=3854N5NEEKKCP4E4EB26W5SRG5D8ZSBGSK';
+        request.get(url).end((err,res) => {
+            if (err) {
+                console.log("Can't get stats from Etherscan");
+                return;
+            }
+            let text = JSON.parse(res.text);
+            this.setState({masterLatestBlock:parseInt(text.result,16)})
+        })
     }
 
 
@@ -59,6 +72,8 @@ class EthereumStats extends React.Component {
                 <h2>Feed account stats</h2>
                 <p> Master account:<a href={master}> { this.state.ethBalance } ETH </a>  </p>
                 <p> Master account: { this.state.wrgBalance } WRG </p>
+                <p> Latest block {this.state.latest} (local) / {this.state.masterLatestBlock} (exact). If local block is lower than
+                remote one, then there is some problem with local node, most likely it was stuck at some old block</p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
                 {sync}
             </div>

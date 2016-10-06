@@ -43,11 +43,12 @@ if (!masterPassword) {
 
 router.get('/master', wrioAdmin, wrap(async (request,response) => {
     logger.debug("Coinadmin admin detected");
-    var webGold = new WebGold(db.db);
-    var wrgBalance = await webGold.getBalance(masterAccount);
-    var ethBalance = await webGold.getEtherBalance(masterAccount);
-    var syncing = await webGold.getBlockSync();
-    var gasprice = await webGold.getGasPrice();
+    let webGold = new WebGold(db.db);
+    let wrgBalance = await webGold.getBalance(masterAccount);
+    let ethBalance = await webGold.getEtherBalance(masterAccount);
+    let syncing = await webGold.getBlockSync();
+    let gasprice = await webGold.getGasPrice();
+    let latest = await webGold.getLatestBlock();
 
     var syncingFlag = true;
     if (syncing === false) {
@@ -60,6 +61,7 @@ router.get('/master', wrioAdmin, wrap(async (request,response) => {
         "wrgBalance": wrgBalance / 100,
         "gasPrice": gasprice / wei,
         "syncing": syncingFlag,
+        "latest": latest,
         "currentBlock": syncing.currentBlock,
         "highestBlock": syncing.highestBlock
     };
