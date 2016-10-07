@@ -57,8 +57,8 @@ class EthereumStats extends React.Component {
                 return;
             }
             let text = JSON.parse(res.text);
-            this.setState({masterLatestBlock:parseInt(text.result,16)})
-        })
+            this.setState({masterLatestBlock:parseInt(text.result,16)});
+        });
     }
 
 

@@ -442,7 +442,7 @@ class WebGold {
 
 
 
-                    resolve();
+                    resolve(hash);
                 } else {
                     reject(err);
                 }
