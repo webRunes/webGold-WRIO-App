@@ -178,13 +178,13 @@ export class TransactionSigner {
     }
     async executeTx() {
         console.log("Executing signed transaction", this.tx);
-        await this.webGold.executeSignedTransaction(this.tx);
+        return await this.webGold.executeSignedTransaction(this.tx);
     }
 
     async process() {
         if (await this.checkTx()) {
             console.log("CheckTX succeeded");
-            await this.executeTx();
+            return await this.executeTx();
         } else {
             console.log("CheckTX failed",this.tx);
         }

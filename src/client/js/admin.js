@@ -40,24 +40,40 @@ class EthereumStats extends React.Component {
     componentWillMount() {
        this.requestStats((err,state) => {
            if (err) {
-               alert('Cant get stats');
+               alert('Cant get stats. \n'+err);
                return;
            }
            console.log(state);
            this.setState(state);
        });
+        this.getLatestBlockEtherscan();
+    }
+
+    getLatestBlockEtherscan() {
+        let url = 'https://testnet.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=3854N5NEEKKCP4E4EB26W5SRG5D8ZSBGSK';
+        request.get(url).end((err,res) => {
+            if (err) {
+                console.log("Can't get stats from Etherscan");
+                return;
+            }
+            let text = JSON.parse(res.text);
+            this.setState({masterLatestBlock:parseInt(text.result,16)});
+        });
     }
 
 
 
     render() {
-        var sync = this.getSyncBlock();
+        let sync = this.getSyncBlock();
+        let master = "https://testnet.etherscan.io/address/" + this.state.masterAddr;
         return (
             <div>
                 <h1>Webgold admin</h1>
                 <h2>Feed account stats</h2>
-                <p> Master account: { this.state.ethBalance } ETH </p>
+                <p> Master account:<a href={master}> { this.state.ethBalance } ETH </a>  </p>
                 <p> Master account: { this.state.wrgBalance } WRG </p>
+                <p> Latest block {this.state.latest} (local) / {this.state.masterLatestBlock} (exact). If local block is lower than
+                remote one, then there is some problem with local node, most likely it was stuck at some old block</p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
                 {sync}
             </div>
@@ -104,7 +120,7 @@ class Balances extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -211,7 +227,7 @@ class Emissions extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -283,7 +299,7 @@ class Donations extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
@@ -356,7 +372,7 @@ class EtherFeeds extends React.Component {
 
         this.requestUsers((err,state) => {
             if (err) {
-                alert('Cant get users');
+                alert('Cant get users \n'+err);
                 return;
             }
             that.setState({
