@@ -8,7 +8,7 @@ import {BlockChain} from './blockchain.info';
 import EthereumRoute from './ethereum-route';
 import UserStatsRoute from './user-stats.js';
 
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+    import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import WebGold from './ethereum';
 import BigNumber from 'bignumber.js';
 
@@ -17,6 +17,7 @@ import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from '../constant.js';
+import setupIO from './notifications.js';
 
 import {server,db,login} from 'wriocommon';
 
@@ -37,13 +38,14 @@ async function init_env() {
 }
 
 async function init() {
-    var dbInstance =  await db.init();
+    let dbInstance =  await db.init();
     logger.log('info','Successfuly connected to Mongo');
     server.initserv(app,dbInstance);
-    app.listen(nconf.get("server:port"));
+    let httpServ = app.listen(nconf.get("server:port"));
     console.log('app listening on port ' + nconf.get('server:port') + '...');
     setup_server(dbInstance);
     setup_routes(dbInstance);
+    setupIO(httpServ,dbInstance);
     app.ready();
 }
 
@@ -86,7 +88,13 @@ function setup_routes(db) {
     });
 
     app.get('/add_funds', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
+        let testnet = nconf.get('payment:ethereum:testnet');
+        if (testnet) {
+            response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
+        } else {
+            response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
+        }
+
     });
 
     app.get('/sign_tx', function (request, response) {

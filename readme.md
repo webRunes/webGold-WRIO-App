@@ -13,3 +13,10 @@ For docker local development start geth node on local machine with start_eth scr
 
 Powered by [Open Copyright](https://opencopyright.wrioos.com)
 
+## Developer notes
+
+To use server geth node during development, start reverse ssh tunnel
+
+```
+ssh -L 0.0.0.0:8545:localhost:8545 ubuntu@54.235.73.25 -i your_ssh_key.pem
+```

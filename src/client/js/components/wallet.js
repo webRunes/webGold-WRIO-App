@@ -79,7 +79,9 @@ export default class EthWallet extends React.Component {
                 }
                 this.setState({
                     error: "",
-                    finished: true
+                    finished: true,
+                    txId:res.text,
+                    txUrl: 'https://testnet.etherscan.io/tx/'+res.text
                 });
                 console.log('transaction sent');
         });
@@ -151,7 +153,7 @@ export default class EthWallet extends React.Component {
     renderUnlock () {
         if (this.state.finished) {
             return (<div>
-                <h1>Your transaction successfully processed!</h1>
+                <h1>Your transaction successfully processed! Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></h1>
                 <div><a href="javascript:history.back()">Go back</a></div>
             </div>);
         }

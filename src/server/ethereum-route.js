@@ -6,7 +6,7 @@
  */
 
 import WebGold from './ethereum.js';
-import {calc_percent,dumpError} from './utils';
+import {calc_percent,dumpError,formatBlockUrl} from './utils';
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
 import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;
@@ -70,8 +70,9 @@ router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: re
         let amount = 10 * 100; // We can give 10 WRG every hour
 
         let webGold = new WebGold(db.db);
-        await webGold.emit(user.ethereumWallet, amount, user.wrioID);
-        response.send("Successfully sent " + amount);
+        const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
+        const txUrl = formatBlockUrl(txId);
+        response.send(`<html><body>Successfully sent ${amount}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
     },3000);
 
 

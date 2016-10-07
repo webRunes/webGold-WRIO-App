@@ -76,8 +76,6 @@ gulp.task('babel-server-transpile', function() {
 
 
 gulp.task('babel-server', ['babel-server-transpile']);
-
-
 gulp.task('babel-client',function() {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
@@ -95,15 +93,13 @@ gulp.task('babel-client',function() {
         entries: './src/client/js/client.js',
         debug: true
     })
-        .transform(babelify)
-        .bundle()
-        .on('error', function(err) {
-            console.log('Babel client:', err.toString());
-        })
-        .pipe(source('client.js'))
-        .pipe(gulp.dest('app/client'));
-
-
+    .transform(babelify)
+    .bundle()
+    .on('error', function(err) {
+        console.log('Babel client:', err.toString());
+    })
+    .pipe(source('client.js'))
+    .pipe(gulp.dest('app/client'));
 
 });
 

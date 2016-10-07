@@ -62,17 +62,19 @@ export default class CreateWallet extends React.Component {
             this.setState({
                 walletCode: seed
             });
+            parent.postMessage(JSON.stringify({
+                "reload": true
+            }), "*");
         });
 
     }
 
     render () {
-
+        // <input className="form-control" type="text" ref="entropy" placeholder="Type random text to generate entropy" size="80"></input>
         var walletGenerated = this.state.walletCode==="";
         var form = ( <div className="input-group">
-            <input className="form-control" type="text" ref="entropy" placeholder="Type random text to generate entropy" size="80"></input>
-            <input className="form-control" type="text" ref="passphrase" placeholder="Type password to protect your wallet" size="80"></input>
-            <input className="form-control" type="text" ref="passphrase2"  placeholder="Type again password to protect your wallet" size="80"></input>
+            <input className="form-control" type="password" ref="passphrase" placeholder="Type password to protect your wallet" size="80"></input>
+            <input className="form-control" type="password" ref="passphrase2"  placeholder="Type again password to protect your wallet" size="80"></input>
             <button className="btn btn-default" onClick={this.newWallet.bind(this)}>Create New Wallet</button>
         </div>);
 
