@@ -93,7 +93,7 @@ gulp.task('babel-client',function() {
         entries: './src/client/js/client.js',
         debug: true
     })
-    .transform(babelify)
+    .transform("babelify",{"presets": ["react","es2015","stage-0"]})
     .bundle()
     .on('error', function(err) {
         console.log('Babel client:', err.toString());
