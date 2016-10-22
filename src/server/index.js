@@ -87,6 +87,8 @@ function setup_routes(db) {
         response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
     });
 
+    app.get('/presale', (request, response) => response.sendFile(path.join(TEMPLATE_PATH, '/presale.html')));
+
     app.get('/add_funds', function (request, response) {
         let testnet = nconf.get('payment:ethereum:testnet');
         if (testnet) {
