@@ -1,12 +1,3 @@
-/**
- * Created by michbil on 15.09.15.
- */
-// to run geth with json RPC use
-// geth --rpc // command
-
-// ln -s /srv/www/ethereumjs-accounts/ /srv/node_modules/ethereumjs-accounts-node
-// geth --rpc --rpcaddr "192.168.1.4" --unlock 0
-
 import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {calc_percent} from './utils';
@@ -32,15 +23,15 @@ import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
 
 
-let wei = Const.WEI;
-let SATOSHI = Const.SATOSHI;
-let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+const wei = Const.WEI;
+const SATOSHI = Const.SATOSHI;
+const min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
-let DAY_IN_MS = 24 * 60 * 60 * 1000;
-let prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
 
-let masterAccount = nconf.get("payment:ethereum:masterAdr");
-let masterPassword = nconf.get("payment:ethereum:masterPass");
+const masterAccount = nconf.get("payment:ethereum:masterAdr");
+const masterPassword = nconf.get("payment:ethereum:masterPass");
 if (!masterAccount) {
     throw new Error("Can't get master account address from config.json");
 }
@@ -51,6 +42,16 @@ if (!masterPassword) {
 
 let instance = null;
 
+class Contract {
+    Contract(wg) {
+        this.wg = wg;
+    }
+}
+
+class WRG extends Contract{
+
+}
+
 
 class WebGold {
     constructor(db) {
@@ -58,7 +59,6 @@ class WebGold {
         if (!db) {
             throw  new Error("No db specified");
         }
-
         if(!instance){ // make webgold singlenon
             instance = this;
             this.initWG(db);
@@ -106,9 +106,6 @@ class WebGold {
 
     initWG(db) {
 
-        try {
-
-
         this.contractInit();
         this.keyStoreInit(db);
 
@@ -125,9 +122,6 @@ class WebGold {
                 this.onTransfer(result);
             }
         });
-        } catch (e) {
-            dumpError(e);
-        }
     }
     /*
        Called when every coin transfer operation
@@ -166,7 +160,6 @@ class WebGold {
         logger.debug(result); //
     }
 
-
     async getEthereumAccountForWrioID (wrioID) {
 
         var user = await this.users.getByWrioID(wrioID);
@@ -178,14 +171,6 @@ class WebGold {
             return null;
         }
     }
-
-    /*async createEthereumAccountForWRIOID (wrioID) {
-        var accountObject = await this.widgets.newAccount(wrioID);
-        logger.verbose("Created account for WRIOID: "+wrioID+": ", accountObject);
-        await this.users.updateByWrioID(wrioID,{"ethereumWallet":accountObject.address});
-        return accountObject.address;
-    }*/
-
 
     getEtherBalance(account) {
         return new Promise((resolve,reject) =>{

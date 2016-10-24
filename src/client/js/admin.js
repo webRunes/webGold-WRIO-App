@@ -46,6 +46,17 @@ class EthereumStats extends React.Component {
            console.log(state);
            this.setState(state);
        });
+
+        request.get('/api/blockchain/get_gap').
+            set('X-Requested-With',"XMLHttpRequest").
+            end((err,res) => {
+            if (err) {
+                console.log("Can't get blockchain address gap");
+                return;
+            }
+            console.log(res.text);
+            this.setState(JSON.parse(res.text));
+        });
         this.getLatestBlockEtherscan();
     }
 
@@ -76,6 +87,7 @@ class EthereumStats extends React.Component {
                 remote one, then there is some problem with local node, most likely it was stuck at some old block</p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
                 {sync}
+                <p> Blockchain.info address gap: {this.state.gap} . <b> Warning! If gap > 20 we will be unable to generate new bitcoin incoming adresses!</b></p>
             </div>
 
         );

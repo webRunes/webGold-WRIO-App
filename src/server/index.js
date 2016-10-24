@@ -56,7 +56,7 @@ const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 function setup_server(db) {
 
     //For app pages
-    app.set('view engine', 'ejs');
+  //  app.set('view engine', 'ejs');
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
     const DOMAIN = nconf.get("db:workdomain");
 

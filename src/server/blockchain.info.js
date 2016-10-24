@@ -66,6 +66,17 @@ export class BlockChain {
 
         }
 
+    // get currect address gap
+    async get_gap() {
+        let api_request = `https://api.blockchain.info/v2/receive/checkgap?xpub=${this.xpub}&key=${this.key}`;
+        var result = await request.get(api_request);
+        if (result.error) {
+            logger.debug("Error during checkgap",result.error);
+            return;
+        }
+        return result.body;
+    }
+
     request_payment(userID,wrioID,amount)  {
         return new Promise(async (resolve,reject) => {
 
@@ -209,6 +220,7 @@ export class BlockChain {
     }
 }
 
+
 router.get('/callback',async (request,response) => {
     try {
         var blockchain = new BlockChain();
@@ -219,6 +231,8 @@ router.get('/callback',async (request,response) => {
         response.status(400).send({"error":"API operation failed"});
     }
 });
+
+
 
 router.get('/payment_history', restOnly, wrioAuth, wrap(async (request,response) => {
 
@@ -259,5 +273,20 @@ router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
 
 
 });
+
+router.get('/get_gap', restOnly, wrioAdmin, function(req,response) {
+    logger.debug("Request payment is called");
+    var blockchain = new BlockChain();
+
+    blockchain.get_gap().then(function (resp) {
+        logger.debug("Resp",resp);
+        response.send(resp);
+    },function (err) {
+        response.status(400).send({"error": "error processing your request "+err});
+    });
+
+
+});
+
 
 export default router;

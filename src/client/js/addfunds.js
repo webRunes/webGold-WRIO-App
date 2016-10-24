@@ -12,28 +12,6 @@ import EthWallet from './components/wallet.js';
 import CreateWallet from './components/createwallet.js';
 
 let SATOSHI = Const.SATOSHI;
-
-/*
-
- *** braintree code commented
-
- var clientToken;
-
- request.
- get('/api/braintree/client_token').
- end(function (err,res) {
- if (err) {
- console.log("Can't get braintree client token, aborting");
- return;
- }
- console.log("Got braintree client token");
- clientToken = res.text;
- braintree.setup(clientToken, "dropin", {
- container: "payment-form"
- });
- });
- */
-
 function getLoginUrl() {
 
     var host = window.location.host;
@@ -42,9 +20,7 @@ function getLoginUrl() {
 
 }
 
-
-class App extends React.Component {
-
+class AddFunds extends React.Component {
 
     constructor(props) {
         super(props);
@@ -101,7 +77,6 @@ class App extends React.Component {
                         exchangeRate={ this.state.exchangeRate  }/> : '' }
                 <Info />
 
-
                 <PaymentForm
                     exchangeRate={ this.state.btcExchangeRate }
                     loginUrl={ this.state.loginUrl } />
@@ -110,51 +85,12 @@ class App extends React.Component {
                 { this.state.showpending ? <PaymentHistory /> : "" }
 
             </div>
-
         );
     }
 }
 
-(function() {
-    var throttle = function(type, name, obj) {
-        obj = obj || window;
-        var running = false;
-        var func = function() {
-            if (running) { return; }
-            running = true;
-            requestAnimationFrame(function() {
-                // For IE compatibility
-                var evt = document.createEvent("CustomEvent");
-                evt.initCustomEvent(name, false, false, {
-                    'cmd': "resize"
-                });
-                obj.dispatchEvent(evt);
-                // obj.dispatchEvent(new CustomEvent(name));
-                running = false;
-            });
-        };
-        obj.addEventListener(type, func);
-    };
-
-    /* init - you can init any event */
-    throttle("resize", "optimizedResize");
-})();
 
 export function RenderAddFunds() {
-
-// handle event
-    window.addEventListener("optimizedResize", function() {
-        frameReady();
-    });
-
-    window.frameReady = function() {
-        var ht = $("#main").height();
-        console.log("Webgold height",ht);
-        parent.postMessage(JSON.stringify({"webgoldHeight":ht}), "*"); // signal that iframe is renered and ready to go, so we can calculate it's actual height now
-        return true;
-    };
-
-
-
-    ReactDOM.render(<App />, document.getElementById('main'));
+    require('./resizeSender.js');
+    ReactDOM.render(<AddFunds />, document.getElementById('main'));
 }

@@ -12,4 +12,4 @@ const sendRawTX = async (rawTx) => {
     const result = await request.get(api_request);
     console.log("Result");
     return result;
-}
+};
