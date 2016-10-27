@@ -8,6 +8,7 @@ var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
+var util = require('gulp-util');
 
 function restart_nodemon () {
     if (nodemon_instance) {
@@ -20,12 +21,13 @@ function restart_nodemon () {
 }
 
 gulp.task('test', function() {
+    var grepStatement = util.env.grep ? {grep:util.env.grep} : {};
     return gulp.src('test/**/*.js', {read: false})
         // gulp-mocha needs filepaths so you can't have any plugins before it
-        .pipe(mocha({
+        .pipe(mocha(Object.assign({
             reporter: 'dot',
-            timeout: 60000
-        }))
+            timeout: 60000,
+        },grepStatement)))
         .once('error', function (err) {
             console.log(err);
             process.exit(1);
@@ -55,7 +57,7 @@ gulp.task('lint', function () {
 
 
 gulp.task('babel-server-transpile', function() {
-    return gulp.src(['src/index.js','src/constant.js'])
+    return gulp.src(['src/index.js','src/constant.js','src/currency.js'])
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
@@ -128,7 +130,7 @@ gulp.task('nodemon', function() {
 
 });
 
-gulp.task('default', ['lint','babel-server-transpile', 'babel-client', 'views']);
+gulp.task('default', ['babel-server-transpile', 'babel-client', 'views']);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
     gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);

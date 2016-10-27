@@ -21,8 +21,9 @@ import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} 
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
+import CurrencyConverter from '../currency.js';
 
-
+const converter = new CurrencyConverter();
 const wei = Const.WEI;
 const SATOSHI = Const.SATOSHI;
 const min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
@@ -43,15 +44,39 @@ if (!masterPassword) {
 let instance = null;
 
 class Contract {
-    Contract(wg) {
+    constructor(wg) {
         this.wg = wg;
+
+    }
+    contractInit(name) {
+        const abi_file = path.resolve(__dirname, `../../contract/bin/${name}.abi`);
+        const addr_file = path.resolve(__dirname, `../../contract/bin/${name}.addr`);
+        this.contractadress = fs.readFileSync(addr_file).toString();
+        this.abi = eval(fs.readFileSync(abi_file).toString());
+        this.token = web3.eth.contract(this.abi)
+            .at(this.contractadress,(err,res) => {
+                if (err) {
+                    throw `Contract ${name} init failed`;
+                    return;
+                }
+                logger.info(`Contract ${name} init finished`);
+            }); // change to contract address
     }
 }
 
-class WRG extends Contract{
-
+class WRGContract extends Contract {
+    constructor(wg) {
+        super(wg);
+        contractInit('token');
+    }
 }
 
+class PresaleContract extends Contract {
+    constructor(wg) {
+        super(wg);
+        contractInit('presale');
+    }
+}
 
 class WebGold {
     constructor(db) {
@@ -111,9 +136,7 @@ class WebGold {
 
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
-        this.WRGExchangeRate = new BigNumber(nconf.get('payment:WRGExchangeRate'));
 
-        logger.info("Wrg exchange rate is", this.WRGExchangeRate);
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
@@ -172,6 +195,12 @@ class WebGold {
         }
     }
 
+    /**
+     * gets ethereum balance of account
+     * @param account - ethereum id of account
+     * @returns {Promise, string}
+     */
+
     getEtherBalance(account) {
         return new Promise((resolve,reject) =>{
             web3.eth.getBalance(account, (err,res) => {
@@ -184,6 +213,12 @@ class WebGold {
         });
     }
 
+    /**
+     * gets WRG balance of account
+     * @param account - ethereum id of account
+     * @returns {Promise, string}
+     */
+
     getBalance(account) {
         return new Promise((resolve, reject) => {
             this.token.coinBalanceOf(account, (err, balance)=> {
@@ -194,6 +229,14 @@ class WebGold {
             });
         });
     }
+
+    /**
+     * sends ether to from sender to recepient
+     * @param sender - ethereum id
+     * @param recipient -  ethereum id
+     * @param amount - integer in wei
+     * @returns {Promise}
+     */
 
     etherSend(sender,recipient,amount) {
         return new Promise((resolve,reject)=> {
@@ -214,6 +257,13 @@ class WebGold {
         });
     }
 
+    /**
+     * transfers ether from master account
+     * @param to - ethereum id of recepient
+     * @param amount - ether amouint in WEI
+     * @returns {Promise}
+     */
+
     async etherTransfer(to,amount) {
         var sender = masterAccount;
         var recipient = to;
@@ -221,8 +271,16 @@ class WebGold {
     }
 
     /*
-     DEBUG function!!!
-     give away all ether to master account, for debugging purposes
+
+
+     */
+
+    /**
+     *  DEBUG function!!!
+     *  give away all ether to master account, for debugging purposes
+     *
+     * @param from
+     * @returns {*}
      */
 
     async giveAwayEther(from) {
@@ -282,7 +340,13 @@ class WebGold {
     }
 
     /*
-      This functions waits for one minute for ether to be received by account
+
+     */
+
+    /**
+     * waits for one minute for ether to be received by account
+     * @param acc - account WRIO id
+     * @returns {boolean} - has ether arrived in time
      */
 
     async waitForEther (acc) {
@@ -299,8 +363,11 @@ class WebGold {
         return false;
     }
 
-    /*
-    This function checks if minimum required amount of ether is available for specified account
+
+    /**
+     * checks if minimum required amount of ether is available for specified account
+     * @param dest - destination wrio id
+     * @param toWrio
      */
 
     async ensureMinimumEther(dest,toWrio) { //TODO: add ethereum queue for adding funds, to prevent multiple funds transfer
@@ -325,7 +392,15 @@ class WebGold {
 
 
     /*
-     This function emits new WRG for specified WRIOid
+
+     */
+
+    /**
+     *  This function emits new WRG for specified WRIOid
+     * @param dest
+     * @param amount
+     * @param toWrio
+     * @returns {*}
      */
 
     async emit (dest,amount,toWrio) {
@@ -476,49 +551,6 @@ class WebGold {
     }
 
 
-    /*
-
-    Converts bitcoin sum to WRG
-
-    paramenters:
-
-    btc - bitcoin sum, in satoshi, bignumber
-    btcrate - bitcoin to usd rate, as bignumber
-    formulae - WRG = (btc * btcrate * WRG_UNIT) / WRGExchangeRate
-    WRGExchangeRate is taken from config
-    return value = WRG
-     */
-
-    convertBTCtoWRG(btc,btcrate) {
-
-        return btc.times(btcrate).times(Const.WRG_UNIT).div(this.WRGExchangeRate).div(SATOSHI);
-    }
-
-    /*
-
-     Converts bitcoin sum to WRG
-
-     paramenters:
-
-     btc - bitcoin sum, in satoshi, bignumber
-     btcrate - bitcoin to usd rate, as bignumber
-
-     formulae - BTC = (wrg * WRGExchangeRate) / (btcrate * WRG_UNIT)
-
-     WRGExchangeRate is taken from config
-
-     return value = satoshis
-
-     */
-
-    convertWRGtoBTC(wrg,btcrate) {
-
-        var btc = wrg.times(this.WRGExchangeRate).div(btcrate*Const.WRG_UNIT);
-        console.log(btc.toString());
-        //logger.debug("Converting ",wrg.toString(),"to BTC",btc.div(SATOSHI).toString(),"with rate",btcrate.toString());
-        return btc.times(SATOSHI);
-
-    }
 
     getLatestBlock() {
         return web3.eth.blockNumber;
@@ -543,7 +575,6 @@ class WebGold {
                     return reject(error);
                 }
                 resolve(result);
-
             });
         });
     }

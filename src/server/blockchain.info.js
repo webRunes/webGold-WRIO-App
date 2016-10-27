@@ -10,15 +10,17 @@ import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoice from './dbmodels/invoice.js';
 import User from './dbmodels/wriouser.js';
 import RateGetter from './payments/RateGetter.js';
+import CurrencyConverter from '../currency.js';
 import logger from 'winston';
 
 const router = Router();
+const converter = new CurrencyConverter();
 
 /* Blockchain.info client for bitcoin payments */
 
 export class BlockChain {
     constructor(options) {
-        logger.info("Creating blockchain object");
+        logger.silly("Creating blockchain object");
         this.key = nconf.get("payment:blockchain_v2:key");
         this.xpub = nconf.get("payment:blockchain_v2:xpub");
         this.payments = db.db.collection('webGold_invoices');
@@ -129,7 +131,7 @@ export class BlockChain {
 
                 let transaction_hash = req.query.transaction_hash;
                 let address = req.query.address;
-                let value = req.query.value; // value in satoshi
+                let valueSatoshis = req.query.value; // value in satoshi
                 let confirmations = req.query.confirmations;
                 let test = req.query.test;
                 logger.debug("GOT CALLBACK FROM BLOCKCHAIN API: ",req.query);
@@ -156,9 +158,7 @@ export class BlockChain {
 
                 var user = new User();
                 user = await user.getByWrioID(invoice_data.wrioID);
-
-
-                if ( !transaction_hash  || !address || !value || !confirmations) {
+                if ( !transaction_hash  || !address || !valueSatoshis || !confirmations) {
                     resp.status(400).send("");
                     logger.error("ERROR: missing required parameters");
                     return;
@@ -173,7 +173,7 @@ export class BlockChain {
                 }
 
                 await invoice.updateInvoiceData({
-                    amount: value,
+                    amount: valueSatoshis,
                     transaction_hash: transaction_hash,
                     state: `payment_checking`
 
@@ -189,17 +189,12 @@ export class BlockChain {
                     await invoice.updateInvoiceData({
                        state: "payment_confirmed"
                     });
-                    var wrg = this.webgold.convertBTCtoWRG(new BigNumber(value),await this.get_rates());
-                    wrg = wrg.times(100).toFixed(0); // multipy 100 and round to make value in centiWRG
-                    await this.generateWrg(user.ethereumWallet, parseInt(wrg), user.wrioID); // send ether to user
+                    await this.generateWrg(user.ethereumWallet, valueSatoshis, user.wrioID); // send ether to user
                     logger.info("WRG was emitted");
-                    resp.status(200).send("*ok*"); // send success to blockchain.info server
-                    return;
+                    return resp.status(200).send("*ok*"); // send success to blockchain.info server
                 }
                 logger.verbose("**Confirmation recieved",confirmations);
                 resp.status(200).send("confirmation_received");
-
-
 
             } catch (e) {
                 reject(e);
@@ -208,13 +203,19 @@ export class BlockChain {
         });
     }
 
-    async generateWrg(who,amount,id) {
+    btcToMilliWRG(btc,rate) {
+        const wrg = converter.convertBTCtoWRG(new BigNumber(btc),rate).times(100).toFixed(0);
+        return parseInt(wrg);
+    }
+
+    async generateWrg(who,btcAmount,id) {
+        const wrg = this.btcToMilliWRG(btcAmount, await this.get_rates());
         var isInTest = typeof global.it === 'function';
         if (isInTest) {
-            logger.info(" ====  Mocking emission of WRG ==== ");
+            logger.info(` ====  Mocking emission of WRG ==== ${wrg} milliwrgs`);
             return;
         } else {
-            return await this.webgold.emit(who, amount, id); // send ether to user
+            return await this.webgold.emit(who, wrg, id); // send ether to user
         }
 
     }

@@ -18,9 +18,10 @@ import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from '../constant.js';
 import setupIO from './notifications.js';
-
 import {server,db,login} from 'wriocommon';
 
+import CurrencyConverter from '../currency.js';
+const converter = new CurrencyConverter();
 
 logger.level = 'debug';
 var app = express();
@@ -115,16 +116,19 @@ function setup_routes(db) {
         try {
             var user = request.user;
             if (user) {
-                var bc = new BlockChain();
-                var btc_rate = await bc.get_rates();
-                var wg = new WebGold(db);
-                var bitRate = wg.convertWRGtoBTC(new BigNumber(Const.WRG_UNIT),btc_rate);
+                const bc = new BlockChain();
+                const btc_rate = await bc.get_rates();
+                const grammPrice = converter.grammPriceUSD;
+                const btcToWrgRate = converter.getRate(grammPrice, btc_rate);
+                const bitRate = converter.convertWRGtoBTC(new BigNumber(Const.WRG_UNIT),btcToWrgRate);
                 response.json({
                     username: user.lastName,
                     loginUrl: loginUrl,
                     balance: user.balance,
-                    exchangeRate: nconf.get('payment:WRGExchangeRate'),
-                    btcExchangeRate: bitRate
+                    btcExchangeRate: bitRate, // deprecated
+                    exchangeRate: grammPrice, // deprecated
+                    grammPriceUSD: grammPrice,
+                    btcToWrgRate: btcToWrgRate
                 });
             }
         } catch(e) {
