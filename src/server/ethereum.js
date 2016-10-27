@@ -22,6 +22,7 @@ import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
 import CurrencyConverter from '../currency.js';
+import EthereumContract from './ethereum/EthereumContract.js';
 
 const converter = new CurrencyConverter();
 const wei = Const.WEI;
@@ -40,47 +41,11 @@ if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
 }
 
+var instance;
 
-let instance = null;
-
-class Contract {
-    constructor(wg) {
-        this.wg = wg;
-
-    }
-    contractInit(name) {
-        const abi_file = path.resolve(__dirname, `../../contract/bin/${name}.abi`);
-        const addr_file = path.resolve(__dirname, `../../contract/bin/${name}.addr`);
-        this.contractadress = fs.readFileSync(addr_file).toString();
-        this.abi = eval(fs.readFileSync(abi_file).toString());
-        this.token = web3.eth.contract(this.abi)
-            .at(this.contractadress,(err,res) => {
-                if (err) {
-                    throw `Contract ${name} init failed`;
-                    return;
-                }
-                logger.info(`Contract ${name} init finished`);
-            }); // change to contract address
-    }
-}
-
-class WRGContract extends Contract {
-    constructor(wg) {
-        super(wg);
-        contractInit('token');
-    }
-}
-
-class PresaleContract extends Contract {
-    constructor(wg) {
-        super(wg);
-        contractInit('presale');
-    }
-}
-
-class WebGold {
+class WebGold extends EthereumContract {
     constructor(db) {
-
+        super(db);
         if (!db) {
             throw  new Error("No db specified");
         }
@@ -91,21 +56,6 @@ class WebGold {
         return instance;
     }
 
-    contractInit() {
-        var abi_file = path.resolve(__dirname, '../../contract/bin/token.abi');
-        var addr_file = path.resolve(__dirname, '../../contract/bin/token.addr');
-        this.contractadress = fs.readFileSync(addr_file).toString();
-        this.abi = eval(fs.readFileSync(abi_file).toString());
-        this.token = web3.eth.contract(this.abi)
-            .at(this.contractadress,(err,res) => {
-                if (err) {
-                    throw "Contract init failed";
-                    return;
-                }
-                logger.info("Contract init finished");
-            }); // change to contract address
-    }
-
     keyStoreInit(db) {
         this.KeyStore =  new mongoKeyStore(db);
         this.widgets = new Accounts(
@@ -113,27 +63,17 @@ class WebGold {
                 minPassphraseLength: 6,
                 KeyStore: this.KeyStore
             });
-        /*if (process.env.WRIO_CONFIG) {
-            logger.info("Using fake test web3 provider");
-            var TestRPC = require("ethereumjs-testrpc");
-            this.provider = TestRPC.provider();
-            console.log("RESULT PROVIDER",this.provider);
-
-        } else {*/
-            this.provider = new HookedWeb3Provider({
-                host: nconf.get('payment:ethereum:host'),
-                transaction_signer: this.widgets
-            });
-        //}
-        logger.debug("Provider.set");
+        this.provider = new HookedWeb3Provider({
+            host: nconf.get('payment:ethereum:host'),
+            transaction_signer: this.widgets
+        });
         web3.setProvider(this.provider);
     }
 
     initWG(db) {
-
-        this.contractInit();
         this.keyStoreInit(db);
-
+        this.token = this.contractInit('token');
+        this.presale = this.contractInit('presale');
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
 
@@ -169,49 +109,6 @@ class WebGold {
     }
 
 
-    async unlockByWrioID (wrioID) {
-        var user = await this.users.getByWrioID(wrioID);
-        //logger.debug(user);
-        if (user.ethereumWallet) {
-            logger.debug("Unlocking existing wallet for " + wrioID);
-            this.widgets.unlockAccount(user.ethereumWallet,wrioID);
-        }
-    }
-
-    async estimateGas(trans) {
-        var result = web3.eth.estimateGas(trans);
-        logger.debug(result); //
-    }
-
-    async getEthereumAccountForWrioID (wrioID) {
-
-        var user = await this.users.getByWrioID(wrioID);
-       // logger.debug(user);
-        if (user.ethereumWallet) {
-            logger.debug("Returning existing wallet for "+wrioID);
-            return user.ethereumWallet;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * gets ethereum balance of account
-     * @param account - ethereum id of account
-     * @returns {Promise, string}
-     */
-
-    getEtherBalance(account) {
-        return new Promise((resolve,reject) =>{
-            web3.eth.getBalance(account, (err,res) => {
-                if (err) {
-                    reject("getEtherBalance failed");
-                } else {
-                    resolve(res.toString());
-                }
-            });
-        });
-    }
 
     /**
      * gets WRG balance of account
@@ -231,33 +128,6 @@ class WebGold {
     }
 
     /**
-     * sends ether to from sender to recepient
-     * @param sender - ethereum id
-     * @param recipient -  ethereum id
-     * @param amount - integer in wei
-     * @returns {Promise}
-     */
-
-    etherSend(sender,recipient,amount) {
-        return new Promise((resolve,reject)=> {
-            this.widgets.unlockAccount(masterAccount,masterPassword);
-
-            logger.verbose("Preparing to transfer",amount,"ETH");
-
-            var amountWEI = web3.toWei(amount, "ether");
-            web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
-                if (err) {
-                    logger.error("etherTransfer failed",err);
-                    reject("Ether transfer failed");
-                    return;
-                }
-                logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
-                resolve(result);
-            });
-        });
-    }
-
-    /**
      * transfers ether from master account
      * @param to - ethereum id of recepient
      * @param amount - ether amouint in WEI
@@ -270,10 +140,6 @@ class WebGold {
         return await this.etherSend(sender,recipient,amount);
     }
 
-    /*
-
-
-     */
 
     /**
      *  DEBUG function!!!
@@ -390,11 +256,6 @@ class WebGold {
     }
 
 
-
-    /*
-
-     */
-
     /**
      *  This function emits new WRG for specified WRIOid
      * @param dest
@@ -459,57 +320,8 @@ class WebGold {
         return await this.makeTx(data,from);
     }
 
-    getTransactionCount(adr) {
-        console.log("Getting trans count for ",adr);
-        return new Promise((resolve,reject) => {
-            web3.eth.getTransactionCount(adr,function(err,res) {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(res);
-            });
-        });
-    }
-
-    /* executeSignedTransaction*/
-
-    executeSignedTransaction(tx) {
-        return new Promise((resolve,reject) => {
-            web3.eth.sendRawTransaction(tx, function(err, hash) {
-                if (!err) {
-                    console.log("Transaction has been executed, HASH:", hash);
-
-                    var trans = web3.eth.getTransaction(hash);
-                    console.log(trans);
-
-               /*         var filter = web3.eth.filter('latest');
-                        filter.watch(function(error, result) {
-                        if (error) {
-                            console.log("Watch error",error);
-                            return;
-                        }
-                        // XXX this should be made asynchronous as well.  time
-                        // to get the async library out...
-                        var receipt = web3.eth.getTransactionReceipt(hash);
-                        console.log(result,receipt);
-                        // XXX should probably only wait max 2 events before failing XXX
-                        if (receipt && receipt.transactionHash == hash) {
-                            var res = myContract.getData.call();
-                            console.log('the transactionally incremented data was: ' + res.toString(10));
-                            filter.stopWatching();
-                        }
-                    });*/
 
 
-
-                    resolve(hash);
-                } else {
-                    reject(err);
-                }
-
-            });
-        });
-    }
 
 
     /* check and verify transaction , return RAW transaction to be signed by client */
@@ -519,17 +331,8 @@ class WebGold {
 
         return new Promise((resolve,reject)=> {
 
-            function actual_donate() {
-                this.makeDonateTx(from,to,amount).then((result)=>{
-                    resolve(result);
-                }).catch((err)=>{
-                    logger.error("donate failed",err);
-                    reject(err);
-                });
-            }
-
+            const actual_donate = async () => await this.makeDonateTx(from,to,amount);
             logger.debug("Starting donate cointransfer");
-            //logger.debug(this.token.donate);
 
             this.token.donate.call(to, amount, {from: from},(err, callResult) => {
                 logger.debug("Trying donate pre-transcation execution",err,callResult);
@@ -541,7 +344,7 @@ class WebGold {
 
                 if (callResult) {
                     logger.debug('donate preview succeeds so now sendTx...');
-                    actual_donate();
+                    actual_donate().then(resolve).catch(reject);
                 }
                 else {
                     reject("Transaction pre check failed, check your balances");
@@ -550,41 +353,50 @@ class WebGold {
         });
     }
 
+    /**
+     * Save presale to the blockchain
+     * @param mail - user email
+     * @param adr - payment bitcoin address
+     * @param satoshis
+     * @param milliWRG
+     */
+
+    async logPresale(mail, adr, satoshis, milliWRG) {
+        return new Promise((resolve,reject)=> {
+
+            logger.info("Starting presale record");
+
+            function actual_sendcoin() {
+                that.widgets.unlockAccount(masterAccount,masterPassword);
+                this.presale.markSale(mail, adr, satoshis, milliWRG, {from: masterAccount},(err, result) => {
+                    if (err) {
+                        logger.error("cointransfer failed",err);
+                        reject(err);
+                        return;
+                    }
+                    logger.info("cointransfer succeeded",result);
+                    resolve(result);
+                });
+            }
 
 
-    getLatestBlock() {
-        return web3.eth.blockNumber;
-    }
+            this.presale.markSale.call(mail, adr, satoshis, milliWRG, {from: masterAccount},(err, callResult) => {
+                logger.debug("Trying donate pre-transcation execution",err,callResult);
 
-    getBlockSync() {
-        return new Promise((resolve,reject) => {
-            web3.eth.getSyncing((error, result) => {
-                if (error) {
-                    return reject(error);
+                if (err) {
+                    reject("Failed to perform pre-call");
+                    return;
                 }
-                resolve(result);
 
+                if (callResult) {
+                    logger.debug('donate preview succeeds so now sendTx...');
+                    actual_presale().then(resolve).catch(reject);
+                }
+                else {
+                    reject("Transaction pre check failed, check your balances");
+                }
             });
         });
-    }
-
-    getGasPrice() {
-        return new Promise((resolve,reject) => {
-            web3.eth.getGasPrice((error, result) => {
-                if (error) {
-                    return reject(error);
-                }
-                resolve(result);
-            });
-        });
-    }
-
-    getWeb3() {
-        return web3;
-    }
-
-    unlockMaster() {
-        this.widgets.unlockAccount(masterAccount,masterPassword);
     }
 
 

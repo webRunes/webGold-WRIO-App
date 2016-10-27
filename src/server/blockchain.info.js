@@ -8,6 +8,7 @@ import BigNumber from 'bignumber.js';
 import WebGold from './ethereum';
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoice from './dbmodels/invoice.js';
+import Presale from './dbmodels/invoice.js';
 import User from './dbmodels/wriouser.js';
 import RateGetter from './payments/RateGetter.js';
 import CurrencyConverter from '../currency.js';
@@ -79,128 +80,149 @@ export class BlockChain {
         return result.body;
     }
 
-    request_payment(userID,wrioID,amount)  {
-        return new Promise(async (resolve,reject) => {
+    async request_payment(userID,wrioID,amount)  {
 
-           try {
-               let key = nconf.get("");
-               let invoice = new Invoice();
-               let invoiceID = await invoice.createInvoice(userID,wrioID);
-               let callback = 'https://webgold.wrioos.com/api/blockchain/callback/?nonce='+invoiceID + '&secret='+ this.secret;
-               let api_request = "https://api.blockchain.info/v2/receive?xpub=" + this.xpub + "&callback="+ encodeURIComponent(callback) + "&key=" + this.key ;
+        let invoice = new Invoice();
+        let invoiceID = await invoice.createInvoice(userID,wrioID);
+        const callback = `https://webgold.wrioos.com/api/blockchain/callback/?nonce=${invoiceID}&secret=${this.secret}`;
+        const api_request = `https://api.blockchain.info/v2/receive?xpub=${this.xpub}&callback=${encodeURIComponent(callback)}&key=${this.key}`;
 
-               logger.info("Sending payment request",api_request);
-                var result = await request.get(api_request);
-                if (result.error) {
-                    logger.debug("Error",result.error);
-                    return;
-                }
+        logger.info("Sending payment request",api_request);
+        var result = await request.get(api_request);
+        if (result.error) {
+            logger.debug("Error",result.error);
+            return;
+        }
 
-                if (!result.body) {
-                    logger.error("Wrong response");
-                    return;
-                }
+        if (!result.body) {
+            logger.error("Wrong response");
+            return;
+        }
 
-                logger.verbose("Server response:",result.body);
-                await invoice.updateInvoiceData({
-                    address: result.body.address,
-                    index: result.body.index,
-                    callback: result.body.callback,
-                    'state': 'request_sent',
-                    'requested_amount': amount
-                });
-
-                resolve({
-                    adress: result.body.address,
-                    amount: amount
-                });
-            } catch(e) {
-                logger.error("Blockchain API request failed",e);
-                dumpError(e);
-                reject(e);
-            }
+        logger.verbose("Server response:",result.body);
+        await invoice.updateInvoiceData({
+            address: result.body.address,
+            index: result.body.index,
+            callback: result.body.callback,
+            'state': 'request_sent',
+            'requested_amount': amount
         });
 
+        return {
+            adress: result.body.address,
+            amount: amount
+        };
     }
 
-    handle_callback(req,resp) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let secret = decodeURIComponent(req.query.secret);
-                let nonce = req.query.nonce;
+    async request_presale(userID,wrioID,amount,email,ethAddr)  {
 
-                let transaction_hash = req.query.transaction_hash;
-                let address = req.query.address;
-                let valueSatoshis = req.query.value; // value in satoshi
-                let confirmations = req.query.confirmations;
-                let test = req.query.test;
-                logger.debug("GOT CALLBACK FROM BLOCKCHAIN API: ",req.query);
+        let invoice = new Invoice();
+        let invoiceID = await invoice.createInvoice(userID,wrioID);
+        const callback = `https://webgold.wrioos.com/api/blockchain/callback/?nonce=${invoiceID}&secret=${this.secret}`;
+        const api_request = `https://api.blockchain.info/v2/receive?xpub=${this.xpub}&callback=${encodeURIComponent(callback)}&key=${this.key}`;
 
-                if (secret != this.secret) {
-                    resp.status(403).send("");
-                    logger.error("ERROR: wrong secret");
-                    return;
-                }
-                if (!nonce) {
-                    resp.status(400).send("");
-                    logger.error("ERROR: nonce not provided");
-                    return;
-                }
+        logger.info("Sending payment request",api_request);
+        var result = await request.get(api_request);
+        if (result.error) {
+            logger.debug("Error",result.error);
+            return;
+        }
 
-                let invoice = new Invoice();
-                var invoice_data = await invoice.getInvoice(nonce);
-                logger.debug("Got invoice ID:",invoice_data);
+        if (!result.body) {
+            logger.error("Wrong response");
+            return;
+        }
 
-                await invoice.recordAction({
-                    "request":req.query,
-                    "timestamp": new Date()
-                });
-
-                var user = new User();
-                user = await user.getByWrioID(invoice_data.wrioID);
-                if ( !transaction_hash  || !address || !valueSatoshis || !confirmations) {
-                    resp.status(400).send("");
-                    logger.error("ERROR: missing required parameters");
-                    return;
-
-                }
-
-                logger.debug("Comparing input adress from invoice",invoice_data.address, address);
-                if (invoice_data.address != address) {
-                    logger.error("Wrong input address");
-                    resp.status(403).send("");
-                    return;
-                }
-
-                await invoice.updateInvoiceData({
-                    amount: valueSatoshis,
-                    transaction_hash: transaction_hash,
-                    state: `payment_checking`
-
-                });
-
-                if (test) { // if test request, don't do anything with user account
-                    logger.error("This is only a test, don't making anything furthermore");
-                    resp.status(200).send("test_received");
-                    return;
-                }
-
-                if (confirmations > 5) { // if there's more than 5 confirmations
-                    await invoice.updateInvoiceData({
-                       state: "payment_confirmed"
-                    });
-                    await this.generateWrg(user.ethereumWallet, valueSatoshis, user.wrioID); // send ether to user
-                    logger.info("WRG was emitted");
-                    return resp.status(200).send("*ok*"); // send success to blockchain.info server
-                }
-                logger.verbose("**Confirmation recieved",confirmations);
-                resp.status(200).send("confirmation_received");
-
-            } catch (e) {
-                reject(e);
-                logger.error("Error during blockchain callback: ",e);
-            }
+        logger.verbose("Server response:",result.body);
+        await invoice.updateInvoiceData({
+            'type': 'presale',
+            address: result.body.address,
+            index: result.body.index,
+            callback: result.body.callback,
+            'state': 'request_sent',
+            'requested_amount': amount,
+            'email': email,
+            'ethAddr': ethAddr
         });
+
+        return {
+            adress: result.body.address,
+            amount: amount
+        };
+    }
+
+    async handle_callback(req,resp) {
+        let secret = decodeURIComponent(req.query.secret);
+        let nonce = req.query.nonce;
+
+        let transaction_hash = req.query.transaction_hash;
+        let address = req.query.address;
+        let valueSatoshis = req.query.value; // value in satoshi
+        let confirmations = req.query.confirmations;
+        let test = req.query.test;
+        logger.debug("GOT CALLBACK FROM BLOCKCHAIN API: ",req.query);
+
+        if (secret != this.secret) {
+            resp.status(403).send("");
+            logger.error("ERROR: wrong secret");
+            return;
+        }
+        if (!nonce) {
+            resp.status(400).send("");
+            logger.error("ERROR: nonce not provided");
+            return;
+        }
+
+        //let invoice = new Invoice();
+        let invoice = new Presale();
+        var invoice_data = await invoice.getInvoice(nonce);
+        logger.debug("Got invoice ID:",invoice_data);
+
+        await invoice.recordAction({
+            "request":req.query,
+            "timestamp": new Date()
+        });
+
+        var user = new User();
+        user = await user.getByWrioID(invoice_data.wrioID);
+        if ( !transaction_hash  || !address || !valueSatoshis || !confirmations) {
+            resp.status(400).send("");
+            logger.error("ERROR: missing required parameters");
+            return;
+
+        }
+
+        logger.debug("Comparing input adress from invoice",invoice_data.address, address);
+        if (invoice_data.address != address) {
+            logger.error("Wrong input address");
+            resp.status(403).send("");
+            return;
+        }
+
+        await invoice.updateInvoiceData({
+            amount: valueSatoshis,
+            transaction_hash: transaction_hash,
+            state: `payment_checking`
+
+        });
+
+        if (test) { // if test request, don't do anything with user account
+            logger.error("This is only a test, don't making anything furthermore");
+            resp.status(200).send("test_received");
+            return;
+        }
+
+        if (confirmations > 5) { // if there's more than 5 confirmations
+            await invoice.updateInvoiceData({
+               state: "payment_confirmed"
+            });
+            await this.generateWrg(user.ethereumWallet, valueSatoshis, user.wrioID); // send ether to user
+            logger.info("WRG was emitted");
+            return resp.status(200).send("*ok*"); // send success to blockchain.info server
+        }
+        logger.verbose("**Confirmation recieved",confirmations);
+        resp.status(200).send("confirmation_received");
+
     }
 
     btcToMilliWRG(btc,rate) {
@@ -244,6 +266,8 @@ router.get('/payment_history', restOnly, wrioAuth, wrap(async (request,response)
 
 }));
 
+/*
+// disable request now, just accept prepayments
 router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
     logger.debug("Request payment is called");
     var blockchain = new BlockChain();
@@ -272,6 +296,32 @@ router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
         response.status(400).send({"error": "error processing your request "+err});
     });
 
+}); */
+
+
+router.post('/request_presale', restOnly, wrioAuth,(req,response) =>{
+    logger.debug("Request payment is called");
+    var blockchain = new BlockChain();
+
+    const userId = req.user._id;
+    const wrioId = req.user.wrioID;
+
+    const email = req.body.mail; // TODO: validate it!
+    const ethID = req.body.ethID;
+    const amount = parseFloat(req.body.amount);
+    const amountWRG = parseFloat(req.body.amountWRG); // amountWRG is ignored, we don't trust it
+
+    const checkNumber = (amount) => isNaN(amount) || (amount < 0);
+    if (checkNumber(amount) || checkNumber(amountWRG)) {
+        return response.status(400).send({"error": "bad request"});
+    }
+    blockchain.request_presale(userId, wrioId, amount,email,ethID).then((resp) => {
+        logger.debug("Resp", resp);
+        response.send(resp);
+    }, (err) => {
+        dumpError(err);
+        response.status(400).send({"error": "error processing your request " + err});
+    });
 
 });
 

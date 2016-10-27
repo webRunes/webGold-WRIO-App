@@ -41,7 +41,8 @@ class PaymentForm extends React.Component {
         var form = e.target;
 
         request
-            .post('/api/blockchain/request_payment')
+            //.post('/api/blockchain/request_payment')
+            .post('/api/blockchain/request_presale')
             .set('X-Requested-With',"XMLHttpRequest")
             .send({
                 amount: parseFloat(form.amount.value)*SATOSHI,

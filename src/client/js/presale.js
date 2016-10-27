@@ -62,6 +62,10 @@ class Presale extends React.Component {
                 <PaymentForm
                     exchangeRate={ this.state.btcExchangeRate }
                     loginUrl={ this.state.loginUrl } />
+
+                <div className="well">
+                    <CreateWallet />
+                </div>
             </div>
 
         );

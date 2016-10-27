@@ -19,6 +19,7 @@ import Donations from '../dbmodels/donations.js';
 import Emissions from '../dbmodels/emissions.js';
 import EtherFeeds from '../dbmodels/etherfeed.js';
 import Invoices from "../dbmodels/invoice.js";
+import Presales from "../dbmodels/presale.js";
 import WrioUser from "../dbmodels/wriouser.js";
 import logger from 'winston';
 import Const from '../../constant.js';
@@ -120,6 +121,13 @@ router.get('/emissions', wrioAdmin, wrap(async (request,response) => {
 router.get('/invoices', wrioAdmin, wrap(async (request,response) => {
     logger.debug("Coinadmin admin detected");
     var d = new Invoices();
+    var data = await d.getAll();
+    response.send(data);
+}));
+
+router.get('/presales', wrioAdmin, wrap(async (request,response) => {
+    logger.debug("Coinadmin admin detected");
+    var d = new Presales();
     var data = await d.getAll();
     response.send(data);
 }));
