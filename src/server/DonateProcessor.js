@@ -1,12 +1,28 @@
 import WebGold from './ethereum.js';
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 import nconf from './wrio_nconf';
 import BigNumber from 'bignumber.js';
 import Donation from './dbmodels/donations.js';
 import WrioUser from "./dbmodels/wriouser.js";
 import logger from 'winston';
+import {calc_percent} from './utils.js';
+import Tx from 'ethereumjs-tx';
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
+
+/*
+
+Donate processor can return 3 states
+
+1. Payment rejected
+2. Pre-payment created
+3. Payment accepted, TX to sign generated
+4. Signed TX received, tx-accepted, tx-rejected
+
+
+ */
+
 
 export default class DonateProcessor {
 
@@ -15,6 +31,7 @@ export default class DonateProcessor {
         this.from = from;
         this.amount = parseInt(amount) * 100;
         this.userObj = new WrioUser();
+
         this.webGold = new WebGold(db.db);
     }
 
@@ -57,41 +74,48 @@ export default class DonateProcessor {
 
     formatTranasactionLog() {
         logger.info("About to start donation from ",this.srcUser.lastName,'to',this.destUser.lastName);
+
+    }
+
+    async createPrepayment(f) {
+        // Do virtual payment to the database record because user has insufficient funds
+        // when funds arrive on the account, pending payments will be done
+        var dbBalance = this.srcUser.dbBalance || 0;
+        var debt = dbBalance-this.amount;
+
+        logger.debug("CALCULATED DEBT:",debt,"MAX DEBT",MAX_DEBT);
+
+        if (debt < MAX_DEBT ) { // check if we haven't reached maximum debt limit
+            throw new Error("Insufficient funds");
+        }
+        await this.userObj.createPrepayment(this.srcUser.wrioID,-this.amount,this.to);
+        logger.info("Prepayment made");
+    }
+
+    async extractEthAdresses() {
+        this.destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
+        this.srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
+        logger.info("From ",this.srcEthId," to ", this.destEthId);
     }
 
 
     async process() {
-        this.destEthId = await this.webGold.getEthereumAccountForWrioID(this.to); // ensure that source adress and destination adress have ethereum adress
-        this.srcEthId = await this.webGold.getEthereumAccountForWrioID(this.srcUser.wrioID);
-
-        var dbBalance = this.srcUser.dbBalance || 0;
+        await this.extractEthAdresses();
         var blockchainBalance = await this.webGold.getBalance(this.srcEthId);
         blockchainBalance = blockchainBalance.toString();
-
         logger.debug("Checking balance before donation", this.amount, blockchainBalance);
 
+
         if (this.amount > blockchainBalance) {
-            // Do virtual payment to the database record because user has insufficient funds
-            // when funds arrive on the account, pending payments will be done
-
-            var debt = dbBalance-this.amount;
-
-            logger.debug("CALCULATED DEBT:",debt,"MAX DEBT",MAX_DEBT);
-
-            if (debt < MAX_DEBT ) { // check if we haven't reached maximum debt limit
-                throw new Error("Insufficient funds");
-            }
-            await this.userObj.createPrepayment(this.srcUser.wrioID,-this.amount,this.to);
-            logger.info("Prepayment made");
-
+            this.createPrepayment();
         } else {
-            // Make the real payment through the blockchain
-            await this.makeDonate(this.srcUser, this.to, this.amount);
+
+            //generate transaction to be signed by user
+            return await this.generateDonateTx(this.srcUser, this.to, this.amount);
 
         }
         var amountUser = this.amount*calc_percent(this.amount)/100;
         var fee = this.amount - amountUser;
-
 
        return {
             "success":true,
@@ -107,8 +131,7 @@ export default class DonateProcessor {
 
     async makeDonate (user, to, amount)  {
 
-        await this.webGold.unlockByWrioID(user.wrioID);
-        await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+       // await this.webGold.unlockByWrioID(user.wrioID);  // TODO request user sign transaction
 
         logger.debug("Prepare for transfer",this.destEthId,this.srcEthId,amount);
         await this.webGold.donate(this.srcEthId,this.destEthId,amount);
@@ -116,7 +139,56 @@ export default class DonateProcessor {
         var donate = new Donation();
         await donate.create(user.wrioID,to,amount,0);
 
-
     };
+
+    async generateDonateTx(user,to,amount) {
+        await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+        var hex = await this.webGold.makeDonateTx(this.srcEthId,this.destEthId,amount);
+        return {
+            "success": "true",
+            "tx": hex,
+            "callback":"//webgold"+nconf.get('server:workdomain')+"/sign_tx?tx="+hex
+        };
+    }
+
+
+
+}
+
+export class TransactionSigner {
+
+    constructor (tx) {
+        this.tx = tx;
+        this.webGold = new WebGold(db.db);
+    }
+
+    async checkTx() {
+        try {
+            var tx = new Tx(this.tx);
+            var v = tx.validate();
+            var s = tx.verifySignature();
+            console.log(tx.toJSON());
+            console.log("VALID=",v," SIGNED=",s);
+            return  v && s;
+        } catch(e) {
+            console.log("CHECKTX error",e);
+            dumpError(e);
+            return false;
+        }
+    }
+    async executeTx() {
+        console.log("Executing signed transaction", this.tx);
+        return await this.webGold.executeSignedTransaction(this.tx);
+    }
+
+    async process() {
+        if (await this.checkTx()) {
+            console.log("CheckTX succeeded");
+            return await this.executeTx();
+        } else {
+            console.log("CheckTX failed",this.tx);
+        }
+
+    }
 
 }

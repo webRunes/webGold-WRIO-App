@@ -23,7 +23,8 @@ module.exports = Reflux.createStore({
 
     init() {
         var that = this;
-        request.post('/api/webgold/get_balance').
+        request.get('/api/webgold/get_balance').
+            set('X-Requested-With',"XMLHttpRequest").
             withCredentials().
             end((err,data)=> {
                 if (err) {
@@ -34,6 +35,7 @@ module.exports = Reflux.createStore({
                 Actions.Balance.trigger(that.balance);
         });
         request.get('/add_funds_data').
+            set('X-Requested-With',"XMLHttpRequest").
             withCredentials().
             end((err,data)=> {
                 if (err) {

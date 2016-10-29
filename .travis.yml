@@ -1,37 +1,27 @@
-language: node_js
-sudo: false
+language: ruby
 
-node_js:
-  - 0.12
+services:
+  - docker
 
-install:
-  - npm install -g npm@3
-  - npm install -g gulp
-   -npm install -g babel@5.6.14
-  - npm install
-
-
-services: mongodb
+before_install:
+  - docker pull mongo:latest
+  - docker run --name mongo -p 27017:27017 -d mongo mongod --smallfiles
+  - docker build --tag webgold .
+  - docker ps -a
+  - docker run --link mongo:mongo -v `pwd`:/srv/host webgold /bin/sh -c "export WRIO_CONFIG=config.json.travis && gulp test"
 
 script:
-  - cp config.json.travis config.json
-  - gulp
-  - gulp test
-  - npm start
+  - docker ps -a
 
-before_deploy:
-- gem install mime-types -v 2.6.2
+branches:
+  only:
+    - master
+    - production
 
+notifications:
+  slack: wrioos:XDZWFBrf9TDtoEOcw5YGBM4a
 
 deploy:
-  - provider: opsworks
-    access-key-id: 
-      secure: "JhjnySnx9vQMPLCKMPE4rlLRWSAeYW1OeEzR/UdMjIuJT6woJ1Aq+uFVulhi+9KFOgMN8/yo58K9cbnnSjYMEnhmWn0pnKPaj/sbwQfRH7ln4gN/U74CBnTorLFBgH09Qnh4KWbYo6xzW/RKFnkhrSdR8pLiMc0d4r30XcoHJZs="
-    secret-access-key: 
-      secure: "lb/JsIoh2d71fwjwOPxiauHobWW8Zji6lrsTpB3Eb1LkQ55zvpwUo4vlBcB+1u6FgCUyZyD5e5dheWBjr46uql8CjHvnu/ZlZoQXzk+mYVViE5FvUwypk4YP4czJwJv6/E4JAdU12eBDpPF96hp3/iyx/JJcUhC7kg2XSWqmGxs="
-    app-id: 4591eee2-cb84-41a5-baa2-fd52009cfb38
-    on:
-      repo: webRunes/webGold-WRIO-App
   - provider: s3
     access_key_id:
       secure: e6CpXbDmuJOZTf/kyurb4bk8kn83pj3Knq9XxmkaqvXFytPlyzV1aJV440Ha+rci5dZn5yktavx6Hl13FGsRRYx7wYKPz8Lh+4BiOqZTT/ZiFAITLffu3e2uSSCrp+cGNi/cIweFSTp0fA8vcoUbMbxfa6d1O4hTiY8DMPvpnjQ=

@@ -16,3 +16,7 @@ export function calc_percent(wrg) {
     return percent;
 
 }
+
+export function formatBlockUrl(block) {
+    return 'https://testnet.etherscan.io/tx/'+block;
+}

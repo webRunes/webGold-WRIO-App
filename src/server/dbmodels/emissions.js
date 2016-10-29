@@ -6,76 +6,75 @@
 
 import logger from 'winston';
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
+import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
 
 export default class Emissions {
 
     constructor () {
-
         this.widgets = db.db.collection('webGold_Emission');
-
     }
 
     create(userID,amount) {
-        var that = this;
         let invoice_data = {
             amount: amount,
             userID: userID,
             timestamp: new Date()
-
-
         };
 
         return new Promise((resolve, reject) => {
-            this.widgets.insertOne(invoice_data,function(err,res) {
+            this.widgets.insertOne(invoice_data,(err,res) => {
                 if (err) {
                     reject(err);
                     return;
                 }
-                that.invoice_id = invoice_data._id;
+                this.invoice_id = invoice_data._id;
                 resolve(invoice_data._id);
             });
         });
+    }
+
+    async haveRecentEmission(user,hours) {
+        const target = new Date(new Date-hours* 60 * 60 *1000);
+        try {
+            const q = {
+                userID: user.wrioID,
+                timestamp: {
+                    $gte: target
+                }
+            };
+            console.log(q);
+            let em =  await this.get(q);
+            console.log("Found emissions",em);
+            return true;
+        } catch(e) {
+            dumpError(e);
+            console.log("No emission found in time interval");
+            return false;
+        }
 
     }
 
     get(mask) {
-        var that=this;
-        logger.debug(nonce);
-
         return new Promise((resolve,reject) => {
-
-            this.widgets.findOne(mask,function (err,data) {
+            this.widgets.findOne(mask, (err,data) => {
                 if (err) {
-                    logger.error("Error while searching invoice");
+                    logger.error("Error while searching emission");
                     reject(err);
                     return;
                 }
                 if (!data) {
-                    logger.error('No invoice found');
-                    reject('Invoce not found');
+                    logger.error('No emission found');
+                    reject('Emission not found');
                     return;
                 }
-                that.invoice_id = data._id;
+                this.invoice_id = data._id;
                 resolve(data);
             });
         });
     }
-    getAll() {
-        return new Promise((resolve,reject) =>{
-            this.widgets.find({}).sort({'timestamp':-1}).toArray(function (err,data) {
-                if (err) {
-                    logger.error("Db user search error");
-                    reject(err);
-                    return;
-                }
-                if (!data) {
-                    logger.error('Db user not found');
-                    reject('Users not found');
-                    return;
-                }
-                resolve(data);
-            });
-        });
+
+    async getAll() {
+        return await this.get({});
     }
 
 }
