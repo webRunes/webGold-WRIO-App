@@ -41,7 +41,7 @@ if (!masterPassword) {
     throw new Error("Can't get master account password from config.json");
 }
 
-var instance;
+var instance = null;
 
 class WebGold extends EthereumContract {
     constructor(db) {
@@ -67,7 +67,9 @@ class WebGold extends EthereumContract {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.widgets
         });
+        console.log(this.provider);
         web3.setProvider(this.provider);
+        this.web3 = web3;
     }
 
     initWG(db) {
@@ -379,9 +381,8 @@ class WebGold extends EthereumContract {
                 });
             }
 
-
             this.presale.markSale.call(mail, adr, satoshis, milliWRG, {from: masterAccount},(err, callResult) => {
-                logger.debug("Trying donate pre-transcation execution",err,callResult);
+                logger.debug("Trying presale transaction pre-execution",err,callResult);
 
                 if (err) {
                     reject("Failed to perform pre-call");

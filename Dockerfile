@@ -5,7 +5,8 @@ MAINTAINER denso.ffff@gmail.com
 #RUN apt-get update && apt-get install -y nodejs mc libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ git  libkrb5-dev
 #RUN apt-get install -y ethereum
 
-RUN npm install -g babel-cli@6
+RUN npm install -g babel-cli@6 ethereumjs-testrpc webpack-dev-server webpack
+
 
 COPY package.json /srv/package.json
 RUN cd /srv/ && npm install

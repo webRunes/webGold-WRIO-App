@@ -7,11 +7,9 @@ import BlockChainRoute from './blockchain.info';
 import {BlockChain} from './blockchain.info';
 import EthereumRoute from './ethereum-route';
 import UserStatsRoute from './user-stats.js';
-
-    import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import WebGold from './ethereum';
 import BigNumber from 'bignumber.js';
-
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';

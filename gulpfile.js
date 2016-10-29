@@ -29,7 +29,7 @@ gulp.task('test', function() {
             timeout: 60000,
         },grepStatement)))
         .once('error', function (err) {
-            console.log(err);
+            dumpError(err);
             process.exit(1);
         })
         .once('end', function () {
@@ -95,7 +95,7 @@ gulp.task('babel-client',function() {
         entries: './src/client/js/client.js',
         debug: true
     })
-    .transform("babelify",{"presets": ["react","es2015","stage-0"]})
+    .transform("babelify")
     .bundle()
     .on('error', function(err) {
         console.log('Babel client:', err.toString());
@@ -137,3 +137,18 @@ gulp.task('watch', ['default', 'nodemon'], function() {
     gulp.watch('src/client/js/**/*.*', ['babel-client']);
     gulp.watch('src/client/views/**/*.*', ['views']);
 });
+
+
+function dumpError(err) {
+    if (!err) return;
+    if (typeof err === 'object') {
+        if (err.message) {
+            console.log('\nMessage: ' + err.message);
+        }
+        if (err.stack) {
+            console.log('\nStacktrace:');
+            console.log('====================');
+            console.log(err.stack);
+        }
+    }
+}

@@ -24,9 +24,15 @@ describe("Blockchain unit tests", () => {
         try {
             let hex = await wg.makeDonateTx("0x59aE5534Ed5587b47924CFDD93872d087F121443","0x59aE5534Ed5587b47924CFDD93872d087F121443",10);
             console.log("TX created",hex);
+
+            console.log("\nCreating presale....\n");
+            await wg.logPresale("denso.ffff@mail.ru",0x59aE5534Ed5587b47924CFDD93872d087F121443,22,44);
+
+
             done();
         } catch(e) {
             dumpError(e);
+            console.log("Error",e);
             done();
         }
     });
