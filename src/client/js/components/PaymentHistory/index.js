@@ -16,7 +16,9 @@ class PaymentsHistory extends React.Component {
 
     componentDidMount() {
         console.log("Mounted");
-        request.post('/api/blockchain/payment_history').end((err,res) => {
+        request.get('/api/blockchain/payment_history')
+        .set('X-Requested-With',"XMLHttpRequest")
+            .end((err,res) => {
            if (err || !res) {
                console.log("Can't get payment history");
                return;

@@ -1,26 +1,26 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import nconf from './server/wrio_nconf.js';
+import nconf from './wrio_nconf.js';
 import path from 'path';
 import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
-import BlockChainRoute from './server/blockchain.info';
-import {BlockChain} from './server/blockchain.info';
-import EthereumRoute from './server/ethereum-route';
-import UserStatsRoute from './server/user-stats.js';
+import BlockChainRoute from './blockchain.info';
+import {BlockChain} from './blockchain.info';
+import EthereumRoute from './ethereum-route';
+import UserStatsRoute from './user-stats.js';
 
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
-import WebGold from './server/ethereum';
+    import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import WebGold from './ethereum';
 import BigNumber from 'bignumber.js';
 
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
-import Const from './constant.js';
+import Const from '../constant.js';
+import setupIO from './notifications.js';
 
 import {server,db,login} from 'wriocommon';
 
-require("babel/polyfill");
 
 logger.level = 'debug';
 var app = express();
@@ -38,19 +38,20 @@ async function init_env() {
 }
 
 async function init() {
-    var dbInstance =  await db.init();
+    let dbInstance =  await db.init();
     logger.log('info','Successfuly connected to Mongo');
     server.initserv(app,dbInstance);
-    app.listen(nconf.get("server:port"));
+    let httpServ = app.listen(nconf.get("server:port"));
     console.log('app listening on port ' + nconf.get('server:port') + '...');
     setup_server(dbInstance);
     setup_routes(dbInstance);
+    setupIO(httpServ,dbInstance);
     app.ready();
 }
 
 init_env();
 
-const TEMPLATE_PATH = path.resolve(__dirname, 'client/views/');
+const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 function setup_server(db) {
 
@@ -71,20 +72,39 @@ function setup_server(db) {
 
 }
 function setup_routes(db) {
-    app.get('/', function (request, response) {
+    /*app.get('/', function (request, response) {
         response.sendFile(__dirname + '/hub/index.html');
-    });
+    });*/
     app.get('/coinadmin', function (request, response) {
         response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
     });
 
     app.get('/transactions', function (request, response) {
-        response.sendFile(__dirname + '/client/views/webgold-transactions.html');
+        response.sendFile(path.join(TEMPLATE_PATH,'/webgold-transactions.html'));
+    });
+
+    app.get('/wrg_faucet', function (request, response) {
+        response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
     });
 
     app.get('/add_funds', function (request, response) {
-        response.sendFile(__dirname + '/client/views/index.html');
+        let testnet = nconf.get('payment:ethereum:testnet');
+        if (testnet) {
+            response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
+        } else {
+            response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
+        }
+
     });
+
+    app.get('/sign_tx', function (request, response) {
+        response.sendFile(path.join(TEMPLATE_PATH, '/txsigner.html'));
+    });
+
+    app.get('/create_wallet', function (request, response) {
+        response.sendFile(path.join(TEMPLATE_PATH,'/createwallet.html'));
+    });
+
 
     app.get('/add_funds_data', wrioAuth, async (request, response) => {
         var loginUrl =  nconf.get('loginUrl') || ("https://login"+nconf.get('server:workdomain')+'/');
@@ -137,7 +157,8 @@ function setup_routes(db) {
     app.use('/api/blockchain/',BlockChainRoute);
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
-    app.use('/assets', express.static(path.join(__dirname, '/client')));
+    app.use('/assets', express.static(path.join(__dirname, '../client')));
+    app.use('/', express.static(path.join(__dirname, '../hub')));
 
     app.use(function (err, req, res, next) {
         utils.dumpError(err);

@@ -1,4 +1,4 @@
-require('babel/register');
+require('babel-core/register');
 
 var gulp = require('gulp');
 var browserify = require('browserify');
@@ -27,12 +27,12 @@ gulp.task('test', function() {
             timeout: 60000
         }))
         .once('error', function (err) {
-            console.log(err)
+            console.log(err);
             process.exit(1);
         })
         .once('end', function () {
             process.exit();
-        });;
+        });
 });
 
 gulp.task('lint', function () {
@@ -76,48 +76,14 @@ gulp.task('babel-server-transpile', function() {
 
 
 gulp.task('babel-server', ['babel-server-transpile']);
-
-gulp.task('babel-client-admin',function () {
-
-    return browserify({
-        entries: './src/client/js/admin.js',
-        debug: true
-    })
-        .transform(babelify)
-        .bundle()
-        .on('error', function(err) {
-            console.log('Babel client:', err.toString());
-        })
-        .pipe(source('admin.js'))
-        .pipe(gulp.dest('app/client'));
-
-});
-
-gulp.task('babel-client-transactions',function () {
-
-    return browserify({
-        entries: './src/client/js/transactions.js',
-        debug: true
-    })
-        .transform(babelify)
-        .bundle()
-        .on('error', function(err) {
-            console.log('Babel client:', err.toString());
-        })
-        .pipe(source('transactions.js'))
-        .pipe(gulp.dest('app/client'));
-
-});
-
-
-gulp.task('babel-client', ['babel-client-admin', 'babel-client-transactions'],function() {
+gulp.task('babel-client',function() {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
 
         })
         .pipe(gulp.dest('app/client/3rdparty'));
 
-    gulp.src('hub/*.*')
+    gulp.src('hub/**/*.*')
         .on('error',function (err) {
 
         })
@@ -127,15 +93,13 @@ gulp.task('babel-client', ['babel-client-admin', 'babel-client-transactions'],fu
         entries: './src/client/js/client.js',
         debug: true
     })
-        .transform(babelify)
-        .bundle()
-        .on('error', function(err) {
-            console.log('Babel client:', err.toString());
-        })
-        .pipe(source('client.js'))
-        .pipe(gulp.dest('app/client'));
-
-
+    .transform(babelify)
+    .bundle()
+    .on('error', function(err) {
+        console.log('Babel client:', err.toString());
+    })
+    .pipe(source('client.js'))
+    .pipe(gulp.dest('app/client'));
 
 });
 

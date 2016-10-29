@@ -7,7 +7,7 @@ import {calc_percent,dumpError} from './utils';
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
 
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser';
@@ -43,7 +43,7 @@ var getUserNames = async (names)=> {
 
 };
 
-router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
+router.get('/prepayments', restOnly, wrioAuth, wrap(async (request,response) => {
         var user = request.user;
         var Users = new WrioUser(db.db);
 
@@ -102,7 +102,7 @@ router.get('/prepayments', wrioAuth, wrap(async (request,response) => {
 }));
 
 
-router.get('/donations', wrioAuth, wrap(async (request,response) => {
+router.get('/donations', restOnly, wrioAuth, wrap(async (request,response) => {
     var user = request.user;
     var d = new Donations();
     var query = {

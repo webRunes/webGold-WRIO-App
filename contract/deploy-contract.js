@@ -5,7 +5,7 @@
 
 import WebGold from "../src/server/ethereum.js";
 import fs from 'fs';
-import {init} from '../src/server/db.js';
+import {db as dbMod} from 'wriocommon';var init = dbMod.init;
 import {dumpError} from '../src/server/utils.js';
 
 class WebGoldDeploy extends WebGold {
@@ -31,12 +31,12 @@ class WebGoldDeploy extends WebGold {
         var token = tokenContract.new(
             supply,
             {
-                from:web3.eth.widgets[3],
+                from:"0x740f63f535bc86fb87f9482adbec5ca289a2d59e",
                 data:this.tokenCompiled.token.code,
                 gas: 1000000
             }, (e, contract) => {
                 if(!e) {
-
+                    console.log("contract",contract);
                     if(!contract.address) {
                         console.log("Contract transaction send: TransactionHash: " + contract.transactionHash + " waiting to be mined...");
 

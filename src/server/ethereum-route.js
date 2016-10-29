@@ -6,10 +6,10 @@
  */
 
 import WebGold from './ethereum.js';
-import {calc_percent,dumpError} from './utils';
+import {calc_percent,dumpError,formatBlockUrl} from './utils';
 import {Promise} from 'es6-promise';
 import {Router} from 'express';
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 const router = Router();
 import WebRunesUsers from './dbmodels/wriouser';
@@ -22,8 +22,10 @@ import Invoices from "./dbmodels/invoice.js";
 import WrioUser from "./dbmodels/wriouser.js";
 import AdminRoute from './admin/route.js';
 import DonateProcessor from './DonateProcessor.js';
+import {TransactionSigner} from './DonateProcessor.js';
 import Const from '../constant.js';
 import logger from 'winston';
+
 
 
 
@@ -49,32 +51,30 @@ router.get('/giveaway',wrioAuth, wrap(async (request,response) => {  // TODO: re
     logger.error("  =====  WARNING: GIVEAWAY CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
     var user = request.user;
     var webGold = new WebGold(db.db);
-    await webGold.unlockByWrioID(user.wrioID);
+    await webGold.unlockByWrioID(user.wrioID); // TODO request user sign transaction
     await webGold.giveAwayEther(user.ethereumWallet);
     response.send("Successfully given away");
 }));
 
 router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: remove this method
 
-    if (nconf.get('server:workdomain') !== '.wrioos.local') {
-        logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
-        response.status(404).send('Not found');
-        return;
-    }
-    logger.error("  =====  WARNING: FREE WRG CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
+    setTimeout(async () => { // SAFETY DELAY TO PREVENT MULTIPLE EMISSIONS
+        let user = request.user;
+        logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
 
-    var amount = parseInt(request.query.amount);
-    logger.debug(typeof amount);
-    if (typeof amount !== "number") {
-        throw new Error("Can't parse amount");
-    }
+        let emissions = new Emissions();
+        if (await emissions.haveRecentEmission(user,1)) { // allom emission every hour
+            return response.status(403).send("Please wait");
+        };
 
-    amount *= 100;
+        let amount = 10 * 100; // We can give 10 WRG every hour
 
-    var user = request.user;
-    var webGold = new WebGold(db.db);
-    await webGold.emit(user.ethereumWallet, amount, user.wrioID);
-    response.send("Successfully sent " + amount);
+        let webGold = new WebGold(db.db);
+        const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
+        const txUrl = formatBlockUrl(txId);
+        response.send(`<html><body>Successfully sent ${amount}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
+    },3000);
+
 
 }));
 
@@ -85,14 +85,58 @@ router.get('/free_wrg',wrioAuth, wrap(async (request,response) => {  // TODO: re
     amount: amount to donate, in WRG
     sid: user's session id
 
+   Should implement two stage donate process
+   STAGE1 - get donation parameters, return transaction to sign
+   STAGE2 - get signed donation, execute donation on the blockchain
+
+
  */
+
+router.get('/get_wallet', restOnly, wrioAuth, wrap(async(request,response) => {
+    var user = request.user;
+    if (user.ethereumWallet) {
+        return response.send(user.ethereumWallet);
+    } else {
+        return response.status(403).send("User don't have ethereum wallet yet");
+    }
+
+}));
+
+
+router.post('/save_wallet', restOnly, wrioAuth, wrap(async(request,response) => {
+    let wallet = request.query.wallet;
+
+    if (!wallet) { // TODO: validate vallet there
+        return response.status(403).send("Wrong parameters");
+    }
+    var user = request.user;
+
+    if (user.ethereumWallet) {
+        return response.status(403).send("User already have ethereum wallet, aborting");
+    }
+    var Users = new WrioUser();
+    await Users.updateByWrioID(user.wrioID,{
+        ethereumWallet: wallet
+    });
+    response.send("Success");
+
+}));
+
+router.get('/signtx', restOnly, wrioAuth, wrap(async (request,response) => {
+    const tx = request.query.tx;
+    let signer = new TransactionSigner(tx);
+    response.send(await signer.process());
+
+}));
+
 
 router.get('/donate', authS2S, wrap(async (request,response) => {
     var to = request.query.to;
     var from = request.query.from;
     var amount = request.query.amount;
+    var tx = request.query.tx;
 
-    var donate = new DonateProcessor(to,from,amount);
+    var donate = new DonateProcessor(to,from,amount,tx);
     if (!(await donate.verifyDonateParameters())) {
         logger.error("Verify failed");
         return response.status(403).send("Wrong donate parameters");
@@ -101,7 +145,7 @@ router.get('/donate', authS2S, wrap(async (request,response) => {
 
 }));
 
-router.post('/get_balance', wrioAuth, wrap(async (request,response) => {
+router.get('/get_balance', restOnly, wrioAuth, wrap(async (request,response) => {
 
     var user = request.user;
     var dbBalance = 0;
@@ -130,7 +174,7 @@ router.post('/get_balance', wrioAuth, wrap(async (request,response) => {
 }));
 
 
-router.post('/get_exchange_rate', wrioAuth, async (request,response) => {
+router.get('/get_exchange_rate', restOnly, wrioAuth, async (request,response) => {
   response.send("10");
 });
 
