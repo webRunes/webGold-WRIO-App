@@ -584,9 +584,9 @@ class Presales extends React.Component {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>Wrio ID</th>
-                        <th>Bitcoin Adress</th>
-                        <th>Amount</th>
+                        <th>Ethereum ID</th>
+                        <th>BTC Adress</th>
+                        <th>BTC Amount</th>
                         <th>Time</th>
                         <th>e-mail</th>
                         <th>Status</th>
@@ -602,12 +602,12 @@ class Presales extends React.Component {
                                 amount = numeral(amount).format('0.00000000') + " BTC";
                             }
                             return  (<tr>
-                                <td> {item.wrioID}</td>
-                                <td>{ item.input_address }</td>
-                                <td>{ amount }</td>
+                                <td> {item.ethID || ""}</td>
+                                <td>{ item.address || "" }</td>
+                                <td>{ amount || ""}</td>
                                 <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
-                                <td>{ item.email }</td>
-                                <td>{ item.state}</td>
+                                <td>{ item.email || ""}</td>
+                                <td>{ item.state || ""}</td>
                             </tr>);
                         })}
 

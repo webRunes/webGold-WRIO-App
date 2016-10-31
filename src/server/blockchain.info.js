@@ -115,10 +115,10 @@ export class BlockChain {
         };
     }
 
-    async request_presale(userID,wrioID,amount,email,ethID)  {
+    async request_presale(amount,email,ethID)  {
 
         let invoice = new Presale();
-        let invoiceID = await invoice.createPresale(userID,wrioID,email,ethID);
+        let invoiceID = await invoice.createPresale(email,ethID);
         const callback = `https://webgold.wrioos.com/api/blockchain/callback/?nonce=${invoiceID}&secret=${this.secret}`;
         const api_request = `https://api.blockchain.info/v2/receive?xpub=${this.xpub}&callback=${encodeURIComponent(callback)}&key=${this.key}`;
 
@@ -183,8 +183,6 @@ export class BlockChain {
             "timestamp": new Date()
         });
 
-        var user = new User();
-        user = await user.getByWrioID(invoice_data.wrioID);
         if ( !transaction_hash  || !address || !valueSatoshis || !confirmations) {
             resp.status(400).send("");
             logger.error("ERROR: missing required parameters");
@@ -216,8 +214,7 @@ export class BlockChain {
             await invoice.updateInvoiceData({
                state: "payment_confirmed"
             });
-            await this.generateWrg(user.ethereumWallet, valueSatoshis, user.wrioID); // send ether to user
-            logger.info("WRG was emitted");
+            console.log("Payment was confirmed by blockchain.info", await invoice.getPresale(nonce));
             return resp.status(200).send("*ok*"); // send success to blockchain.info server
         }
         logger.verbose("**Confirmation recieved",confirmations);
@@ -239,7 +236,10 @@ export class BlockChain {
         } else {
             return await this.webgold.emit(who, wrg, id); // send ether to user
         }
+    }
 
+    async presaleMake(invoice) {
+        await this.logPresale(invoice.email, invoice.ethID, invoice.amount, getPresaleWRG(invoice_amount), "btcFROM", "btcTO");
     }
 }
 
@@ -298,13 +298,17 @@ router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
 
 }); */
 
+const verifyMiddlewareFactory = () => {
+    const isInTest = typeof global.it === 'function';
 
-router.post('/request_presale', restOnly, wrioAuth, verifyMiddleware, (req,response) =>{
+    return isInTest? (request,response,next) => next() : verifyMiddleware;
+
+}
+
+
+router.post('/request_presale', restOnly, verifyMiddlewareFactory(), (req,response) =>{ // TODO add anti-spam protection
     logger.debug("Request payment is called");
     var blockchain = new BlockChain();
-
-    const userId = req.user._id;
-    const wrioId = req.user.wrioID;
 
     const email = req.body.mail; // TODO: validate it!
     const ethID = req.body.ethID;
@@ -317,7 +321,7 @@ router.post('/request_presale', restOnly, wrioAuth, verifyMiddleware, (req,respo
     if (checkNumber(amount) || checkNumber(amountWRG)) {
         return response.status(400).send({"error": "bad request"});
     }
-    blockchain.request_presale(userId, wrioId, amount, email,ethID).then((resp) => {
+    blockchain.request_presale(amount, email,ethID).then((resp) => {
         logger.debug("Resp", resp);
         response.send(resp);
     }, (err) => {

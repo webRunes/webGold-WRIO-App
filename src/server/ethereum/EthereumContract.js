@@ -184,9 +184,6 @@ class EthereumContract {
         return this.web3;
     }
 
-    unlockMaster() {
-        this.widgets.unlockAccount(masterAccount,masterPassword);
-    }
 
 }
 export default EthereumContract;

@@ -48,18 +48,19 @@ class Presale extends React.Component {
         console.log(`ERR ${err} MAIL ${mail}`);
     }
 
-
+    componentDidUpdate() {
+        setTimeout(window.frameReady,100);
+    }
 
     render() {
         return (
             <div>
                 <div className="well">
-                    WRG presale, you can buy WRG tokens using bitcoin transaction, enter your e-mail.
+                    WRG presale, you can buy WRG tokens using bitcoin transaction.
                 </div>
                 <PresaleForm
                     exchangeRate={ this.state.btcExchangeRate }
                     loginUrl={ this.state.loginUrl } />
-
             </div>
 
         );

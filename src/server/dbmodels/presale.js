@@ -10,13 +10,11 @@ export default class Presale {
         this.payments = db.db.collection('webGold_presales');
     }
 
-    createPresale(userID,wrioID,email,ethAddr) {
+    createPresale(email,ethAddr) {
         var that = this;
         let invoice_data = {
             _id: uuid.v4(),
             state: 'invoice_created',
-            userID: userID,
-            wrioID: wrioID,
             email: email,
             ethID: ethAddr,
             actions:[],

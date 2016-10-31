@@ -67,7 +67,6 @@ class WebGold extends EthereumContract {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.widgets
         });
-        console.log(this.provider);
         web3.setProvider(this.provider);
         this.web3 = web3;
     }
@@ -75,6 +74,7 @@ class WebGold extends EthereumContract {
     initWG(db) {
         this.keyStoreInit(db);
         this.token = this.contractInit('token');
+        this.presaleContract = this.contractInit('presale');
         this.presale = this.contractInit('presale');
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
@@ -329,8 +329,6 @@ class WebGold extends EthereumContract {
     /* check and verify transaction , return RAW transaction to be signed by client */
 
     donate(from,to,amount) {
-
-
         return new Promise((resolve,reject)=> {
 
             const actual_donate = async () => await this.makeDonateTx(from,to,amount);
@@ -363,41 +361,50 @@ class WebGold extends EthereumContract {
      * @param milliWRG
      */
 
-    async logPresale(mail, adr, satoshis, milliWRG) {
+    async logPresale(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST) {
         return new Promise((resolve,reject)=> {
 
-            logger.info("Starting presale record");
+            try {
+                logger.info("Starting presale record");
 
-            function actual_sendcoin() {
-                that.widgets.unlockAccount(masterAccount,masterPassword);
-                this.presale.markSale(mail, adr, satoshis, milliWRG, {from: masterAccount},(err, result) => {
+                const actual_presale = () => {
+                    this.widgets.unlockAccount(masterAccount, masterPassword);
+                    this.presaleContract.markSale(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST, {from: masterAccount}, (err, result) => {
+                        if (err) {
+                            logger.error("cointransfer failed", err);
+                            reject(err);
+                            return;
+                        }
+                        logger.info("cointransfer succeeded", result);
+                        resolve(result);
+                    });
+                };
+
+                this.presaleContract.markSale.call(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST, {from: masterAccount}, (err, callResult) => {
+                    logger.debug("Trying presale transaction pre-execution", err, callResult);
+
                     if (err) {
-                        logger.error("cointransfer failed",err);
-                        reject(err);
+                        reject("Failed to perform pre-call");
                         return;
                     }
-                    logger.info("cointransfer succeeded",result);
-                    resolve(result);
+
+                    if (callResult) {
+                        logger.debug('donate preview succeeds so now sendTx...');
+                        actual_presale()
+                    }
+                    else {
+                        reject("Transaction pre check failed, check your balances");
+                    }
                 });
+            } catch (e) {
+                dumpError(e);
+                reject(e);
             }
-
-            this.presale.markSale.call(mail, adr, satoshis, milliWRG, {from: masterAccount},(err, callResult) => {
-                logger.debug("Trying presale transaction pre-execution",err,callResult);
-
-                if (err) {
-                    reject("Failed to perform pre-call");
-                    return;
-                }
-
-                if (callResult) {
-                    logger.debug('donate preview succeeds so now sendTx...');
-                    actual_presale().then(resolve).catch(reject);
-                }
-                else {
-                    reject("Transaction pre check failed, check your balances");
-                }
-            });
         });
+    }
+
+    unlockMaster() {
+        this.widgets.unlockAccount(masterAccount,masterPassword);
     }
 
 

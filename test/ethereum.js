@@ -31,7 +31,7 @@ describe("Blockchain unit tests", () => {
 
             done();
         } catch(e) {
-            dumpError(e);
+           // dumpError(e);
             console.log("Error",e);
             done();
         }

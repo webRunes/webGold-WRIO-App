@@ -89,7 +89,7 @@ class Amount extends React.Component {
                         <span className="input-group-addon">WRG</span>
                         <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
                     </div>
-                    <div className="help-block">Max {this.formatWRG(Const.MAX_DONATE)} WRG per day</div>
+                    <div className="help-block"></div>
                 </div>
 
                  <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">

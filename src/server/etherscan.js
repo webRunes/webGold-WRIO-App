@@ -11,5 +11,7 @@ const sendRawTX = async (rawTx) => {
     console.log("Performing API send TX request", api_request);
     const result = await request.get(api_request);
     console.log("Result");
-    return result;
+    return result.body;
 };
+
+const createTX = {}
