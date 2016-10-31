@@ -8,12 +8,15 @@ export default class CreateWallet extends React.Component {
 
     constructor (props) {
         super(props);
+        const saveEthId = (addr) => this.saveEthereumId("0x"+addr).then(()=>window.opener.location.reload()).catch(()=>console.warn("error saving"));
         this.state = {
             passphrase: "",
             passphrase2: "",
             entropy: "",
-            walletCode: ""
+            walletCode: "",
+            saveCB: this.props.saveCB ? this.props.saveCB : saveEthId
         };
+
     }
 
     saveEthereumId(id) {
@@ -39,6 +42,9 @@ export default class CreateWallet extends React.Component {
             alert("Passwords should match");
             return;
         }
+        if (passphrase === "") {
+            return alert("Password should not be blank!")
+        }
 
         var randomSeed = lightwallet.keystore.generateRandomSeed(entropy);
         console.log("Random seed is",randomSeed);
@@ -54,33 +60,39 @@ export default class CreateWallet extends React.Component {
                     address: addr
                 });
                 window.localStorage.setItem('key',cs.keystore.serialize());
-                this.saveEthereumId("0x"+addr).then(()=>window.opener.location.reload()).catch(()=>console.warn("error saving"));
+                this.state.saveCB(addr); // lets run save callback
+                //this.saveEthereumId("0x"+addr).then(()=>window.opener.location.reload()).catch(()=>console.warn("error saving"));
             });
         });
+
 
         cs.getSeed(passphrase,(seed) => {
             this.setState({
                 walletCode: seed
             });
-            parent.postMessage(JSON.stringify({
-                "reload": true
-            }), "*");
+            if (!this.props.saveCB) { // do not reload page if we in the presale mode
+                parent.postMessage(JSON.stringify({
+                    "reload": true
+                }), "*");
+            }
         });
+
+
 
     }
 
     render () {
-        // <input className="form-control" type="text" ref="entropy" placeholder="Type random text to generate entropy" size="80"></input>
         var walletGenerated = this.state.walletCode==="";
         var form = ( <div className="input-group">
+            <input className="form-control" type="text" ref="entropy" placeholder="Type random text to generate entropy" size="80"></input>
             <input className="form-control" type="password" ref="passphrase" placeholder="Type password to protect your wallet" size="80"></input>
             <input className="form-control" type="password" ref="passphrase2"  placeholder="Type again password to protect your wallet" size="80"></input>
-            <button className="btn btn-default" onClick={this.newWallet.bind(this)}>Create New Wallet</button>
+            <button className="btn btn-default" type="button" onClick={this.newWallet.bind(this)}>Create New Wallet</button>
         </div>);
 
         var result = (
             <div className="well">
-             <span><h2>Write down theese words, they will be essential to get access for your wallet</h2></span>
+             <span><h2>Write down theese words and your password in the safe place, they will be absolutely necessary to access your walet</h2></span>
              <div>
                  <h1>{this.state.walletCode}</h1>
                  </div>

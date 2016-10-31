@@ -81,17 +81,17 @@ gulp.task('babel-server', ['babel-server-transpile']);
 gulp.task('babel-client',function() {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
-
+            console.log("3rd party copy error",err);
         })
         .pipe(gulp.dest('app/client/3rdparty'));
 
     gulp.src('hub/**/*.*')
         .on('error',function (err) {
-
+            console.log("hub copy error",err);
         })
         .pipe(gulp.dest('app/hub/'));
 
-    browserify({
+    return browserify({
         entries: './src/client/js/client.js',
         debug: true
     })

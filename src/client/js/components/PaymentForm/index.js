@@ -49,7 +49,7 @@ class PaymentForm extends React.Component {
             })
             .end((err, res) => {
                 if (err) {
-                    this.setState({
+                    return this.setState({
                         alert: {
                             type: 'error',
                             message: 'Error: ' + err.message

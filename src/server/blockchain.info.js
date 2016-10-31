@@ -8,11 +8,12 @@ import BigNumber from 'bignumber.js';
 import WebGold from './ethereum';
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoice from './dbmodels/invoice.js';
-import Presale from './dbmodels/invoice.js';
+import Presale from './dbmodels/presale.js';
 import User from './dbmodels/wriouser.js';
 import RateGetter from './payments/RateGetter.js';
 import CurrencyConverter from '../currency.js';
 import logger from 'winston';
+import verifyMiddleware from './recaptcha.js';
 
 const router = Router();
 const converter = new CurrencyConverter();
@@ -114,10 +115,10 @@ export class BlockChain {
         };
     }
 
-    async request_presale(userID,wrioID,amount,email,ethAddr)  {
+    async request_presale(userID,wrioID,amount,email,ethID)  {
 
-        let invoice = new Invoice();
-        let invoiceID = await invoice.createInvoice(userID,wrioID);
+        let invoice = new Presale();
+        let invoiceID = await invoice.createPresale(userID,wrioID,email,ethID);
         const callback = `https://webgold.wrioos.com/api/blockchain/callback/?nonce=${invoiceID}&secret=${this.secret}`;
         const api_request = `https://api.blockchain.info/v2/receive?xpub=${this.xpub}&callback=${encodeURIComponent(callback)}&key=${this.key}`;
 
@@ -141,8 +142,6 @@ export class BlockChain {
             callback: result.body.callback,
             'state': 'request_sent',
             'requested_amount': amount,
-            'email': email,
-            'ethAddr': ethAddr
         });
 
         return {
@@ -174,8 +173,9 @@ export class BlockChain {
         }
 
         //let invoice = new Invoice();
+        //var invoice_data = await invoice.getInvoice(nonce);
         let invoice = new Presale();
-        var invoice_data = await invoice.getInvoice(nonce);
+        let invoice_data = await invoice.getPresale(nonce);
         logger.debug("Got invoice ID:",invoice_data);
 
         await invoice.recordAction({
@@ -299,7 +299,7 @@ router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
 }); */
 
 
-router.post('/request_presale', restOnly, wrioAuth,(req,response) =>{
+router.post('/request_presale', restOnly, wrioAuth, verifyMiddleware, (req,response) =>{
     logger.debug("Request payment is called");
     var blockchain = new BlockChain();
 
@@ -311,11 +311,13 @@ router.post('/request_presale', restOnly, wrioAuth,(req,response) =>{
     const amount = parseFloat(req.body.amount);
     const amountWRG = parseFloat(req.body.amountWRG); // amountWRG is ignored, we don't trust it
 
+    logger.info(`Got presale request to ${email} ETH: ${ethID} amount ${amount} BTC(satoshis) ${amountWRG} WRG`);
+
     const checkNumber = (amount) => isNaN(amount) || (amount < 0);
     if (checkNumber(amount) || checkNumber(amountWRG)) {
         return response.status(400).send({"error": "bad request"});
     }
-    blockchain.request_presale(userId, wrioId, amount,email,ethID).then((resp) => {
+    blockchain.request_presale(userId, wrioId, amount, email,ethID).then((resp) => {
         logger.debug("Resp", resp);
         response.send(resp);
     }, (err) => {
@@ -324,6 +326,10 @@ router.post('/request_presale', restOnly, wrioAuth,(req,response) =>{
     });
 
 });
+
+/**
+ * Get current adress gap for bitcoin addresses
+ */
 
 router.get('/get_gap', restOnly, wrioAdmin, function(req,response) {
     logger.debug("Request payment is called");

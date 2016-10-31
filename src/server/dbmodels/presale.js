@@ -10,13 +10,15 @@ export default class Presale {
         this.payments = db.db.collection('webGold_presales');
     }
 
-    createInvoice(userID,wrioID) {
+    createPresale(userID,wrioID,email,ethAddr) {
         var that = this;
         let invoice_data = {
             _id: uuid.v4(),
             state: 'invoice_created',
             userID: userID,
             wrioID: wrioID,
+            email: email,
+            ethID: ethAddr,
             actions:[],
             timestamp: new Date()
 
@@ -67,7 +69,7 @@ export default class Presale {
         });
     }
 
-    getInvoice(nonce) {
+    getPresale(nonce) {
         var that=this;
         logger.debug(nonce);
 
