@@ -22,6 +22,7 @@ class CurrencyConverter {
         if (typeof window === 'undefined') {
             const nconf = require('./server/wrio_nconf').default;
             const rate = nconf.get('payment:grammPriceUSD');
+            this.presalePrice = nconf.get('payment:presaleBTCPrice');
             if (!rate) {
                 throw new Error("Cannot get rate from config!");
             }
@@ -90,7 +91,28 @@ class CurrencyConverter {
     convertWRGtoBTC(wrg,btcWrgRate) {
         const btc = wrg.div(btcWrgRate);
         return btc.times(SATOSHI);
+    }
 
+    /**
+     *
+     * @param satoshis - integer number, btc value in satoshis
+     * @returns {WRG}
+     */
+
+    satoshiToWRGUsingPresalePrice(satoshis) {
+        const price = new BigNumber(this.presalePrice);
+        return this.convertBTCtoWRG(new BigNumber(satoshis),price).toFixed(2);
+    }
+
+    /**
+     * convert satoshi to milliWRG(minimum wrg value)
+     * @param satoshis
+     * @returns {*}
+     */
+
+    satoshiTomilliWRGUsingPresalePrice(satoshis) {
+        const price = new BigNumber(this.presalePrice);
+        return this.convertBTCtoWRG(new BigNumber(satoshis),price).mul(100).toFixed(0);
     }
 
 }
