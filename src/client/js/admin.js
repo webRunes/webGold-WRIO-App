@@ -588,7 +588,7 @@ class Presales extends React.Component {
                         <th>BTC Adress</th>
                         <th>BTC Amount</th>
                         <th>Time</th>
-                        <th>e-mail</th>
+                        <th>Email</th>
                         <th>Status</th>
                     </tr>
                     </thead>

@@ -11,7 +11,7 @@ class BitcoinForm extends React.Component {
         return (
             <div>
                 <div>
-                    Payment request created, please pay {this.state.BTC} to adress {this.state.address / SATOSHIc}
+                    Payment request created, please pay {this.state.BTC} to the address {this.state.address / SATOSHI}
                 </div>
             </div>
         );

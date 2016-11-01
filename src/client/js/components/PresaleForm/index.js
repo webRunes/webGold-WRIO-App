@@ -113,7 +113,7 @@ class PaymentForm extends React.Component {
                 </div>
 
               {this.state.showWallet ? <div className="col-xs-12" >
-                    <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Password to protect your wallet</label></div>
+                    <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Protect your wallet with a password</label></div>
                     <div className="col-xs-9">  <CreateWallet saveCB={this.gotAddr.bind(this)}/></div>
                 </div> : "" }
 

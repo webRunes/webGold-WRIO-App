@@ -56,7 +56,7 @@ class Presale extends React.Component {
         return (
             <div>
                 <div className="well">
-                    WRG presale, you can buy WRG tokens using bitcoin transaction.
+                    webGold Presale. You can buy webGold with bitcoin.
                 </div>
                 <PresaleForm
                     exchangeRate={ this.state.btcExchangeRate }

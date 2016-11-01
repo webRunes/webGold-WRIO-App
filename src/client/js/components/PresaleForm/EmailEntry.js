@@ -25,13 +25,13 @@ export default class EmailEntry extends React.Component {
     compareEmails() {
         const match =  this.state.email === this.state.emailCopy;
         if (!match) {
-            this.props.gotMail('Invalid mail');
+            this.props.gotMail('Invalid email');
         }
         this.setState({ match : match });
         if (!this.state.emailInvalid && !this.state.emailCopyInvalid) {
             return this.props.gotMail(null, this.state.email);
         }
-        this.props.gotMail('Invalid mail');
+        this.props.gotMail('Invalid email');
 
     }
 
@@ -61,11 +61,11 @@ export default class EmailEntry extends React.Component {
                         <div className="col-xs-3" />
                         <div className={cls(this.state.emailInvalid )}>
                             <div className="input-group input-group-sm">
-                                <span className="input-group-addon">e-mail</span>
+                                <span className="input-group-addon">Email</span>
                                 <input type="email" className="form-control" name="email" value={this.state.email} onChange={ this.emailChange } />
                             </div>
                             <div className="help-block">
-                                {this.state.emailInvalid ? "Enter valid email" : "Enter your e-mail"}
+                                {this.state.emailInvalid ? "Enter valid email" : "Enter your Email"}
                             </div>
                         </div>
                     </div>
@@ -73,11 +73,11 @@ export default class EmailEntry extends React.Component {
                 <div className="col-xs-3" />
                 <div className={cls(this.state.emailCopyInvalid || !this.state.match)}>
                     <div className="input-group input-group-sm">
-                        <span className="input-group-addon">e-mail</span>
+                        <span className="input-group-addon">Email</span>
                         <input type="email" className="form-control" name="emailcopy" value={this.state.emailCopy} onChange={ this.emailCopyChange } />
                     </div>
                     <div className="help-block">
-                        {(this.state.match) ? "Repeat valid email" : "Emails not match"}
+                        {(this.state.match) ? "Repeat email address" : "Emails don't match"}
                     </div>
                 </div>
                 </div>

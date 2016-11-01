@@ -39,11 +39,11 @@ export default class CreateWallet extends React.Component {
         var entropy = this.refs.entropy.value;
 
         if (passphrase !== passphrase2) {
-            alert("Passwords should match");
+            alert("Passwords don't match");
             return;
         }
         if (passphrase === "") {
-            return alert("Password should not be blank!")
+            return alert("Password can't be blank!")
         }
 
         var randomSeed = lightwallet.keystore.generateRandomSeed(entropy);
@@ -85,14 +85,14 @@ export default class CreateWallet extends React.Component {
         var walletGenerated = this.state.walletCode==="";
         var form = ( <div className="input-group">
             <input className="form-control" type="text" ref="entropy" placeholder="Type random text to generate entropy" size="80"></input>
-            <input className="form-control" type="password" ref="passphrase" placeholder="Type password to protect your wallet" size="80"></input>
-            <input className="form-control" type="password" ref="passphrase2"  placeholder="Type again password to protect your wallet" size="80"></input>
-            <button className="btn btn-default" type="button" onClick={this.newWallet.bind(this)}>Create New Wallet</button>
+            <input className="form-control" type="password" ref="passphrase" placeholder="Enter a password to protect your wallet" size="80"></input>
+            <input className="form-control" type="password" ref="passphrase2"  placeholder="Retype your password" size="80"></input>
+            <button className="btn btn-default" type="button" onClick={this.newWallet.bind(this)}>Create a new wallet</button>
         </div>);
 
         var result = (
             <div className="well">
-             <span><h2>Write down theese words and your password in the safe place, they will be absolutely necessary to access your walet</h2></span>
+             <span><h2>These 12 words are your wallet seed. It will unlock complete access to your funds even if you can't access your computer anymore. Please write them down on a piece of paper before continuing.</h2></span>
              <div>
                  <h1>{this.state.walletCode}</h1>
                  </div>
