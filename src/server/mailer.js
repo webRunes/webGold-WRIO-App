@@ -8,7 +8,7 @@ request({
         method: "POST",
         uri: "https://www.googleapis.com/gmail/v1/users/me/messages/send",
         headers: {
-            "Authorization": "Bearer 'AIzaSyBShbBtMgGxOqa5OO4XHmN2GaYd2Sr8_yw'",
+            "Authorization": "Bearer ''",
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
@@ -35,18 +35,6 @@ var googleAuth = require('google-auth-library');
 // at ~/.credentials/gmail-nodejs-quickstart.json
 var SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
 // Load client secrets from a local file.
-const apiKey = {
-    "type": "service_account",
-    "project_id": "hex-worksr-864",
-    "private_key_id": "7de3943a6ea8bd9a5bff31f00b50df00e62d48dd",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQC7+2/r0XgAiSh9\nWDpIma80KMqpY2cityJwpB7q2Ko7RUQ9bEWPt3yAQMlY5u5ywDvD2wc8pvAXFarE\nCG2ehoPuOVdLaIXSpp+JLHwqo3ukmqcst3pnJXuQ/Qfb5XXDVijuD8PzBwLlK9Np\nMgZxq005+GL+Eoa+HooMDOlAV9MMIXK+oy4gCcNQFqPYzgfZiv6eRyexusQ87/hN\nCp4/7xkkiweT8vBVJihDPwi3AsEAAwZ+smUc6KVNltPHEm88SoJJputMCLXybwGv\nH0zXkDn2MW+B8sSllk2yCue5Ei//LUNGykG9AI8cNzydgDQWuozzzxxZMRPvUhss\nq/j/+M65AgMBAAECggEBAJbvSy0wckcT2ePSzHFwnIGn4xlgy/XOz6Nb08tDDmQq\nuKEM50l+zUN5QXHVck3G1fXrToM/kvUmG4ftMH8hiJrlhZbxpMm/qccNZeEihOtk\nlahM5cYeDXocAIxqUET4UELde7sNvSBfMQ988Dmijo5mRq20GGZcxQDp+PsFyVop\nvLsXValln7K/vYb8962K7BKhc2q36BKN+OG9Xcxaz0zK2ldDb9z/d84iEEeEG5I4\nGthevBMkMrBRnxTv8myzVi5LxQEsoJNesLaD0uIDSW/9TJPD2zmECL96mbh6qvHf\n53c9pS+4vMDoD1qVMsFSJMvG/ORgnEqNcUvFhES3tZUCgYEA4YTUtphQvM7nnK0Q\nrqQLAAYeT3CqMfOEDtNNZl4P5Jn9l6iXip9QVbBRi9IjWEJYeKnJFiu+h+jJSenM\n3sngG5PugtBau5petmt9QwxezlEAEYhlQlS1IWTsGQmi78nsNd6PhkOdEsd1DHSC\nlw/F0AUE51BQNYq/LZ4+8J0jOlsCgYEA1WPM+X1YKIsF/tVnQSxrREcSieDoKLlp\nwTRkfPsff2LPSzKsfvFci2L75VtcucZ1dRTLoT0WBfYlv5Spa8gEHZnKbnFoFEFA\nHwakmuM65m+cez4Beb80z3rW9xumNVoDvgUNK3MX/RbeATq7Bli3oiHKXUziK1Yp\nCZ8R5Z1sX3sCgYAhOij9HkQHDZUiiH1EvfbA8iXVHox0/6QdaxSkWIeO7wFmLvjk\n+8QiW/An4bZDcsMGRD3Ufm18KNg/g6sjyCq05X7m1zwHGB+MURoLnu75BwYzjx0c\nQM7PNMd0iO7w1Zdv+HK9HYkvEyQzyZbUGwbSN2sZicPHn8G7Pu2XFg/ysQKBgQCy\nH7bQY/MdFL+ScyzX2G5J9lHhSh5BMFS49DUVpsIqIZ8MFGatKGip6Zx/Xf5PDPyr\nGQrJsyYZH9luzHeIAtR8qQ2zl3LbxYPy4iaxLBDUnkIvFhlBOXyp3M5oQ2pAir0o\n9yqBJHfXyijTOeU4bQIMksxLiYwZxLhI0cGsu/Xk1QKBgQCoSitjP7/CMhIObB0X\nBa2pdV0GUNN8zZ7BZU7tWrXd5hqHyeALSIXX5H7h8+bnw/Y0Svyq11Pi6i3mwdlK\nlRy1NG/LfJdf2MP0mi5rXskhPXehOz15TefH8nX5Qt7os/63fHT40I2su/JyOFO2\nFK5nf428A4re2UrPA/N426GvgA==\n-----END PRIVATE KEY-----\n",
-    "client_email": "serv-519@hex-worksr-864.iam.gserviceaccount.com",
-    "client_id": "117434138024599203721",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://accounts.google.com/o/oauth2/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/serv-519%40hex-worksr-864.iam.gserviceaccount.com"
-};
 authorize(apiKey, listLabels);
 
 /**
