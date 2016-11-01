@@ -78,7 +78,6 @@ export default class Invoice {
         logger.debug(nonce);
 
         return new Promise((resolve,reject) => {
-
             this.payments.findOne({_id:nonce},function (err,data) {
                 if (err) {
                     logger.error("Error while searching invoice");

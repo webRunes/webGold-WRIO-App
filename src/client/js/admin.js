@@ -46,6 +46,17 @@ class EthereumStats extends React.Component {
            console.log(state);
            this.setState(state);
        });
+
+        request.get('/api/blockchain/get_gap').
+            set('X-Requested-With',"XMLHttpRequest").
+            end((err,res) => {
+            if (err) {
+                console.log("Can't get blockchain address gap");
+                return;
+            }
+            console.log(res.text);
+            this.setState(JSON.parse(res.text));
+        });
         this.getLatestBlockEtherscan();
     }
 
@@ -76,6 +87,7 @@ class EthereumStats extends React.Component {
                 remote one, then there is some problem with local node, most likely it was stuck at some old block</p>
                 <p> Gas price: { this.state.gasPrice } WRG </p>
                 {sync}
+                <p> Blockchain.info address gap: {this.state.gap} . <b> Warning! If gap > 20 we will be unable to generate new bitcoin incoming adresses!</b></p>
             </div>
 
         );
@@ -535,6 +547,78 @@ class Invoices extends React.Component {
     }
 }
 
+class Presales extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            data:[
+
+            ]
+
+        };
+
+    }
+
+    componentDidMount() {
+
+        console.log("Mounted");
+        request.get('/api/webgold/coinadmin/presales').end((err,res) => {
+            if (err || !res) {
+                console.log("Can't get payment history");
+                return;
+            }
+            this.setState({
+                data: res.body
+            });
+        });
+
+
+    }
+
+    render() {
+        return (
+            <div>
+                <h1>Registered presales</h1>
+
+                <table className="table">
+                    <thead>
+                    <tr>
+                        <th>Ethereum ID</th>
+                        <th>BTC Adress</th>
+                        <th>BTC Amount</th>
+                        <th>Time</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {
+                        this.state.data.map(function (item) {
+                            var amount = (item.amount || item.requested_amount)/SATOSHI;
+                            if (isNaN(amount)) {
+                                amount = "Error";
+                            } else {
+                                amount = numeral(amount).format('0.00000000') + " BTC";
+                            }
+                            return  (<tr>
+                                <td> {item.ethID || ""}</td>
+                                <td>{ item.address || "" }</td>
+                                <td>{ amount || ""}</td>
+                                <td>{ moment(item.timestamp).format("H:mm:ss DD.MM.YYYY")  }</td>
+                                <td>{ item.email || ""}</td>
+                                <td>{ item.state || ""}</td>
+                            </tr>);
+                        })}
+
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+}
+
+
 export function RenderAdmin() {
 
 //console.log(Router,Route);
@@ -546,6 +630,7 @@ export function RenderAdmin() {
             <Route path="/donations" component={Donations}/>
             <Route path="/emissions" component={Emissions}/>
             <Route path="/invoices" component={Invoices}/>
+            <Route path="/presales" component={Presales}/>
         </Router>
     ), document.getElementById('main'));
 

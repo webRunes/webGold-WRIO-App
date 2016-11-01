@@ -1,9 +1,7 @@
 import React from 'react';
 import Amount from './Amount';
-//import CreditCard from './CreditCard';
 import AddFunds from './AddFunds';
 import Alert from './Alert';
-//import BrainTreeForm from "./BraintreeForm"
 import BincoinForm from './BitcoinForm';
 import PaymentStore from '../../stores/PaymentStore';
 import PaymentData from "./PaymentData";
@@ -42,23 +40,16 @@ class PaymentForm extends React.Component {
         
         var form = e.target;
 
-        /*var stripereq = {
-            amount: parseFloat(form.amount.value),
-            creditCard: parseFloat(form.creditCard.value),
-            month: parseFloat(form.month.value),
-            year: parseFloat(form.year.value),
-            cvv: parseFloat(form.cvv.value)
-        };*/
-
         request
-            .post('/api/blockchain/request_payment') // '/api/stripe/add_funds'
+            .post('/api/blockchain/request_payment')
+            .set('X-Requested-With',"XMLHttpRequest")
             .send({
                 amount: parseFloat(form.amount.value)*SATOSHI,
                 amountWRG: parseFloat(form.amountWRG.value)
             })
             .end((err, res) => {
                 if (err) {
-                    this.setState({
+                    return this.setState({
                         alert: {
                             type: 'error',
                             message: 'Error: ' + err.message
@@ -87,13 +78,7 @@ class PaymentForm extends React.Component {
         if (this.state.payment_data) {
             setTimeout(frameReady,600); // TODO using global function, this is wrong, make properly next time
         }
-
-        // <form id="checkout" method="post" action="/api/braintree/payment-methods">
-        // <BrainTreeForm />
-        //<input type="hidden" name="amount" value={this.state.amount.USD} />
-        //<input type="hidden" name="amountWRG" value={this.state.amount.WRG} />
         return (
-
           <form id="checkout" method="post" onSubmit={ this.addFunds.bind(this) }>
               { this.state.payment_data ? <PaymentData
                   amount= {this.state.payment_data.amount / SATOSHI}

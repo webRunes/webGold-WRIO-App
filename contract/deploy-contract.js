@@ -10,7 +10,7 @@ import {dumpError} from '../src/server/utils.js';
 
 class WebGoldDeploy extends WebGold {
 
-    compile() {
+    compile(solfiles) {
         var web3 = this.getWeb3();
         console.log("Compiling...");
 
@@ -20,7 +20,7 @@ class WebGoldDeploy extends WebGold {
         return this;
     }
 
-    deploy() {
+    deploy(solfile) {
         console.log("Deploying...");
         var web3 = this.getWeb3();
 
@@ -43,7 +43,7 @@ class WebGoldDeploy extends WebGold {
                     } else {
                         console.log("Contract mined! Address: " + contract.address);
                         console.log(contract);
-                        this.saveContractAddress(contract.address);
+                        this.saveContractAddress(contract.address,solfile);
                     }
 
                 } else {
@@ -52,8 +52,8 @@ class WebGoldDeploy extends WebGold {
             });
     }
 
-    saveContractAddress(addr) {
-        fs.writeFileSync('./bin/token.addr',addr);
+    saveContractAddress(addr,solfile) {
+        fs.writeFileSync(solfile,addr);
     }
 
 }
@@ -63,8 +63,11 @@ try {
         console.log("Db ready");
         var depl = new WebGoldDeploy(db);
         console.log("Starting deploy process");
-        depl.compile();
-        depl.deploy();
+        //depl.compile('./src/webgold.sol');
+        //depl.deploy('./bin/token.addr');
+
+        //depl.compile('./src/webgold.sol');
+        //depl.deploy('./bin/token.addr');
     })();
 
 }

@@ -1,0 +1,53 @@
+{
+ "db": {
+    "host": "mongo",
+    "dbname": "webrunes_test",
+    "user": "",
+    "password": "",
+    "workdomain": ".wrioos.com",
+    "mongouser": "",
+    "mongodbname": "webrunes_test"
+  },
+  "mongo": {
+    "host": "mongo",
+    "dbname": "webrunes_test",
+    "user": "",
+    "password": ""
+  },
+  "mail": {
+    "host": "localhost",
+    "secureConnection": true,
+    "port": 26,
+    "user": "",
+    "pass": ""
+  },
+  "server": {
+    "cookiesecret": "keyboard.cat",
+    "port": 5010,
+    "workdomain": ".wrioos.com"
+  },
+  "payment": {
+    "stripe": {
+      "secreteKey": ""
+    },
+    "stripe1": {
+      "secreteKey": ""
+    },
+    "blockchain": {
+      "secret":"01234567890123456790123452323",
+      "receivingAdress":"36PrZ1KHYMpqSyAQXSG8VwbUiq2EogxLAA"
+    },
+    "blockchain_v2": {
+          "xpub":"fjfj2lkj2lk3j12lk312lk312l3k213lk12j321lk",
+          "secret":"01234567890123456790123452323",
+          "key":"12lk3j123lk213l12k312l3kj123lk21j3lk21j12lk3j"
+    },
+    "ethereum": {
+      "host":"http://localhost:8545",
+      "masterAdr":"0xde0b295669a9fd93d5f28d9ec85e40f4cb697b00",
+      "masterPass":"0123123123213123123123213124125151515151515"
+    },
+    "currencyName":"THX",
+    "grammPriceUSD": 30
+  }
+}
