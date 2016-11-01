@@ -8,6 +8,7 @@ var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
+var util = require('gulp-util');
 
 function restart_nodemon () {
     if (nodemon_instance) {
@@ -20,14 +21,15 @@ function restart_nodemon () {
 }
 
 gulp.task('test', function() {
+    var grepStatement = util.env.grep ? {grep:util.env.grep} : {};
     return gulp.src('test/**/*.js', {read: false})
         // gulp-mocha needs filepaths so you can't have any plugins before it
-        .pipe(mocha({
+        .pipe(mocha(Object.assign({
             reporter: 'dot',
-            timeout: 60000
-        }))
+            timeout: 60000,
+        },grepStatement)))
         .once('error', function (err) {
-            console.log(err);
+            dumpError(err);
             process.exit(1);
         })
         .once('end', function () {
@@ -55,7 +57,7 @@ gulp.task('lint', function () {
 
 
 gulp.task('babel-server-transpile', function() {
-    return gulp.src(['src/index.js','src/constant.js'])
+    return gulp.src(['src/index.js','src/constant.js','src/currency.js'])
         .on('error', function(err) {
             console.log('Babel server:', err.toString());
         })
@@ -79,21 +81,21 @@ gulp.task('babel-server', ['babel-server-transpile']);
 gulp.task('babel-client',function() {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
-
+            console.log("3rd party copy error",err);
         })
         .pipe(gulp.dest('app/client/3rdparty'));
 
     gulp.src('hub/**/*.*')
         .on('error',function (err) {
-
+            console.log("hub copy error",err);
         })
         .pipe(gulp.dest('app/hub/'));
 
-    browserify({
+    return browserify({
         entries: './src/client/js/client.js',
         debug: true
     })
-    .transform(babelify)
+    .transform("babelify")
     .bundle()
     .on('error', function(err) {
         console.log('Babel client:', err.toString());
@@ -128,10 +130,25 @@ gulp.task('nodemon', function() {
 
 });
 
-gulp.task('default', ['lint','babel-server-transpile', 'babel-client', 'views']);
+gulp.task('default', ['babel-server-transpile', 'babel-client', 'views']);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
     gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);
     gulp.watch('src/client/js/**/*.*', ['babel-client']);
     gulp.watch('src/client/views/**/*.*', ['views']);
 });
+
+
+function dumpError(err) {
+    if (!err) return;
+    if (typeof err === 'object') {
+        if (err.message) {
+            console.log('\nMessage: ' + err.message);
+        }
+        if (err.stack) {
+            console.log('\nStacktrace:');
+            console.log('====================');
+            console.log(err.stack);
+        }
+    }
+}

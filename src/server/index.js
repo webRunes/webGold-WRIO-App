@@ -7,20 +7,19 @@ import BlockChainRoute from './blockchain.info';
 import {BlockChain} from './blockchain.info';
 import EthereumRoute from './ethereum-route';
 import UserStatsRoute from './user-stats.js';
-
-    import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import WebGold from './ethereum';
 import BigNumber from 'bignumber.js';
-
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from '../constant.js';
 import setupIO from './notifications.js';
-
 import {server,db,login} from 'wriocommon';
 
+import CurrencyConverter from '../currency.js';
+const converter = new CurrencyConverter();
 
 logger.level = 'debug';
 var app = express();
@@ -56,7 +55,7 @@ const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 function setup_server(db) {
 
     //For app pages
-    app.set('view engine', 'ejs');
+  //  app.set('view engine', 'ejs');
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
     const DOMAIN = nconf.get("db:workdomain");
 
@@ -87,6 +86,8 @@ function setup_routes(db) {
         response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
     });
 
+    app.get('/presale', (request, response) => response.sendFile(path.join(TEMPLATE_PATH, '/presale.html')));
+
     app.get('/add_funds', function (request, response) {
         let testnet = nconf.get('payment:ethereum:testnet');
         if (testnet) {
@@ -113,16 +114,19 @@ function setup_routes(db) {
         try {
             var user = request.user;
             if (user) {
-                var bc = new BlockChain();
-                var btc_rate = await bc.get_rates();
-                var wg = new WebGold(db);
-                var bitRate = wg.convertWRGtoBTC(new BigNumber(Const.WRG_UNIT),btc_rate);
+                const bc = new BlockChain();
+                const btc_rate = await bc.get_rates();
+                const grammPrice = converter.grammPriceUSD;
+                const btcToWrgRate = converter.getRate(grammPrice, btc_rate);
+                const bitRate = converter.convertWRGtoBTC(new BigNumber(Const.WRG_UNIT),btcToWrgRate);
                 response.json({
                     username: user.lastName,
                     loginUrl: loginUrl,
                     balance: user.balance,
-                    exchangeRate: nconf.get('payment:WRGExchangeRate'),
-                    btcExchangeRate: bitRate
+                    btcExchangeRate: bitRate, // deprecated
+                    exchangeRate: grammPrice, // deprecated
+                    grammPriceUSD: grammPrice,
+                    btcToWrgRate: btcToWrgRate
                 });
             }
         } catch(e) {

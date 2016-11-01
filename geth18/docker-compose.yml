@@ -1,0 +1,7 @@
+ethereum:
+  build: .
+  ports:
+   - "30303:30303"
+   - "8545:8545"
+  command: --testnet --rpc --rpcaddr "0.0.0.0" --support-dao-fork
+
