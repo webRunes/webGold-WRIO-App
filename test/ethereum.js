@@ -20,7 +20,7 @@ describe("Blockchain unit tests", () => {
         converter = new CurrencyConverter(30);
     });
 
-    it ('should be able to create donate TX', async (done) => {
+   /* it ('should be able to create donate TX', async (done) => {
         try {
             let hex = await wg.makeDonateTx("0x59aE5534Ed5587b47924CFDD93872d087F121443","0x59aE5534Ed5587b47924CFDD93872d087F121443",10);
             console.log("TX created",hex);
@@ -35,7 +35,9 @@ describe("Blockchain unit tests", () => {
             console.log("Error",e);
             done();
         }
-    });
+    });*/
+
+
     it('should be able to convert units correctly to WRG', () => {
         const btc = new BigNumber(SATOSHI / 10);
         const btcUsdRate = new BigNumber(600);
