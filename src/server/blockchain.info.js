@@ -17,6 +17,7 @@ import verifyMiddleware from './recaptcha.js';
 
 const router = Router();
 const converter = new CurrencyConverter();
+const isInTest = typeof global.it === 'function';
 
 /* Blockchain.info client for bitcoin payments */
 
@@ -214,7 +215,9 @@ export class BlockChain {
             await invoice.updateInvoiceData({
                state: "payment_confirmed"
             });
-            console.log("Payment was confirmed by blockchain.info", await invoice.getPresale(nonce));
+            const inv = await invoice.getPresale(nonce);
+            console.log("Payment was confirmed by blockchain.info", inv);
+            await this.presaleMake(inv);
             return resp.status(200).send("*ok*"); // send success to blockchain.info server
         }
         logger.verbose("**Confirmation recieved",confirmations);
@@ -222,11 +225,7 @@ export class BlockChain {
 
     }
 
-    btcToMilliWRG(btc,rate) {
-        const wrg = converter.convertBTCtoWRG(new BigNumber(btc),rate).times(100).toFixed(0);
-        return parseInt(wrg);
-    }
-
+   /*
     async generateWrg(who,btcAmount,id) {
         const wrg = this.btcToMilliWRG(btcAmount, await this.get_rates());
         var isInTest = typeof global.it === 'function';
@@ -237,9 +236,14 @@ export class BlockChain {
             return await this.webgold.emit(who, wrg, id); // send ether to user
         }
     }
+    */
 
     async presaleMake(invoice) {
-        await this.logPresale(invoice.email, invoice.ethID, invoice.amount, getPresaleWRG(invoice_amount), "btcFROM", "btcTO");
+        const logPresale = !isInTest ?
+            this.webgold.logPresale.bind(this.webgold) :
+            (mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST)=> console.log(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST);
+
+        await logPresale (invoice.email, "0x"+invoice.ethID, invoice.amount, converter.satoshiTomilliWRGUsingPresalePrice(invoice.amount), "notImplemented", invoice.address);
     }
 }
 
@@ -300,10 +304,8 @@ router.post('/request_payment', restOnly, wrioAuth, function(req,response) {
 
 const verifyMiddlewareFactory = () => {
     const isInTest = typeof global.it === 'function';
-
     return isInTest? (request,response,next) => next() : verifyMiddleware;
-
-}
+};
 
 
 router.post('/request_presale', restOnly, verifyMiddlewareFactory(), (req,response) =>{ // TODO add anti-spam protection

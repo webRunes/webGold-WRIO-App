@@ -55,7 +55,26 @@ describe("Blockchain unit tests", () => {
 
         let usdSum = converter.wrgToUSD(wrg);
         expect(usdSum).to.equal('60');
+    });
 
+    it('should be able to convert presale BTC value(in satoshis) to WRG correctly', () => {
+        let btc = SATOSHI;
+        let wrg = converter.satoshiToWRGUsingPresalePrice(btc);
+        expect(wrg).to.equal('30000.00');
+
+        btc = 0.165111*SATOSHI;
+        wrg = converter.satoshiToWRGUsingPresalePrice(btc);
+        expect(wrg).to.equal('4953.33');
+
+        // use milliWRG for ethereum contracts as minium unit
+
+        btc = SATOSHI;
+        wrg = converter.satoshiTomilliWRGUsingPresalePrice(btc);
+        expect(wrg).to.equal('3000000');
+
+        btc = 0.165111*SATOSHI;
+        wrg = converter.satoshiTomilliWRGUsingPresalePrice(btc);
+        expect(wrg).to.equal('495333');
     });
 });
 
