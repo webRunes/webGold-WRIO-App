@@ -216,7 +216,7 @@ export class BlockChain {
                state: "payment_confirmed"
             });
             const inv = await invoice.getPresale(nonce);
-            console.log("Payment was confirmed by blockchain.info", inv);
+            console.log("Payment confirmed by blockchain.info", inv);
             await this.presaleMake(inv);
             return resp.status(200).send("*ok*"); // send success to blockchain.info server
         }

@@ -66,7 +66,7 @@ describe("Blockchain unit tests", () => {
         wrg = converter.satoshiToWRGUsingPresalePrice(btc);
         expect(wrg).to.equal('4953.33');
 
-        // use milliWRG for ethereum contracts as minium unit
+        // use milliWRG for ethereum contracts as minimum unit
 
         btc = SATOSHI;
         wrg = converter.satoshiTomilliWRGUsingPresalePrice(btc);
