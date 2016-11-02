@@ -72,7 +72,7 @@ describe("Blockchain unit tests", function() {
             "ethereumWallet": "0xc40e6bd934b31b312bfe55441fc086b19aa4df4d"
         });
         //invoiceID = await invoice.createInvoice(user._id,user.wrioID);
-        invoiceID = await invoice.createPresale("user@mail.com","someETHaddr");
+        invoiceID = await invoice.createPresale("user@mail.com","557cc6f312e9ebd45bebe06219b7bab87f8bc846");
         await invoice.updateInvoiceData({
             address: address,
             destination: destination,

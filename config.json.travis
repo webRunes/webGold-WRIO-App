@@ -48,6 +48,7 @@
       "masterPass":"0123123123213123123123213124125151515151515"
     },
      "currencyName":"THX",
-     "grammPriceUSD": 30
+     "grammPriceUSD": 30,
+     "presaleBTCPrice": 30000
   }
 }
