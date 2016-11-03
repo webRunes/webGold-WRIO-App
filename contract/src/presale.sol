@@ -27,7 +27,7 @@ contract Presale {
 
     /* Very simple trade function */
 
-    function markSale(string mail, address adr, uint satoshis, uint centiWRG,string bitcoinSRC, string bitcoinDEST) returns(bool sufficient) {
+    function makePresale(string mail, address adr, uint satoshis, uint centiWRG,string bitcoinSRC, string bitcoinDEST) returns(bool sufficient) {
         PresaleEntry memory entry;
         int expectedWRG = int(presaleAmount) - int(centiWRG);
         

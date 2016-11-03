@@ -24,6 +24,7 @@ import ethUtil from 'ethereumjs-util';
 import CurrencyConverter from '../currency.js';
 import EthereumContract from './ethereum/EthereumContract.js';
 
+
 const converter = new CurrencyConverter();
 const wei = Const.WEI;
 const SATOSHI = Const.SATOSHI;
@@ -325,7 +326,7 @@ class WebGold extends EthereumContract {
 
     async makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce, gasPrice) {
 
-        let data = this.presaleContract.markSale.getData(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST);
+        let data = this.presaleContract.makePresale.getData(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST);
         return await this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16));
     }
 
