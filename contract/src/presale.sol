@@ -7,7 +7,7 @@ contract Presale {
         string bitcoinSRC;
         string bitcoinDEST;
         uint satoshis;
-        uint centirWRG;
+        uint centiWRG;
     }
   
    PresaleEntry [] public entries ;
@@ -27,20 +27,20 @@ contract Presale {
 
     /* Very simple trade function */
 
-    function markSale(string mail, address adr, uint satoshis, uint centirWRG,string bitcoinSRC, string bitcoinDEST) returns(bool sufficient) {
+    function markSale(string mail, address adr, uint satoshis, uint centiWRG,string bitcoinSRC, string bitcoinDEST) returns(bool sufficient) {
         PresaleEntry memory entry;
-        int expectedWRG = int(presaleAmount) - int(centirWRG);
+        int expectedWRG = int(presaleAmount) - int(centiWRG);
         
         if (!presaleGoing) return;
         
         if (msg.sender != master) return false; 
         if (expectedWRG < 0) return false;
         
-        presaleAmount -= centirWRG;
+        presaleAmount -= centiWRG;
         entry.ethID = adr;
         entry.email = mail;
         entry.satoshis = satoshis;
-        entry.centirWRG = centirWRG;
+        entry.centiWRG = centiWRG;
         entry.bitcoinSRC = bitcoinSRC;
         entry.bitcoinDEST = bitcoinDEST;
         
@@ -68,7 +68,7 @@ contract Presale {
          if (i >= max) {
              return ("NotFound",0,0,0,"","");
          }
-         return (entries[i].email,entries[i].ethID, entries[i].satoshis, entries[i].centirWRG,entries[i].bitcoinSRC,entries[i].bitcoinDEST);
+         return (entries[i].email,entries[i].ethID, entries[i].satoshis, entries[i].centiWRG,entries[i].bitcoinSRC,entries[i].bitcoinDEST);
      }
 
 }
