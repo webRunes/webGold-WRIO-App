@@ -91,13 +91,21 @@ export default class CreateWallet extends React.Component {
         </div>);
 
         var result = (
-            <div className="well">
-             <span><h2>These 12 words are your wallet seed. It will unlock complete access to your funds even if you can't access your computer anymore. Please write them down on a piece of paper before continuing.</h2></span>
-             <div>
-                 <h1>{this.state.walletCode}</h1>
-                 </div>
-                Your address {this.state.address}
-            </div>);
+            <div>
+                <div className="form-group">
+                    <div className="callout">
+                        <h5>Keep it saved!</h5>
+                        <p>These 12 words are your wallet seed. It will unlock complete access to your funds even if you can't access your computer anymore. Please write them down on a piece of paper before continuing.</p>
+                        <p><b>Важно:</b> мы радеем за безопасность и анонимность наших пользователей, а потому не сохраняем на серверах пароли, ключи доступа или личные данные. Невозможно украсть или изъять то, чего нет. Это защищает ваши данные и деньги от посягательств хакеров и других третьих сторон, однако помните: мы не сможем восстановить доступ к кошельку в случае потери вами указанной ниже кодовой фразы.</p>
+                    </div>
+                </div>
+                <div className="form-group form-inline">
+                    <div className="col-sm-12">
+                        <div className="alert alert-warning">{this.state.walletCode}</div>
+                        <div> Your address {this.state.address} </div>
+                    </div>
+                </div>
+        </div>);
 
         return (<div>
             {walletGenerated ? form : result }

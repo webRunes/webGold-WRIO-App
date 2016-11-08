@@ -21,7 +21,8 @@ class PaymentForm extends React.Component {
             payment_data: null,
             amount: 0.0,
             showPaymentCredentials:false,
-            showWallet: false
+            showWallet: false,
+            stage: 0
         };
         recapEvent = this.recapReady.bind(this);
     }
@@ -80,7 +81,7 @@ class PaymentForm extends React.Component {
                     showPaymentCredentials: false,
                     payment_data: {
                         amount: result.amount,
-                        adress: result.adress,
+                        adress: result.adress
                     }
                 });
             });
@@ -94,9 +95,21 @@ class PaymentForm extends React.Component {
 
     recapReady(captcha) {
         console.log("reCaptcha successfully submitted");
-        this.setState({showWallet: true,captcha: captcha});
+        this.setState({showWallet: true,captcha: captcha,stage: 2});
     }
-    
+
+    showCaptcha() {
+        this.setState({stage:1});
+
+    }
+    componentDidUpdate() {
+        if (this.state.stage == 1) {
+            grecaptcha.render('googleRecaptcha',{
+                'sitekey':'6Lc6rQoUAAAAACmUxcn9AwYbrMEAFCEx8ZWOE8uF',
+                'data-callback': "recapFinish"
+            });
+        }
+    }
     render() {
 
         if (this.state.payment_data) {
@@ -105,12 +118,19 @@ class PaymentForm extends React.Component {
         return (
           <form name="presaleForm"  onSubmit={this.addFunds.bind(this)}>
 
-              <div className="col-xs-12" >
+              {this.state.stage == 0 && <div className="well enable-comment">
+                  <h4>Get your first crypto currency wallet!</h4>
+                  <p>Нажмите "Create wallet" для получения своего первого крипто-кошелька, который откроет для вас дверь в мир финансовой независимости (ссылка). От вас не потребуется ровным счетом ничего: никаких паспортов, верификации или контроля!</p>
+                  <br />
+                  <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-record"></span>Create wallet</a>
+              </div>}
+
+              {this.state.stage == 1 && <div className="col-xs-12" >
                   <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
                   <div className="col-xs-9">
-                     <div className="g-recaptcha" data-sitekey="6Lc6rQoUAAAAACmUxcn9AwYbrMEAFCEx8ZWOE8uF" data-callback="recapFinish"></div>
+                     <div id="googleRecaptcha" className="g-recaptcha"></div>
                   </div>
-                </div>
+                </div>}
 
               {this.state.showWallet ? <div className="col-xs-12" >
                     <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Protect your wallet with a password</label></div>
