@@ -130,7 +130,7 @@ gulp.task('nodemon', function() {
 
 });
 
-gulp.task('default', ['babel-server-transpile', 'babel-client', 'views']);
+gulp.task('default', ['babel-server-transpile', 'views']);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
     gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);

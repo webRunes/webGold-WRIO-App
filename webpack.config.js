@@ -22,11 +22,11 @@ if (process.env.DOCKER_DEV) {
 
 console.log(envs);
 var e = {
-    entry: {
-        main:'./src/client/js/client.js',
-    },
-    output: { path: './',
-        filename: '[name].js',
+    entry: './src/client/js/client.js',
+    output:
+    {
+        path: '/',
+        filename: './app/client/client.js',
         devtoolModuleFilenameTemplate: '[absolute-resource-path]'
     },
     module: {
@@ -34,27 +34,17 @@ var e = {
             {
                 test: /.js?$/,
                 loader: 'babel-loader',
-                exclude: /node_modules/,
+                exclude: [/node_modules/,/app/],
                 query: {
                     presets: ['react', 'es2015','stage-0']
                 }
-            }
-        ]
-        ,
+            },
+            { test: /\.json$/, loader: "json-loader" }
 
-    },
-    devServer: {
-        host: "0.0.0.0",
-        port: 4000,
-        contentBase: "../",
-        colors: true,
-        inline:true,
-        watchOptions: {
-            poll: 1000 // <-- it's worth setting a timeout to prevent high CPU load
-        },
+        ]
+
     },
     devtool: 'source-map',
-
     plugins: [
         new webpack.DefinePlugin(envs)]
 
@@ -63,9 +53,8 @@ var e = {
 var minify = false;
 if (minify) {
     e.plugins.push(new webpack.optimize.UglifyJsPlugin({
-        compress:{
-            warnings: false,
-        }
+        beautify: true,
+        mangle: false
     }));
     e.devtool = 'source-map';
 }

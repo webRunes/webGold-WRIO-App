@@ -34,7 +34,9 @@
     "react-addons-test-utils": "^0.14.6",
     "should": "^6.0.3",
     "supertest": "^1.0.1",
-    "webpack": "1.13.3"
+    "webpack": "1.13.3",
+    "webpack-dev-middleware":"1.8.4",
+    "webpack-hot-middleware":"2.13.2"
   },
   "dependencies": {
     "babel-eslint": "^6.0.0",
@@ -60,6 +62,7 @@
     "express-session": "^1.12.1",
     "googleapis": "^14.1.0",
     "hooked-web3-provider": "^1.0.0",
+    "json-loader": "^0.5.4",
     "jszip": "^2.5.0",
     "moment": "^2.10.6",
     "mongodb": "^2.0.35",

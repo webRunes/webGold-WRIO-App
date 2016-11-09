@@ -161,7 +161,24 @@ function setup_routes(db) {
     app.use('/api/blockchain/',BlockChainRoute);
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
+
     app.use('/assets', express.static(path.join(__dirname, '../client')));
+
+    function setupDevServer () {
+        const webpack = require('webpack');
+        const webpackDevMiddleware = require('webpack-dev-middleware');
+        const webpackHotMiddleware = require('webpack-hot-middleware');
+        const config = require('../../webpack.config');
+
+        const compiler = webpack(config);
+
+        app.use(webpackDevMiddleware(compiler,{
+            publicPath: "/assets/",
+            stats: {colors: true}
+        }))
+    };
+    setupDevServer();
+
     app.use('/', express.static(path.join(__dirname, '../hub')));
 
     app.use(function (err, req, res, next) {

@@ -55,9 +55,6 @@ class Presale extends React.Component {
     render() {
         return (
             <div>
-                <div className="well">
-                    webGold Presale. You can buy webGold with bitcoin.
-                </div>
                 <PresaleForm
                     exchangeRate={ this.state.btcExchangeRate }
                     loginUrl={ this.state.loginUrl } />

@@ -7,7 +7,7 @@ import PaymentData from "./PaymentData";
 import request from 'superagent';
 import Const from '../../../../constant.js';
 import EmailEntry from './EmailEntry.js';
-import CreateWallet from '../createwallet.js';
+import CreateWallet, {Disclaimer} from '../createwallet.js';
 
 let SATOSHI = Const.SATOSHI;
 var recapEvent = null;
@@ -106,7 +106,7 @@ class PaymentForm extends React.Component {
         if (this.state.stage == 1) {
             grecaptcha.render('googleRecaptcha',{
                 'sitekey':'6Lc6rQoUAAAAACmUxcn9AwYbrMEAFCEx8ZWOE8uF',
-                'data-callback': "recapFinish"
+                'callback': this.recapReady.bind(this)
             });
         }
     }
@@ -133,7 +133,6 @@ class PaymentForm extends React.Component {
                 </div>}
 
               {this.state.showWallet ? <div className="col-xs-12" >
-                    <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Protect your wallet with a password</label></div>
                     <div className="col-xs-9">  <CreateWallet saveCB={this.gotAddr.bind(this)}/></div>
                 </div> : "" }
 
