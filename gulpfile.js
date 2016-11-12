@@ -9,6 +9,7 @@ var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
 var util = require('gulp-util');
+var webpack = require('webpack');
 
 function restart_nodemon () {
     if (nodemon_instance) {
@@ -78,7 +79,7 @@ gulp.task('babel-server-transpile', function() {
 
 
 gulp.task('babel-server', ['babel-server-transpile']);
-gulp.task('babel-client',function() {
+gulp.task('babel-client',function(callback) {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
             console.log("3rd party copy error",err);
@@ -91,17 +92,14 @@ gulp.task('babel-client',function() {
         })
         .pipe(gulp.dest('app/hub/'));
 
-    return browserify({
-        entries: './src/client/js/client.js',
-        debug: true
-    })
-    .transform("babelify")
-    .bundle()
-    .on('error', function(err) {
-        console.log('Babel client:', err.toString());
-    })
-    .pipe(source('client.js'))
-    .pipe(gulp.dest('app/client'));
+    webpack(require('./webpack.config.js'),
+        function(err, stats) {
+            if(err) throw new gutil.PluginError("webpack", err);
+            console.log("[webpack]", stats.toString({
+                // output options
+            }));
+        callback();
+    });
 
 });
 
@@ -134,7 +132,6 @@ gulp.task('default', ['babel-server-transpile', 'views']);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
     gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);
-    gulp.watch('src/client/js/**/*.*', ['babel-client']);
     gulp.watch('src/client/views/**/*.*', ['views']);
 });
 

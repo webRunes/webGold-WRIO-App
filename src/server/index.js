@@ -168,16 +168,25 @@ function setup_routes(db) {
         const webpack = require('webpack');
         const webpackDevMiddleware = require('webpack-dev-middleware');
         const webpackHotMiddleware = require('webpack-hot-middleware');
-        const config = require('../../webpack.config');
-
+        let config = require('../../webpack.config');
+        config.output.filename = 'client.js'; //override output filename
+        config.output.path = '/';
         const compiler = webpack(config);
+
 
         app.use(webpackDevMiddleware(compiler,{
             publicPath: "/assets/",
-            stats: {colors: true}
+            stats: {colors: true},
+            watchOptions: {
+                aggregateTimeout: 300,
+                poll: true
+            },
         }))
-    };
-    setupDevServer();
+    }
+
+    if (nconf.get("db:workdomain") === '.wrioos.local') {
+        setupDevServer();
+    }
 
     app.use('/', express.static(path.join(__dirname, '../hub')));
 

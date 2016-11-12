@@ -12,7 +12,7 @@ import CreateWallet, {Disclaimer} from '../createwallet.js';
 let SATOSHI = Const.SATOSHI;
 var recapEvent = null;
 
-class PaymentForm extends React.Component {
+class PresaleForm extends React.Component {
     constructor(props) {
         super(props);
         
@@ -169,13 +169,8 @@ class PaymentForm extends React.Component {
         );
     }
 }
-PaymentForm.propTypes = {
+PresaleForm.propTypes = {
     loginUrl: React.PropTypes.string.isRequired,
     exchangeRate: React.PropTypes.object
 };
 
-window.recapFinish = (res) => {
-    recapEvent(res);
-};
-
-export default PaymentForm;

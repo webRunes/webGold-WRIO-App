@@ -50,14 +50,17 @@ class ExtraEntropy extends React.Component {
 
     render() {
         const style = {
-            backgroundColor: "blue",
-            width: "100%",
-            height:"180px",
+            height:"150px",
             verticalAlign:"middle",
             textAlign:"center"
         };
-        return (<div style={style}>
-            Move mouse over this field. Finished {this.state.percent} %
+        return (<div  className="col-sm-12">
+            <div className="alert alert-warning" style={style}>
+            Please, move the mouse randomly to generate a secure key for the wallet
+                <div>
+                    Finished {this.state.percent} %
+                </div>
+            </div>
         </div>)
     }
 }
@@ -151,12 +154,27 @@ export default class CreateWallet extends React.Component {
                 <ExtraEntropy cb={(e) => this.setState({entropy: e,enterEntropy:false})} />
             </div>)
         }
-
+        let cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3";
         var form = ( <div className="input-group">
             <Disclaimer />
-            <input className="form-control" type="password" ref="passphrase" placeholder="Enter a password to protect your wallet" size="80"></input>
-            <input className="form-control" type="password" ref="passphrase2"  placeholder="Retype your password" size="80"></input>
             <button className="btn btn-default" type="button" onClick={this.newWallet.bind(this)}>Create a new wallet</button>
+
+            <div className={cls}>
+                    <div className="input-group input-group-sm">
+                        <span className="input-group-addon">WRG</span>
+                        <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
+                    </div>
+                    <div className="help-block"></div>
+                </div>
+            <div className={cls}>
+                    <div className="input-group input-group-sm">
+                        <span className="input-group-addon">WRG</span>
+                        <input className="form-control" type="password" ref="passphrase2"  placeholder="Retype your password" size="80"></input>
+                    </div>
+                    <div className="help-block"></div>
+            </div>
+
+
         </div>);
 
         var result = (
