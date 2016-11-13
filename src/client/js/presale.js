@@ -54,12 +54,9 @@ class Presale extends React.Component {
 
     render() {
         return (
-            <div>
                 <PresaleForm
                     exchangeRate={ this.state.btcExchangeRate }
                     loginUrl={ this.state.loginUrl } />
-            </div>
-
         );
     }
 }

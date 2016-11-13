@@ -23,12 +23,15 @@ class ExtraEntropy extends React.Component {
             percent: 0,
         };
         this.count = 0;
-        this.maxcount = 1000;
+        this.maxcount = 128;
         this.collectionFinished = false;
     }
 
     componentDidMount() {
         document.addEventListener('mousemove', this.onMouseMove.bind(this));
+    }
+    componentWillUnmount() {
+        document.removeEventListener('mousemove', this.onMouseMove.bind(this));
     }
 
     onMouseMove(e) {
@@ -74,8 +77,9 @@ export default class CreateWallet extends React.Component {
             passphrase: "",
             passphrase2: "",
             entropy: "",
-            walletCode: "",
+            walletCode: null,
             enterEntropy: true,
+            verifyStage: false,
             saveCB: this.props.saveCB ? this.props.saveCB : saveEthId
         };
 
@@ -95,25 +99,21 @@ export default class CreateWallet extends React.Component {
 
     }
 
+    generateSeed() {
+        const entropy = this.state.entropy;
+        const passphrase = this.refs.passphrase.value;
+        this.randomSeed = lightwallet.keystore.generateRandomSeed(entropy);
+        console.log(this.randomSeed);
+        this.setState({
+            walletCode: this.randomSeed
+        });
+    }
+
     newWallet() {
-        var passphrase = this.refs.passphrase.value;
-        var passphrase2 =  this.refs.passphrase2.value;
-        var entropy = this.state.entropy;
-
-        if (passphrase !== passphrase2) {
-            alert("Passwords don't match");
-            return;
-        }
-        if (passphrase === "") {
-            return alert("Password can't be blank!")
-        }
-
-        var randomSeed = lightwallet.keystore.generateRandomSeed(entropy);
-        console.log("Random seed is",randomSeed);
 
         var cs = new KeyStore();
-        cs.init_keystore(randomSeed,passphrase,() => {
-            cs.newAddress(passphrase,(err,addr) => {
+        cs.init_keystore(this.randomSeed,this.state.passphrase,() => {
+            cs.newAddress(this.state.passphrase,(err,addr) => {
                 if (err) {
                     console.warn("Unable to create new adress!");
                     return;
@@ -128,71 +128,135 @@ export default class CreateWallet extends React.Component {
         });
 
 
-        cs.getSeed(passphrase,(seed) => {
-            this.setState({
-                walletCode: seed
-            });
+        cs.getSeed(this.state.passphrase,(seed) => {
+            console.log("Extracted seed",seed);
             if (!this.props.saveCB) { // do not reload page if we in the presale mode
                 parent.postMessage(JSON.stringify({
                     "reload": true
                 }), "*");
             }
         });
-
-
-
     }
 
 
+    verifyCallback(seed,pass) {
+        const passphrase = this.state.passphrase;
+        const wallet = this.state.walletCode;
+        if (seed === wallet && passphrase === pass) {
+            this.newWallet();
+        } else {
+            alert("Please verify that you entered everything correctly");
+        }
+
+    }
+
+    gotEntropy(e) {
+        this.setState({entropy: e,enterEntropy:false});
+        this.generateSeed();
+    }
+
+    confirmPass() {
+        const passphrase =  this.refs.passphrase.value;
+        const passphrase2 = this.refs.passphrase2.value;
+
+        if (passphrase !== passphrase2) {
+            alert("Passwords don't match");
+            return;
+        }
+        if (passphrase === "") {
+            return alert("Password can't be blank!")
+        }
+
+        this.setState({
+            verifyStage:true,
+            passphrase: passphrase,
+            passphrase2: passphrase2
+        });
+
+    }
 
     render () {
-        var walletGenerated = this.state.walletCode==="";
-
         if (this.state.enterEntropy) {
             return ( <div className="input-group">
-                <Disclaimer />
-                <ExtraEntropy cb={(e) => this.setState({entropy: e,enterEntropy:false})} />
+                <ExtraEntropy cb={this.gotEntropy.bind(this)} />
             </div>)
         }
-        let cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3";
-        var form = ( <div className="input-group">
+        if (this.state.verifyStage) {
+            return (<VerifyForm callback={this.verifyCallback.bind(this)} backCallback={()=>this.setState({verifyStage: false})}/>)
+        }
+        return ( <div className="form-horizontal">
             <Disclaimer />
-            <button className="btn btn-default" type="button" onClick={this.newWallet.bind(this)}>Create a new wallet</button>
-
-            <div className={cls}>
-                    <div className="input-group input-group-sm">
-                        <span className="input-group-addon">WRG</span>
-                        <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
-                    </div>
-                    <div className="help-block"></div>
+            <br />
+            {this.state.walletCode && <div className="form-group form-inline">
+                <div className="col-sm-12">
+                    <div className="alert alert-warning">{this.state.walletCode}</div>
                 </div>
-            <div className={cls}>
-                    <div className="input-group input-group-sm">
-                        <span className="input-group-addon">WRG</span>
-                        <input className="form-control" type="password" ref="passphrase2"  placeholder="Retype your password" size="80"></input>
-                    </div>
-                    <div className="help-block"></div>
+            </div>}
+            <br />
+            <div className="form-group form-inline">
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <div className="col-sm-8 col-md-9">
+                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                </div>
             </div>
-
-
-        </div>);
-
-        var result = (
-            <div>
-                <div className="form-group">
-                   <Disclaimer />
+            <div className="form-group form-inline">
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Repeat passphrase</label>
+                <div className="col-sm-8 col-md-9">
+                    <input className="form-control" type="password" ref="passphrase2"  placeholder="Repeat your password" size="80"></input>
                 </div>
-                <div className="form-group form-inline">
-                    <div className="col-sm-12">
-                        <div className="alert alert-warning">{this.state.walletCode}</div>
-                        <div> Your address {this.state.address} </div>
-                    </div>
+            </div>
+            <div className="form-group col-xs-12">
+                <div className="pull-right">
+                    <a href="#" className="btn btn-primary" onClick={this.confirmPass.bind(this)}><span className="glyphicon glyphicon-ok"></span>Create new wallet</a>
                 </div>
-        </div>);
-
-        return (<div>
-            {walletGenerated ? form : result }
+            </div>
         </div>);
     }
+ };
 
-};
+class VerifyForm extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    verify () {
+        const pass = this.refs.passphrase.value;
+        const seed = this.refs.seed.value.replace(/\s+/g, " "); // strip excess whitespaces
+        console.log(pass,seed);
+        this.props.callback(seed,pass);
+    }
+
+    goBack(e) {
+        console.log("Going back",e);
+        this.props.backCallback()
+    }
+
+    render () {
+       return ( <div className="form-horizontal">
+            <div className="callout">
+                <h5>Confirmation</h5>
+                <p>To confirm you've written down your seed correctly, please type it here</p>
+            </div>
+            <br />
+            <div className="form-group form-inline">
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>
+                <div className="col-sm-8 col-md-9">
+                    <input className="form-control" ref="seed"  placeholder="Enter your 12 word seed" size="80"></input>
+                </div>
+            </div>
+            <div className="form-group form-inline">
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <div className="col-sm-8 col-md-9">
+                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                </div>
+            </div>
+
+            <div className="form-group col-xs-12">
+                <a onClick={this.goBack.bind(this)} className="btn btn-default"><span className="glyphicon glyphicon-arrow-left"></span>Back</a>
+                <div className="pull-right">
+                    <a href="#" className="btn btn-primary" onClick={this.verify.bind(this)}><span className="glyphicon glyphicon-ok"></span>Verify</a>
+                </div>
+            </div>
+        </div>);
+    }
+}

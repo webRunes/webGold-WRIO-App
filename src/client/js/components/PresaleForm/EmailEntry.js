@@ -53,35 +53,31 @@ export default class EmailEntry extends React.Component {
     }
 
     render() {
-        const cls = (error) => "col-xs-4 col-sm-4 col-md-4 col-lg-3" + (error ? " has-error": "");
+        const cls = (error) => "col-sm-8 col-md-9" + (error ? " has-error": "");
 
         return (
-            <div className="col-xs-12">
-                <div className="col-xs-12">
-                        <div className="col-xs-3" />
-                        <div className={cls(this.state.emailInvalid )}>
-                            <div className="input-group input-group-sm">
-                                <span className="input-group-addon">Email</span>
-                                <input type="email" className="form-control" name="email" value={this.state.email} onChange={ this.emailChange } />
-                            </div>
-                            <div className="help-block">
-                                {this.state.emailInvalid ? "Enter valid email" : "Enter your Email"}
-                            </div>
+            <div className="form-conrol">
+                <div className="form-group form-inline">
+                    <label htmlFor="email" className="col-sm-4 col-md-3 control-label">Email</label>
+                    <div className={cls(this.state.emailInvalid)}>
+                        <input type="email" className="form-control" name="email" value={this.state.email} onChange={ this.emailChange } size="80" />
+                        <div className="help-block">
+                            {this.state.emailInvalid ? "Enter valid email" : ""}
                         </div>
                     </div>
-                <div className="col-xs-12">
-                <div className="col-xs-3" />
-                <div className={cls(this.state.emailCopyInvalid || !this.state.match)}>
-                    <div className="input-group input-group-sm">
-                        <span className="input-group-addon">Email</span>
-                        <input type="email" className="form-control" name="emailcopy" value={this.state.emailCopy} onChange={ this.emailCopyChange } />
-                    </div>
-                    <div className="help-block">
-                        {(this.state.match) ? "Repeat email address" : "Emails don't match"}
+
+                </div>
+                <br />
+                <div className="form-group form-inline">
+                    <label htmlFor="emailcopy" className="col-sm-4 col-md-3 control-label">Repeat email</label>
+                    <div className={cls(this.state.emailInvalid)}>
+                        <input type="email" className="form-control" name="emailcopy" value={this.state.emailCopy} onChange={ this.emailCopyChange } size="80"/>
+                        <div className="help-block">
+                            {(this.state.match) ? "" : "Emails don't match"}
+                        </div>
                     </div>
                 </div>
-                </div>
-            </div>
+               </div>
 
         );
     }

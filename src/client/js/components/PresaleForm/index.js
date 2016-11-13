@@ -12,7 +12,7 @@ import CreateWallet, {Disclaimer} from '../createwallet.js';
 let SATOSHI = Const.SATOSHI;
 var recapEvent = null;
 
-class PresaleForm extends React.Component {
+export default class PresaleForm extends React.Component {
     constructor(props) {
         super(props);
         
@@ -48,7 +48,9 @@ class PresaleForm extends React.Component {
     }
 
     gotAddr(addr) {
-        this.setState({id: addr,showPaymentCredentials: true});
+        this.setState({id: addr,
+            showPaymentCredentials: true,
+            showWallet:false});
     }
 
     addFunds(e) {
@@ -115,6 +117,7 @@ class PresaleForm extends React.Component {
         if (this.state.payment_data) {
             setTimeout(frameReady,600); // TODO using global function, this is wrong, make properly next time
         }
+
         return (
           <form name="presaleForm"  onSubmit={this.addFunds.bind(this)}>
 
@@ -141,30 +144,28 @@ class PresaleForm extends React.Component {
                   adress= {this.state.payment_data.adress}
                   /> : '' }
 
-              { this.state.alert ?
-                  <Alert
-                      type={ this.state.alert.type }
-                      message={ this.state.alert.message}
-                      onClose={ this.onAlertClose.bind(this) }/> : '' }
 
-              {this.state.showPaymentCredentials ? <div className="col-xs-12">
+              {this.state.showPaymentCredentials ?
+                  <div className="col-xs-12">
+                      <div className="callout">
+                          <h5>Enter your email and desired sum to finish presale process</h5>
+                          <p></p>
+                      </div>
+                      <br />
                   <EmailEntry gotMail={this.gotEmail.bind(this)} />
+                      <Amount exchangeRate={ this.props.exchangeRate } />
+                      <div className="col-xs-12">
+                          <div className="form-group col-xs-12">
+                              <div className="pull-right">
+                                  <button className="btn btn-success" >
+                                      <span className="glyphicon glyphicon-arrow-down"></span>Finish
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
                </div> : ""}
 
 
-
-              {this.state.showPaymentCredentials ? <div>
-                    <Amount exchangeRate={ this.props.exchangeRate } />
-                    <div className="col-xs-12">
-                        <div className="form-group col-xs-12">
-                            <div className="pull-right">
-                                <button className="btn btn-success" >
-                                    <span className="glyphicon glyphicon-arrow-down"></span>Add funds
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div> : ""}
             </form>
         );
     }
