@@ -14,6 +14,7 @@ import RateGetter from './payments/RateGetter.js';
 import CurrencyConverter from '../currency.js';
 import logger from 'winston';
 import verifyMiddleware from './recaptcha.js';
+import PresaleEtherscan from './etherscan.js';
 
 const router = Router();
 const converter = new CurrencyConverter();
@@ -216,7 +217,7 @@ export class BlockChain {
                state: "payment_confirmed"
             });
             const inv = await invoice.getPresale(nonce);
-            console.log("Payment was confirmed by blockchain.info", inv);
+            console.log("Payment confirmed by blockchain.info", inv);
             await this.presaleMake(inv);
             return resp.status(200).send("*ok*"); // send success to blockchain.info server
         }
@@ -240,10 +241,10 @@ export class BlockChain {
 
     async presaleMake(invoice) {
         const logPresale = !isInTest ?
-            this.webgold.logPresale.bind(this.webgold) :
-            (mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST)=> console.log(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST);
+            PresaleEtherscan :
+            (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST)=> console.log(wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST);
 
-        await logPresale (invoice.email, "0x"+invoice.ethID, invoice.amount, converter.satoshiTomilliWRGUsingPresalePrice(invoice.amount), "notImplemented", invoice.address);
+        await logPresale (this.webgold, invoice.email, "0x"+invoice.ethID, invoice.amount, converter.satoshiTomilliWRGUsingPresalePrice(invoice.amount), "notImplemented", invoice.address);
     }
 }
 

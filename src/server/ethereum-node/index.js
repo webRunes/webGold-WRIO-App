@@ -377,6 +377,36 @@ class Accounts {
     };
 
     /**
+     *
+     * @param rawTX
+     * @param from
+     * @returns {*}
+     */
+
+    async signRawTx(rawTx,from) {
+        var account = await this.get(from);
+        if (account.encrypted) {
+            logger.debug("Trying to decrypt account....");
+            account = await this.get(from, this.getAccountPassphrase(account));
+        }
+
+        // if account is still locked, quit
+        if (account.locked) {
+            logger.error("Still locked, can't decrypt account");
+            throw new Error("Cannot sign transaction. Account locked!");
+            return;
+        }
+
+        var privateKey = new Buffer(account['private'], 'hex');
+        logger.debug(rawTx);
+        // init new transaction object, and sign the transaction
+        var tx = new Tx(rawTx);
+        tx.sign(privateKey);
+        var serializedTx = '0x' + tx.serialize().toString('hex');
+        return  serializedTx;
+    }
+
+    /**
      This will sign a transaction based on transaction parameters passed to it.
      If the from address is not registered as an in-browser account, signTransaction
      will respond with an error.
