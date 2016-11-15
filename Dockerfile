@@ -14,6 +14,7 @@ COPY . /srv/www/
 
 WORKDIR /srv/www
 RUN gulp
+RUN gulp babel-client
 
 EXPOSE 5003
-CMD cd /srv/www/ && rm -fr node_modules && gulp watch
+CMD cd /srv/www/ && rm -fr node_modules ./app/client/client.js* && gulp watch

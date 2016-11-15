@@ -7,12 +7,12 @@ import PaymentData from "./PaymentData";
 import request from 'superagent';
 import Const from '../../../../constant.js';
 import EmailEntry from './EmailEntry.js';
-import CreateWallet from '../createwallet.js';
+import CreateWallet, {Disclaimer} from '../createwallet.js';
 
 let SATOSHI = Const.SATOSHI;
 var recapEvent = null;
 
-class PaymentForm extends React.Component {
+export default class PresaleForm extends React.Component {
     constructor(props) {
         super(props);
         
@@ -21,7 +21,8 @@ class PaymentForm extends React.Component {
             payment_data: null,
             amount: 0.0,
             showPaymentCredentials:false,
-            showWallet: false
+            showWallet: false,
+            stage: 0
         };
         recapEvent = this.recapReady.bind(this);
     }
@@ -47,7 +48,9 @@ class PaymentForm extends React.Component {
     }
 
     gotAddr(addr) {
-        this.setState({id: addr,showPaymentCredentials: true});
+        this.setState({id: addr,
+            showPaymentCredentials: true,
+            showWallet:false});
     }
 
     addFunds(e) {
@@ -80,7 +83,7 @@ class PaymentForm extends React.Component {
                     showPaymentCredentials: false,
                     payment_data: {
                         amount: result.amount,
-                        adress: result.adress,
+                        adress: result.adress
                     }
                 });
             });
@@ -94,26 +97,45 @@ class PaymentForm extends React.Component {
 
     recapReady(captcha) {
         console.log("reCaptcha successfully submitted");
-        this.setState({showWallet: true,captcha: captcha});
+        this.setState({showWallet: true,captcha: captcha,stage: 2});
     }
-    
+
+    showCaptcha() {
+        this.setState({stage:1});
+
+    }
+    componentDidUpdate() {
+        if (this.state.stage == 1) {
+            grecaptcha.render('googleRecaptcha',{
+                'sitekey':'6Lc6rQoUAAAAACmUxcn9AwYbrMEAFCEx8ZWOE8uF',
+                'callback': this.recapReady.bind(this)
+            });
+        }
+    }
     render() {
 
         if (this.state.payment_data) {
             setTimeout(frameReady,600); // TODO using global function, this is wrong, make properly next time
         }
+
         return (
           <form name="presaleForm"  onSubmit={this.addFunds.bind(this)}>
 
-              <div className="col-xs-12" >
+              {this.state.stage == 0 && <div className="well enable-comment">
+                  <h4>Get your first crypto currency wallet!</h4>
+                  <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No ID, verification or control will be required of you.</p>
+                  <br />
+                  <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-record"></span>Create wallet</a>
+              </div>}
+
+              {this.state.stage == 1 && <div className="col-xs-12" >
                   <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
                   <div className="col-xs-9">
-                     <div className="g-recaptcha" data-sitekey="6Lc6rQoUAAAAACmUxcn9AwYbrMEAFCEx8ZWOE8uF" data-callback="recapFinish"></div>
+                     <div id="googleRecaptcha" className="g-recaptcha"></div>
                   </div>
-                </div>
+                </div>}
 
               {this.state.showWallet ? <div className="col-xs-12" >
-                    <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Protect your wallet with a password</label></div>
                     <div className="col-xs-9">  <CreateWallet saveCB={this.gotAddr.bind(this)}/></div>
                 </div> : "" }
 
@@ -122,41 +144,34 @@ class PaymentForm extends React.Component {
                   adress= {this.state.payment_data.adress}
                   /> : '' }
 
-              { this.state.alert ?
-                  <Alert
-                      type={ this.state.alert.type }
-                      message={ this.state.alert.message}
-                      onClose={ this.onAlertClose.bind(this) }/> : '' }
 
-              {this.state.showPaymentCredentials ? <div className="col-xs-12">
+              {this.state.showPaymentCredentials ?
+                  <div className="col-xs-12">
+                      <div className="callout">
+                          <h5>Enter your email and desired sum to finish presale process</h5>
+                          <p></p>
+                      </div>
+                      <br />
                   <EmailEntry gotMail={this.gotEmail.bind(this)} />
+                      <Amount exchangeRate={ this.props.exchangeRate } />
+                      <div className="col-xs-12">
+                          <div className="form-group col-xs-12">
+                              <div className="pull-right">
+                                  <button className="btn btn-success" >
+                                      <span className="glyphicon glyphicon-arrow-down"></span>Finish
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
                </div> : ""}
 
 
-
-              {this.state.showPaymentCredentials ? <div>
-                    <Amount exchangeRate={ this.props.exchangeRate } />
-                    <div className="col-xs-12">
-                        <div className="form-group col-xs-12">
-                            <div className="pull-right">
-                                <button className="btn btn-success" >
-                                    <span className="glyphicon glyphicon-arrow-down"></span>Add funds
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div> : ""}
             </form>
         );
     }
 }
-PaymentForm.propTypes = {
+PresaleForm.propTypes = {
     loginUrl: React.PropTypes.string.isRequired,
     exchangeRate: React.PropTypes.object
 };
 
-window.recapFinish = (res) => {
-    recapEvent(res);
-};
-
-export default PaymentForm;

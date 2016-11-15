@@ -24,6 +24,7 @@ import ethUtil from 'ethereumjs-util';
 import CurrencyConverter from '../currency.js';
 import EthereumContract from './ethereum/EthereumContract.js';
 
+
 const converter = new CurrencyConverter();
 const wei = Const.WEI;
 const SATOSHI = Const.SATOSHI;
@@ -281,13 +282,10 @@ class WebGold extends EthereumContract {
     }
 
 
-    async makeTx(data,from) {
-        var currentGasPrice = 3*(await this.getGasPrice());
-        console.log("Current gas price",currentGasPrice);
+    async makeTx(data,gasPrice,nonce) {
 
-        var gasPrice = formatHex(currentGasPrice.toString(16));
-        var nonce = (await this.getTransactionCount(from)).toString(16);
-        console.log('Making nonce ',from, nonce);
+        console.log("Current gas price",gasPrice,nonce.toString(16));
+        gasPrice = formatHex(gasPrice.toString(16));
 
         var txObject = {
             nonce: formatHex(nonce),
@@ -319,9 +317,18 @@ class WebGold extends EthereumContract {
 
         var data = this.token.donate.getData(to, amount);
         console.log("Data",data,to,amount);
-        return await this.makeTx(data,from);
+        const currentGasPrice = 3*(await this.getGasPrice());
+        const nonce = (await this.getTransactionCount(from)).toString(16);
+        console.log('Making nonce ',from, nonce);
+
+        return await this.makeTx(data,currentGasPrice,nonce);
     }
 
+    async makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce, gasPrice) {
+
+        let data = this.presaleContract.makePresale.getData(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST);
+        return await this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16));
+    }
 
 
 
