@@ -99,7 +99,7 @@ class Amount extends React.Component {
                  <div className={cls}>
                      <div className="input-group input-group-sm tooltip-demo">
                          <span className="input-group-addon">BTC</span>
-                         <input type="number" step="0.001" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
+                         <input type="number" step="0.00000001" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0" />
                      </div>
                  </div>
 
