@@ -123,7 +123,7 @@ export default class PresaleForm extends React.Component {
 
               {this.state.stage == 0 && <div className="well enable-comment">
                   <h4>Get your first crypto currency wallet!</h4>
-                  <p>Нажмите "Create wallet" для получения своего первого крипто-кошелька, который откроет для вас дверь в мир финансовой независимости (ссылка). От вас не потребуется ровным счетом ничего: никаких паспортов, верификации или контроля!</p>
+                  <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No ID, verification or control will be required of you.</p>
                   <br />
                   <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-record"></span>Create wallet</a>
               </div>}
