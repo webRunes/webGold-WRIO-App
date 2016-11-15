@@ -9,7 +9,7 @@ export class Disclaimer extends React.Component {
             <div className="callout">
                 <h5>Keep it safe!</h5>
                 <p>These 12 words are your wallet seed. It will unlock complete access to your funds even if you can't access your computer anymore. Please write them down on a piece of paper before continuing.</p>
-                <p><b>Важно:</b> мы радеем за безопасность и анонимность наших пользователей, а потому не сохраняем на серверах пароли, ключи доступа или личные данные. Невозможно украсть или изъять то, чего нет. Это защищает ваши данные и деньги от посягательств хакеров и других третьих сторон, однако помните: мы не сможем восстановить доступ к кошельку в случае потери вами указанной ниже кодовой фразы.</p>
+                <p><b>Important:</b> We care about the security and anonymity of our users, thus we do not save passwords, access keys or personal data on the servers. It is impossible to steal something that doesn't exist. This protects your data and money against interventions of hackers and other third parties. But remember: we will not be able to recover access to the wallet if you lose the code phrase provided below.</p>
             </div>);
     }
 }
