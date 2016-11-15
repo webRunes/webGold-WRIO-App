@@ -1,13 +1,5 @@
 
 
-/**
- Pad the given string with a prefix zero, if length is uneven.
-
- @method (formatHex)
- @param {String} str    The string to pad for use as hex
- @return {String} The padded or formatted string for use as a hex string
- **/
-
 import logger from 'winston';
 
 var _ = require('underscore');
@@ -18,6 +10,16 @@ var crypto = require('crypto');
 import CryptoJS from 'crypto-js';
 
 var window = {};
+
+
+
+/**
+ Pad the given string with a prefix zero, if length is uneven.
+
+ @method (formatHex)
+ @param {String} str    The string to pad for use as hex
+ @return {String} The padded or formatted string for use as a hex string
+ **/
 
 export function formatHex(str) {
     return '0x'+ (String(str).length % 2 ? '0' + String(str) : String(str));

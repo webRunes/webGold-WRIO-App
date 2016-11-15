@@ -25,7 +25,7 @@ class RateGetter {
         if (this._timeExpired()) {
             return await this._getRatesRequest();
         } else {
-            logger.debug("Returning saved rate",this.savedRate);
+            //logger.debug("Returning saved rate",this.savedRate);
             if (!this.savedRate) {
                 throw new Error("Fatal error, rate not saved");
             }

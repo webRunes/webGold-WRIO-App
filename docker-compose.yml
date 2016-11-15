@@ -3,12 +3,12 @@ mongo:
   ports:
   - "27017:27017"
 
-webgold:
+webgold_tests:
   build: .
   ports:
    - "5003:5003"
   volumes:
    - .:/srv/www/
-  command: bash -c "export WRIO_CONFIG=config.json.travis; gulp test"
+  command: bash -c "export WRIO_CONFIG=config.json.travis; gulp test_local"
   links:
   - mongo

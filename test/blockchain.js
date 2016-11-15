@@ -6,6 +6,7 @@ import should from 'should';
 
 import {db as dbMod} from 'wriocommon';var db = dbMod.db;
 import Invoices from '../src/server/dbmodels/invoice.js'
+import Presale from '../src/server/dbmodels/presale.js'
 import Users from '../src/server/dbmodels/wriouser.js'
 import apitest from "./apitest"
 import {generateFakeSession,clearTestDb} from "./testutils.jsx"
@@ -55,7 +56,8 @@ var invoiceID;
 describe("Blockchain unit tests", function() {
     before(async () => {
        await waitdb();
-        var invoice = new Invoices();
+        //var invoice = new Invoices();
+        var invoice = new Presale();
         var users = new Users();
 
         await users.clearTestDb();
@@ -69,7 +71,8 @@ describe("Blockchain unit tests", function() {
             "lastName": "John Doe",
             "ethereumWallet": "0xc40e6bd934b31b312bfe55441fc086b19aa4df4d"
         });
-        invoiceID = await invoice.createInvoice(user._id,user.wrioID);
+        //invoiceID = await invoice.createInvoice(user._id,user.wrioID);
+        invoiceID = await invoice.createPresale("user@mail.com","557cc6f312e9ebd45bebe06219b7bab87f8bc846");
         await invoice.updateInvoiceData({
             address: address,
             destination: destination,
