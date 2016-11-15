@@ -194,15 +194,15 @@ export default class CreateWallet extends React.Component {
             </div>}
             <br />
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Create Password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase" placeholder="Enter password" size="80"></input>
                 </div>
             </div>
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Repeat passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Repeat password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase2"  placeholder="Repeat your password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase2" placeholder="Repeat password" size="80"></input>
                 </div>
             </div>
             <div className="form-group col-xs-12">
@@ -241,13 +241,13 @@ class VerifyForm extends React.Component {
             <div className="form-group form-inline">
                 <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" ref="seed"  placeholder="Enter your 12 word seed" size="80"></input>
+                    <input className="form-control" ref="seed" placeholder="Enter your 12 word seed" size="80"></input>
                 </div>
             </div>
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase" placeholder="Enter password" size="80"></input>
                 </div>
             </div>
 
