@@ -130,13 +130,11 @@ export default class PresaleForm extends React.Component {
 
               {this.state.stage == 1 && <div className="col-xs-12" >
                   <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
-                  <div className="col-xs-9">
-                     <div id="googleRecaptcha" className="g-recaptcha"></div>
-                  </div>
+                  <div id="googleRecaptcha" className="g-recaptcha"></div>
                 </div>}
 
               {this.state.showWallet ? <div className="col-xs-12" >
-                    <div className="col-xs-9">  <CreateWallet saveCB={this.gotAddr.bind(this)}/></div>
+                    <CreateWallet saveCB={this.gotAddr.bind(this)}/>
                 </div> : "" }
 
               { this.state.payment_data ? <PaymentData
