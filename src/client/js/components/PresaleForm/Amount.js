@@ -80,7 +80,7 @@ class Amount extends React.Component {
 
         return (
              <div className="form-group">
-                <label className="col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
+                <label className="col-xs-12 col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
 
                 <div className={cls}>
                     <div className="input-group">
