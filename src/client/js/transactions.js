@@ -219,6 +219,12 @@ class Transactions extends React.Component {
 
         return (
             <div>
+                <aside>
+                    <div class="callout">
+                        <h5>What are THX coins?</h5>
+                        <p>Text here</p>
+                    </div>
+                </aside>
                 <ul className="leaders">
                     <BalanceLine wrg={wrgBalance} usd={usdBalance} label="Current Balance"/>
                     <BalanceLine wrg={Const.WRG_UNIT} usd ={exchangeRate} label="Exchange rate" />

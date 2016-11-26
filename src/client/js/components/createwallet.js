@@ -114,7 +114,7 @@ export default class CreateWallet extends React.Component {
         cs.init_keystore(this.randomSeed,this.state.passphrase,() => {
             cs.newAddress(this.state.passphrase,(err,addr) => {
                 if (err) {
-                    console.warn("Unable to create new adress!");
+                    console.warn("Unable to create a new address!");
                     return;
                 }
                 this.setState({
@@ -129,7 +129,7 @@ export default class CreateWallet extends React.Component {
 
         cs.getSeed(this.state.passphrase,(seed) => {
             console.log("Extracted seed",seed);
-            if (!this.props.saveCB) { // do not reload page if we in the presale mode
+            if (!this.props.saveCB) { // do not reload page in the presale mode
                 parent.postMessage(JSON.stringify({
                     "reload": true
                 }), "*");
