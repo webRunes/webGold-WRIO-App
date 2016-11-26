@@ -36,8 +36,8 @@ class User extends React.Component {
 
     render() {
         var btcRate = this.props.btcExchangeRate.toFixed(8);
-        var usdBalance = "...";
-        var wrgBalance = "....";
+        var usdBalance = "0.00";
+        var wrgBalance = "0";
         if (this.state.balance) {
             var coef = (new BigNumber(Const.WRG_UNIT)).div(this.props.exchangeRate);
             usdBalance =  this.state.balance.div(coef).toFixed(2);
@@ -48,7 +48,6 @@ class User extends React.Component {
         return (
             <div className="form-group">
                 <ul className="leaders">
-
                     <li>
                         <span>Current Balance&nbsp;</span>
                         <span>{wrgBalance}<small className="currency">WRG</small><sup className="currency" ref="usdBalance">{usdBalance} USD</sup></span>

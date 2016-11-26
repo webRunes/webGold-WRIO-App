@@ -46,8 +46,8 @@
     "stripe1": {
       "secreteKey": "YOUR_STRIPE_SECRET_KEY"
     },
-    "WRGExchangeRate": 43
+    "WRGExchangeRate": 38
   },
-  "loginUrl": "http://login.wrioos.com"
+  "loginUrl": "https://login.wrioos.com"
 }
 
