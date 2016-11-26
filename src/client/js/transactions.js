@@ -224,8 +224,16 @@ class Transactions extends React.Component {
                     <BalanceLine wrg={Const.WRG_UNIT} usd ={exchangeRate} label="Exchange rate" />
                 </ul>
                 {this.state.loading?loader:""}
-                {showtable?table:<div className="alert alert-warning">{nomsg}</div>}
-
+                {showtable?table:<div className="well">{nomsg}</div>}
+                <ul className="info nav nav-pills nav-stacked" id="help-accordion">
+                        <li className="panel"><a href="#help-element" data-parent="#help-accordion" data-toggle="collapse"><span class="glyphicon glyphicon-chevron-down pull-right"></span>Need help?</a>
+                            <div className="in" id="help-element">
+                                <ul className="nav nav-pills nav-stacked">
+                                    <li><a href="#">webGold and exchange rate</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
             </div>
         );
     }
