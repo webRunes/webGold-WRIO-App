@@ -144,7 +144,7 @@ export default class PresaleForm extends React.Component {
 
 
               {this.state.showPaymentCredentials ?
-                  <div className="col-xs-12">
+                  <div className="form-horizontal col-xs-12">
                       <div className="callout">
                           <h5>Enter your email and desired sum to finish presale process</h5>
                           <p></p>

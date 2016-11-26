@@ -79,13 +79,11 @@ class Amount extends React.Component {
         var cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
 
         return (
-             <div className="form-inline form-group">
-                <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
-                    <label className="col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
-                </div>
+             <div className="form-group">
+                <label className="col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
 
                 <div className={cls}>
-                    <div className="input-group input-group-sm">
+                    <div className="input-group">
                         <span className="input-group-addon">WRG</span>
                         <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
                     </div>
@@ -97,7 +95,7 @@ class Amount extends React.Component {
                  </div>
 
                  <div className={cls}>
-                     <div className="input-group input-group-sm tooltip-demo">
+                     <div className="input-group tooltip-demo">
                          <span className="input-group-addon">BTC</span>
                          <input type="number" step="0.001" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0.1" />
                      </div>
