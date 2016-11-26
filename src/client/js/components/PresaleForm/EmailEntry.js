@@ -57,18 +57,18 @@ export default class EmailEntry extends React.Component {
 
         return (
             <div className="form-conrol">
-                <div className="form-group form-inline">
+                <div className="form-group">
                     <label htmlFor="email" className="col-sm-4 col-md-3 control-label">Email</label>
                     <div className={cls(this.state.emailInvalid)}>
                         <input type="email" className="form-control" name="email" value={this.state.email} onChange={ this.emailChange } size="80" />
                         <div className="help-block">
-                            {this.state.emailInvalid ? "Enter valid email" : ""}
+                            {this.state.emailInvalid ? "Enter a valid email" : ""}
                         </div>
                     </div>
 
                 </div>
                 <br />
-                <div className="form-group form-inline">
+                <div className="form-group">
                     <label htmlFor="emailcopy" className="col-sm-4 col-md-3 control-label">Repeat email</label>
                     <div className={cls(this.state.emailInvalid)}>
                         <input type="email" className="form-control" name="emailcopy" value={this.state.emailCopy} onChange={ this.emailCopyChange } size="80"/>

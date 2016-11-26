@@ -53,11 +53,10 @@ class ExtraEntropy extends React.Component {
 
     render() {
         const style = {
-            height:"150px",
             verticalAlign:"middle",
             textAlign:"center"
         };
-        return (<div  className="col-sm-12">
+        return (<div className="col-sm-12">
             <div className="alert alert-warning" style={style}>
             Please, move the mouse randomly to generate a secure key for the wallet
                 <div>
@@ -177,7 +176,7 @@ export default class CreateWallet extends React.Component {
 
     render () {
         if (this.state.enterEntropy) {
-            return ( <div className="input-group">
+            return ( <div>
                 <ExtraEntropy cb={this.gotEntropy.bind(this)} />
             </div>)
         }
@@ -205,7 +204,7 @@ export default class CreateWallet extends React.Component {
                     <input className="form-control" type="password" ref="passphrase2" placeholder="Repeat password" size="80"></input>
                 </div>
             </div>
-            <div className="form-group col-xs-12">
+            <div className="col-xs-12">
                 <div className="pull-right">
                     <a href="#" className="btn btn-primary" onClick={this.confirmPass.bind(this)}><span className="glyphicon glyphicon-ok"></span>Create new wallet</a>
                 </div>
@@ -251,7 +250,7 @@ class VerifyForm extends React.Component {
                 </div>
             </div>
 
-            <div className="form-group col-xs-12">
+            <div className="col-xs-12">
                 <a onClick={this.goBack.bind(this)} className="btn btn-default"><span className="glyphicon glyphicon-arrow-left"></span>Back</a>
                 <div className="pull-right">
                     <a href="#" className="btn btn-primary" onClick={this.verify.bind(this)}><span className="glyphicon glyphicon-ok"></span>Verify</a>
