@@ -76,11 +76,11 @@ class Amount extends React.Component {
         var BTC = this.state.BTC.toString();
         var wrg = this.state.WRG.toFixed(2).toString();
 
-        var cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
+        var cls = "col-xs-5 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
 
         return (
              <div className="form-group">
-                <label className="col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
+                <label className="col-xs-12 col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
 
                 <div className={cls}>
                     <div className="input-group">
@@ -91,7 +91,7 @@ class Amount extends React.Component {
                 </div>
 
                  <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
-                     <label className="control-label">{'='}</label>
+                     <label className="control-label" style="padding-top:8px;">{'='}</label>
                  </div>
 
                  <div className={cls}>
