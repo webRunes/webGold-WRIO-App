@@ -36,8 +36,8 @@ class User extends React.Component {
 
     render() {
         var btcRate = this.props.btcExchangeRate.toFixed(8);
-        var usdBalance = "0.00";
-        var wrgBalance = "0";
+        var usdBalance = "...";
+        var wrgBalance = "....";
         if (this.state.balance) {
             var coef = (new BigNumber(Const.WRG_UNIT)).div(this.props.exchangeRate);
             usdBalance =  this.state.balance.div(coef).toFixed(2);
