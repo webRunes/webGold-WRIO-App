@@ -53,11 +53,10 @@ class ExtraEntropy extends React.Component {
 
     render() {
         const style = {
-            height:"150px",
             verticalAlign:"middle",
             textAlign:"center"
         };
-        return (<div  className="col-sm-12">
+        return (<div className="col-sm-12">
             <div className="alert alert-warning" style={style}>
             Please, move the mouse randomly to generate a secure key for the wallet
                 <div>
@@ -177,7 +176,7 @@ export default class CreateWallet extends React.Component {
 
     render () {
         if (this.state.enterEntropy) {
-            return ( <div className="input-group">
+            return ( <div>
                 <ExtraEntropy cb={this.gotEntropy.bind(this)} />
             </div>)
         }
