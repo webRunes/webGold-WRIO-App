@@ -57,7 +57,6 @@ export default class EmailEntry extends React.Component {
 
         return (
             <div className="form-conrol">
-                <div className="form-group">
                     <label htmlFor="email" className="col-sm-4 col-md-3 control-label">Email</label>
                     <div className={cls(this.state.emailInvalid)}>
                         <input type="email" className="form-control" name="email" value={this.state.email} onChange={ this.emailChange } size="80" />
@@ -65,10 +64,7 @@ export default class EmailEntry extends React.Component {
                             {this.state.emailInvalid ? "Enter a valid email" : ""}
                         </div>
                     </div>
-
-                </div>
                 <br />
-                <div className="form-group">
                     <label htmlFor="emailcopy" className="col-sm-4 col-md-3 control-label">Repeat email</label>
                     <div className={cls(this.state.emailInvalid)}>
                         <input type="email" className="form-control" name="emailcopy" value={this.state.emailCopy} onChange={ this.emailCopyChange } size="80"/>
@@ -76,7 +72,7 @@ export default class EmailEntry extends React.Component {
                             {(this.state.match) ? "" : "Emails don't match"}
                         </div>
                     </div>
-                </div>
+                <br />
                </div>
 
         );

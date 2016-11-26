@@ -146,20 +146,19 @@ export default class PresaleForm extends React.Component {
               {this.state.showPaymentCredentials ?
                   <div className="form-horizontal col-xs-12">
                       <div className="callout">
-                          <h5>Enter your email and desired amount to finish the presale process</h5>
+                          <h5>Enter your email and desired amount</h5>
                           <p></p>
                       </div>
                       <br />
                   <EmailEntry gotMail={this.gotEmail.bind(this)} />
                       <Amount exchangeRate={ this.props.exchangeRate } />
+                      <br />
                       <div className="col-xs-12">
-                          <div className="form-group col-xs-12">
-                              <div className="pull-right">
-                                  <button className="btn btn-success" >
-                                      <span className="glyphicon glyphicon-arrow-down"></span>Finish
-                                  </button>
-                              </div>
-                          </div>
+                            <div className="pull-right">
+                                <button className="btn btn-success" >
+                                    <span className="glyphicon glyphicon-thumbs-up"></span>Continue
+                                </button>
+                            </div>
                       </div>
                </div> : ""}
 
