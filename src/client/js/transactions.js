@@ -220,7 +220,7 @@ class Transactions extends React.Component {
         return (
             <div>
                 <aside>
-                    <div class="callout">
+                    <div className="callout">
                         <h5>What are THX coins?</h5>
                         <p>Text here</p>
                     </div>

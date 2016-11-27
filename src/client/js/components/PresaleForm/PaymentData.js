@@ -14,12 +14,12 @@ class PaymentData extends React.Component {
     render() {
         return (
             <div className = "col-xs-12">
-                <div class="well enable-comment">
+                <div className="well enable-comment">
                     <h4>Payment request created</h4>
                     <p>Please send <b>{this.props.amount}</b>BTC to the address <b>{this.props.adress}</b></p>
                     <br />
                     <div id="qrcode"></div>
-                    <a class="btn btn-sm btn-default" href="https://webgold.wrioos.com/offer/?cover" role="button"><span class="glyphicon glyphicon-remove"></span>Cancel</a>
+                    <a className="btn btn-sm btn-default" href="https://webgold.wrioos.com/offer/?cover" role="button"><span className="glyphicon glyphicon-remove"></span>Cancel</a>
                 </div>
             </div>
         );

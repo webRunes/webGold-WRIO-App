@@ -20,7 +20,7 @@ class ExtraEntropy extends React.Component {
         super(props);
         this.s = "";
         this.state = {
-            percent: 0,
+            percent: 0
         };
         this.count = 0;
         this.maxcount = 128;
