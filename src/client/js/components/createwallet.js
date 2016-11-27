@@ -9,7 +9,7 @@ export class Disclaimer extends React.Component {
             <div className="callout">
                 <h5>Keep it safe!</h5>
                 <p>These 12 words are your wallet seed. It will unlock complete access to your funds even if you can't access your computer anymore. Please write them down on a piece of paper before continuing.</p>
-                <p><b>Важно:</b> мы радеем за безопасность и анонимность наших пользователей, а потому не сохраняем на серверах пароли, ключи доступа или личные данные. Невозможно украсть или изъять то, чего нет. Это защищает ваши данные и деньги от посягательств хакеров и других третьих сторон, однако помните: мы не сможем восстановить доступ к кошельку в случае потери вами указанной ниже кодовой фразы.</p>
+                <p><b>Important:</b> We care about the security and anonymity of our users, thus we do not save passwords, access keys or personal data on the servers. It is impossible to steal something that doesn't exist. This protects your data and money against interventions of hackers and other third parties. But remember: we will not be able to recover access to the wallet if you lose the code phrase provided below.</p>
             </div>);
     }
 }
@@ -53,11 +53,10 @@ class ExtraEntropy extends React.Component {
 
     render() {
         const style = {
-            height:"150px",
             verticalAlign:"middle",
             textAlign:"center"
         };
-        return (<div  className="col-sm-12">
+        return (<div className="col-sm-12">
             <div className="alert alert-warning" style={style}>
             Please, move the mouse randomly to generate a secure key for the wallet
                 <div>
@@ -115,7 +114,7 @@ export default class CreateWallet extends React.Component {
         cs.init_keystore(this.randomSeed,this.state.passphrase,() => {
             cs.newAddress(this.state.passphrase,(err,addr) => {
                 if (err) {
-                    console.warn("Unable to create new adress!");
+                    console.warn("Unable to create a new address!");
                     return;
                 }
                 this.setState({
@@ -130,7 +129,7 @@ export default class CreateWallet extends React.Component {
 
         cs.getSeed(this.state.passphrase,(seed) => {
             console.log("Extracted seed",seed);
-            if (!this.props.saveCB) { // do not reload page if we in the presale mode
+            if (!this.props.saveCB) { // do not reload page in the presale mode
                 parent.postMessage(JSON.stringify({
                     "reload": true
                 }), "*");
@@ -177,7 +176,7 @@ export default class CreateWallet extends React.Component {
 
     render () {
         if (this.state.enterEntropy) {
-            return ( <div className="input-group">
+            return ( <div>
                 <ExtraEntropy cb={this.gotEntropy.bind(this)} />
             </div>)
         }
@@ -194,18 +193,18 @@ export default class CreateWallet extends React.Component {
             </div>}
             <br />
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Create Password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase" placeholder="Enter password" size="80"></input>
                 </div>
             </div>
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Repeat passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Repeat password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase2"  placeholder="Repeat your password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase2" placeholder="Repeat password" size="80"></input>
                 </div>
             </div>
-            <div className="form-group col-xs-12">
+            <div className="col-xs-12">
                 <div className="pull-right">
                     <a href="#" className="btn btn-primary" onClick={this.confirmPass.bind(this)}><span className="glyphicon glyphicon-ok"></span>Create new wallet</a>
                 </div>
@@ -241,17 +240,17 @@ class VerifyForm extends React.Component {
             <div className="form-group form-inline">
                 <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" ref="seed"  placeholder="Enter your 12 word seed" size="80"></input>
+                    <input className="form-control" ref="seed" placeholder="Enter your 12 word seed" size="80"></input>
                 </div>
             </div>
             <div className="form-group form-inline">
-                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Passphrase</label>
+                <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">Password</label>
                 <div className="col-sm-8 col-md-9">
-                    <input className="form-control" type="password" ref="passphrase"  placeholder="Enter password" size="80"></input>
+                    <input className="form-control" type="password" ref="passphrase" placeholder="Enter password" size="80"></input>
                 </div>
             </div>
 
-            <div className="form-group col-xs-12">
+            <div className="col-xs-12">
                 <a onClick={this.goBack.bind(this)} className="btn btn-default"><span className="glyphicon glyphicon-arrow-left"></span>Back</a>
                 <div className="pull-right">
                     <a href="#" className="btn btn-primary" onClick={this.verify.bind(this)}><span className="glyphicon glyphicon-ok"></span>Verify</a>

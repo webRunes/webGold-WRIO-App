@@ -48,7 +48,6 @@ class User extends React.Component {
         return (
             <div className="form-group">
                 <ul className="leaders">
-
                     <li>
                         <span>Current Balance&nbsp;</span>
                         <span>{wrgBalance}<small className="currency">WRG</small><sup className="currency" ref="usdBalance">{usdBalance} USD</sup></span>

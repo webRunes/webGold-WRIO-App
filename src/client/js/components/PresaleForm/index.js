@@ -123,20 +123,18 @@ export default class PresaleForm extends React.Component {
 
               {this.state.stage == 0 && <div className="well enable-comment">
                   <h4>Get your first crypto currency wallet!</h4>
-                  <p>Нажмите "Create wallet" для получения своего первого крипто-кошелька, который откроет для вас дверь в мир финансовой независимости (ссылка). От вас не потребуется ровным счетом ничего: никаких паспортов, верификации или контроля!</p>
+                  <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No control, ID or verification will be required of you.</p>
                   <br />
                   <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-record"></span>Create wallet</a>
               </div>}
 
               {this.state.stage == 1 && <div className="col-xs-12" >
                   <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
-                  <div className="col-xs-9">
-                     <div id="googleRecaptcha" className="g-recaptcha"></div>
-                  </div>
+                  <div id="googleRecaptcha" className="g-recaptcha"></div>
                 </div>}
 
               {this.state.showWallet ? <div className="col-xs-12" >
-                    <div className="col-xs-9">  <CreateWallet saveCB={this.gotAddr.bind(this)}/></div>
+                    <CreateWallet saveCB={this.gotAddr.bind(this)}/>
                 </div> : "" }
 
               { this.state.payment_data ? <PaymentData
@@ -146,22 +144,21 @@ export default class PresaleForm extends React.Component {
 
 
               {this.state.showPaymentCredentials ?
-                  <div className="col-xs-12">
+                  <div className="form-horizontal col-xs-12">
                       <div className="callout">
-                          <h5>Enter your email and desired sum to finish presale process</h5>
+                          <h5>Enter your email and desired amount</h5>
                           <p></p>
                       </div>
                       <br />
                   <EmailEntry gotMail={this.gotEmail.bind(this)} />
                       <Amount exchangeRate={ this.props.exchangeRate } />
+                      <br />
                       <div className="col-xs-12">
-                          <div className="form-group col-xs-12">
-                              <div className="pull-right">
-                                  <button className="btn btn-success" >
-                                      <span className="glyphicon glyphicon-arrow-down"></span>Finish
-                                  </button>
-                              </div>
-                          </div>
+                            <div className="pull-right">
+                                <button className="btn btn-success" >
+                                    <span className="glyphicon glyphicon-thumbs-up"></span>Continue
+                                </button>
+                            </div>
                       </div>
                </div> : ""}
 
