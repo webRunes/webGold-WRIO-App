@@ -91,7 +91,7 @@ class Amount extends React.Component {
                 </div>
 
                  <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
-                     <label className="control-label" style="padding-top:8px;">{'='}</label>
+                     <label className="control-label" style={{paddingTop:"8px"}}>{'='}</label>
                  </div>
 
                  <div className={cls}>
