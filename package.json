@@ -136,7 +136,7 @@
     "glob": "6.0.4",
     "acorn": "3.3.0",
     "whatwg-fetch": "1.0.0",
-    "react-prop-types": "0.4.0",
+    "react-prop-types": "0.3.2",
     "warning": "3.0.0",
     "has-binary": "0.1.7",
     "socket.io-parser": "2.3.1",
