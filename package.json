@@ -7,10 +7,10 @@
     "start": "echo \"Build Completed.\" ",
     "test": "export NODE_ENV=testing && gulp test",
     "test_local": "export WRIO_CONFIG=config.json.tests && gulp test",
-    "shell": "docker exec -it wriolocaldev_webgold_1 bash",
-    "testall": "docker exec -it wriolocaldev_webgold_1 bash -c \"export WRIO_CONFIG=config.json.tests && gulp test\"",
-    "testgrep": "docker exec -it wriolocaldev_webgold_1 bash -c \"export WRIO_CONFIG=config.json.tests && gulp test\"",
-    "testrpc": "docker exec -it wriolocaldev_webgold_1 bash -c \"testrpc\""
+    "shell": "docker exec -it wriolocaldev_webgold_1 sh",
+    "testall": "docker exec -it wriolocaldev_webgold_1 sh -c \"export WRIO_CONFIG=config.json.tests && gulp test\"",
+    "testgrep": "docker exec -it wriolocaldev_webgold_1 sh -c \"export WRIO_CONFIG=config.json.tests && gulp test --grep DEVTEST\"",
+    "testrpc": "docker exec -it wriolocaldev_webgold_1 sh -c \"testrpc\""
   },
   "engines": {
     "node": ">= v0.8.0"

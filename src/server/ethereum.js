@@ -54,6 +54,7 @@ class WebGold extends EthereumContract {
             instance = this;
             this.initWG(db);
         }
+
         return instance;
     }
 
@@ -68,8 +69,7 @@ class WebGold extends EthereumContract {
             host: nconf.get('payment:ethereum:host'),
             transaction_signer: this.widgets
         });
-        web3.setProvider(this.provider);
-        this.web3 = web3;
+        this.setProvider();
     }
 
     initWG(db) {
@@ -292,7 +292,7 @@ class WebGold extends EthereumContract {
             gasPrice: formatHex(ethUtil.stripHexPrefix(gasPrice)),
             gasLimit: formatHex(new BigNumber('414159').toString(16)),
             value: '0x00',
-            to: this.contractadress,
+            to: this.presaleContract.address,
             data: data
         };
         console.log("Resulting transaction",txObject);
@@ -410,9 +410,7 @@ class WebGold extends EthereumContract {
         });
     }
 
-    unlockMaster() {
-        this.widgets.unlockAccount(masterAccount,masterPassword);
-    }
+
 
 
 }

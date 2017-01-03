@@ -10,17 +10,20 @@ import {dumpError} from '../src/server/utils.js';
 
 class WebGoldDeploy extends WebGold {
 
-    compile(solfiles) {
-        var web3 = this.getWeb3();
-        console.log("Compiling...");
 
-        var file = fs.readFileSync('./src/webgold.sol').toString();
-        this.tokenCompiled = web3.eth.compile.solidity(file);
-       // console.log(this.tokenCompiled);
-        return this;
+    async compileDeploy(solfile) {
+        const web3 = this.getWeb3();
+        console.log("Compiling...");
+        const file = fs.readFileSync('./src/webgold.sol').toString();
+        const tokenCompiled = web3.eth.compile.solidity(file);
+        console.log("Deploying...");
+
+        this.unlockMaster();
+        const contraddr = await web3.deploy(solfile,"0x740f63f535bc86fb87f9482adbec5ca289a2d59e",  tokenCompiled.token.code, tokenCompiled.token.info.abiDefinition);
+        this.saveContractAddress(contraddr,solfile);
     }
 
-    deploy(solfile) {
+    /*deploy(solfile) {
         console.log("Deploying...");
         var web3 = this.getWeb3();
 
@@ -50,7 +53,7 @@ class WebGoldDeploy extends WebGold {
                     console.log("Error compiling your token",e);
                 }
             });
-    }
+    }*/
 
     saveContractAddress(addr,solfile) {
         fs.writeFileSync(solfile,addr);
@@ -63,6 +66,7 @@ try {
         console.log("Db ready");
         var depl = new WebGoldDeploy(db);
         console.log("Starting deploy process");
+        await compileDeploy('./src/webgold.sol');
         //depl.compile('./src/webgold.sol');
         //depl.deploy('./bin/token.addr');
 

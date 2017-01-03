@@ -179,7 +179,7 @@ function setup_routes(db) {
             stats: {colors: true},
             watchOptions: {
                 aggregateTimeout: 300,
-                poll: true
+                poll: false
             },
         }))
     }

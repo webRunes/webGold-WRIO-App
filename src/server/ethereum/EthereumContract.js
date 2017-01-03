@@ -5,20 +5,30 @@
 import fs from 'fs';
 import path from 'path';
 import logger from 'winston';
+import nconf from 'nconf';
+import Web3 from 'web3'; var web3 = new Web3();
+
+const masterAccount = nconf.get("payment:ethereum:masterAdr");
+const masterPassword = nconf.get("payment:ethereum:masterPass");
 
 class EthereumContract {
 
     constructor (db) {
-        console.log("EthereumContract constructor");
+        console.log("Constructing object from parameters....");
     }
 
-    contractInit(name) {
-        const abi_file = path.resolve(__dirname, `../../../contract/bin/${name}.abi`);
-        const addr_file = path.resolve(__dirname, `../../../contract/bin/${name}.addr`);
-        this.contractadress = fs.readFileSync(addr_file).toString();
-        this.abi = eval(fs.readFileSync(abi_file).toString());
-        return this.web3.eth.contract(this.abi)
-            .at(this.contractadress,(err,res) => {
+    setProvider() {
+        const fallbackProvider = () => {
+            console.log("Using default plain provider");
+            return new web3.providers.HttpProvider(nconf.get('payment:ethereum:host'));
+        };
+        web3.setProvider(this.provider || fallbackProvider());
+        this.web3 = web3;
+    }
+
+    makeContract(address, abi,name) {
+        return this.web3.eth.contract(abi)
+            .at(address,(err,res) => {
                 if (err) {
                     throw `Contract ${name} init failed`;
                     return;
@@ -27,7 +37,21 @@ class EthereumContract {
             }); // change to contract address
     }
 
+    contractInit(name) {
+        const abi_file = path.resolve(__dirname, `../../../contract/bin/${name}.abi`);
+        const addr_file = path.resolve(__dirname, `../../../contract/bin/${name}.addr`);
+        const contractadress = fs.readFileSync(addr_file).toString();
+        const abi = eval(fs.readFileSync(abi_file).toString());
+        return this.makeContract(this.contractadress,abi,name);
+    }
+
+    unlockMaster() {
+        if (!this.widgets) return;
+        this.widgets.unlockAccount(masterAccount,masterPassword);
+    }
+
     async unlockByWrioID (wrioID) {
+        if (!this.widgets) return;
         var user = await this.users.getByWrioID(wrioID);
         //logger.debug(user);
         if (user.ethereumWallet) {
@@ -87,7 +111,7 @@ class EthereumContract {
 
             logger.verbose("Preparing to transfer",amount,"ETH");
 
-            var amountWEI = web3.toWei(amount, "ether");
+            var amountWEI = this.web3.toWei(amount, "ether");
             this.web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
                 if (err) {
                     logger.error("etherTransfer failed",err);
@@ -121,7 +145,7 @@ class EthereumContract {
                 if (!err) {
                     console.log("Transaction has been executed, HASH:", hash);
 
-                    var trans = web3.eth.getTransaction(hash);
+                    var trans = this.web3.eth.getTransaction(hash);
                     console.log(trans);
 
                     /*         var filter = web3.eth.filter('latest');
@@ -182,6 +206,32 @@ class EthereumContract {
 
     getWeb3() {
         return this.web3;
+    }
+
+    deploy(from,data,abi) {
+        return new Promise((resolve,reject) => {
+
+            let web3 = this.getWeb3();
+            var tokenContract = web3.eth.contract(abi);
+            var token = tokenContract.new(
+                0,
+                {
+                    from:from,
+                    data:data,
+                    gas: 1000000
+                }, (e, contract) => {
+                    if(!e) {
+                        if(!contract.address) {
+                            console.log("Contract transaction send: TransactionHash: " + contract.transactionHash + " waiting to be mined...");
+                        } else {
+                            console.log("Contract mined! Address: " + contract.address);
+                            resolve(contract.address);
+                        }
+                    } else {
+                        reject(e);
+                    }
+                });
+        });
     }
 
 
