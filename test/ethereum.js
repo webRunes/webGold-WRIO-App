@@ -1,7 +1,7 @@
-import WebGold from '../src/server/ethereum.js';
+import WebGold from '../src/server/ethereum/ethereum.js';
 //import EthereumContract from '../src/server/ethereum/EthereumContract.js';
-import {db as dbMod} from 'wriocommon';var db = dbMod.db;
-import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
+import {db as dbMod} from '../src/server/common';var db = dbMod.db;
+import {utils} from '../src/server/common'; const dumpError = utils.dumpError;
 import BigNumber from 'bignumber.js';
 import Const from '../src/constant.js';
 import {expect} from 'chai';
@@ -74,14 +74,14 @@ describe("Blockchain unit tests", () => {
         done();
     });
 
-    it ('DEVTEST: should be able to compile webgold contract', async(done) => {
+    it ('DEVTEST: should be able to compile THX contract', async(done) => {
         try {
-            const {address,abi} = await compileDeploy('./contract/src/webgold.sol');
+            const {address,abi} = await compileDeploy('./contract/src/THX.sol');
             wg.token = await wg.makeContract(address,abi,"tokenTest"); // replace webgold token with wg object
             console.log("Deployed contract at address", address);
 
             const masterBalance = await wg.getBalance(testAccounts[0]);
-            expect(masterBalance.toString()).to.equal("500000000");
+            expect(masterBalance.toString()).to.equal("0");
 
             await wg.coinTransfer(testAccounts[0],testAccounts[1],100);
             await delay(2000);
