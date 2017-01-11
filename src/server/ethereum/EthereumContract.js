@@ -209,6 +209,7 @@ class EthereumContract {
     }
 
     deploy(from,data,abi) {
+        console.log(abi);
         return new Promise((resolve,reject) => {
 
             let web3 = this.getWeb3();
