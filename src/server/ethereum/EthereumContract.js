@@ -8,21 +8,18 @@ import logger from 'winston';
 import nconf from 'nconf';
 import Web3 from 'web3'; var web3 = new Web3();
 
-const masterAccount = nconf.get("payment:ethereum:masterAdr");
-const masterPassword = nconf.get("payment:ethereum:masterPass");
-
 class EthereumContract {
 
     constructor (db) {
         console.log("Constructing object from parameters....");
     }
 
-    setProvider() {
+    setProvider(provider) {
         const fallbackProvider = () => {
             console.log("Using default plain provider");
             return new web3.providers.HttpProvider(nconf.get('payment:ethereum:host'));
         };
-        web3.setProvider(this.provider || fallbackProvider());
+        web3.setProvider(provider || fallbackProvider());
         this.web3 = web3;
     }
 
@@ -46,8 +43,7 @@ class EthereumContract {
     }
 
     unlockMaster() {
-        if (!this.widgets) return;
-        this.widgets.unlockAccount(masterAccount,masterPassword);
+        console.warn("unlockMaster deprecated")
     }
 
     async unlockByWrioID (wrioID) {
@@ -107,8 +103,6 @@ class EthereumContract {
 
     etherSend(sender,recipient,amount) {
         return new Promise((resolve,reject)=> {
-            this.widgets.unlockAccount(masterAccount,masterPassword);
-
             logger.verbose("Preparing to transfer",amount,"ETH");
 
             var amountWEI = this.web3.toWei(amount, "ether");

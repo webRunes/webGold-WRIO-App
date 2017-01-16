@@ -3,10 +3,10 @@
  */
 
 
-import WebGold from "../src/server/ethereum.js";
+import WebGold from "../src/server/ethereum/ethereum.js";
 import fs from 'fs';
 import {db as dbMod} from '../src/server/common';var init = dbMod.init;
-import {dumpError} from '../src/server/utils.js';
+import {dumpError} from '../src/server/common/utils/utils.js';
 import solc from 'solc';
 
 class WebGoldDeploy extends WebGold {

@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import nconf from './utils/wrio_nconf.js';
 import path from 'path';
 import {utils} from './common'; const dumpError = utils.dumpError;
-import {BlockChain} from './api/blockchainApi.js';
+import BlockChain from './api/blockchainApi.js';
 import {login as loginImp} from './common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
 import WebGold from './ethereum/ethereum';
 import BigNumber from 'bignumber.js';

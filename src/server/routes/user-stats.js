@@ -1,3 +1,7 @@
+/**
+ *  /api/user/* routes
+ */
+
 
 import {Router} from 'express';
 import {login as loginImp} from '../common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;

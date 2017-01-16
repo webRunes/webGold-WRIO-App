@@ -66,12 +66,14 @@ export const prepayments = async (request,response) => {
 
     matchingUsers.map((u) => {
         names.push(u.wrioID);
-        var payments = u.widgets.map((item)=> {
-            item.from = u.wrioID; // add from reference
-            item.incoming = true;
-            return item;
-        });
-        prepayments = prepayments.concat(payments);
+        if (u.widgets){
+            var payments = u.widgets.map((item)=> {
+                item.from = u.wrioID; // add from reference
+                item.incoming = true;
+                return item;
+            });
+            prepayments = prepayments.concat(payments);
+        }
     });
 
     var nameHash = await decodeUserNames(names);

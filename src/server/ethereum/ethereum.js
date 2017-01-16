@@ -2,8 +2,6 @@ import Web3 from 'web3'; var web3 = new Web3();
 import {Promise} from 'es6-promise';
 import {calc_percent} from '../utils/utils';
 import {dumpError} from '../common/utils/utils';
-import Accounts from './ethereum-node';
-import HookedWeb3Provider from 'hooked-web3-provider';
 import {db as dbMod} from '../common';var db = dbMod.db;
 import fs from 'fs';
 import path from 'path';
@@ -23,6 +21,7 @@ import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
 import CurrencyConverter from '../../currency.js';
 import EthereumContract from './EthereumContract.js';
+import ServerSideSigner from './ServerSideSigner.js';
 
 
 const converter = new CurrencyConverter();
@@ -34,12 +33,12 @@ const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const prepaymentExpire = 30 * DAY_IN_MS; // prepayment will expire in 30 days
 
 const masterAccount = nconf.get("payment:ethereum:masterAdr");
-const masterPassword = nconf.get("payment:ethereum:masterPass");
+const masterKey = nconf.get("payment:ethereum:masterKey");
 if (!masterAccount) {
     throw new Error("Can't get master account address from config.json");
 }
-if (!masterPassword) {
-    throw new Error("Can't get master account password from config.json");
+if (!masterKey) {
+    throw new Error("Can't get master private key from config.json");
 }
 
 var instance = null;
@@ -59,17 +58,8 @@ class WebGold extends EthereumContract {
     }
 
     keyStoreInit(db) {
-        this.KeyStore =  new mongoKeyStore(db);
-        this.widgets = new Accounts(
-            {
-                minPassphraseLength: 6,
-                KeyStore: this.KeyStore
-            });
-        this.provider = new HookedWeb3Provider({
-            host: nconf.get('payment:ethereum:host'),
-            transaction_signer: this.widgets
-        });
-        this.setProvider();
+        const provider = ServerSideSigner(nconf.get('payment:ethereum:host'),nconf.get('payment:ethereum:masterAdr'),nconf.get('payment:ethereum:masterKey'));
+        this.setProvider(provider);
     }
 
     initWG(db) {
@@ -161,15 +151,19 @@ class WebGold extends EthereumContract {
 
     }
 
+    cointTransfer (from,to,amount) {
+        return this._coinTransfer(from,to,amount,this.token.sendCoin);
+    }
 
-    coinTransfer(from,to,amount) {
+    emitCoin (from,to,amount) {
+        return this._coinTransfer(from,to,amount,this.token.emitCoin);
+    }
 
-        var that = this;
+    _coinTransfer(from,to,amount,Fn) {
+
         return new Promise((resolve,reject)=> {
-
-            function actual_sendcoin() {
-                that.widgets.unlockAccount(masterAccount,masterPassword);
-                that.token.sendCoin.sendTransaction(to, amount, {from: from}, (err,result)=>{
+            const actual_sendcoin = () => {
+                Fn.sendTransaction(to, amount, {from: from}, (err,result)=>{
                     if (err) {
                         logger.error("cointransfer failed",err);
                         reject(err);
@@ -178,12 +172,12 @@ class WebGold extends EthereumContract {
                     logger.info("cointransfer succeeded",result);
                     resolve(result);
                 });
-            }
+            };
 
-            logger.debug("Starting sendCoin cointransfer",from,to,amount);
+            logger.debug(`"Starting sendCoin cointransfer FROM:${from} TO:${to} COINS:${amount} ${Fn.name}`);
+            return actual_sendcoin();
 
-
-            that.token.sendCoin.call(to, amount, {from: from},(err, callResult) => {
+            Fn.call(to, amount, {from: from},(err, callResult) => {
                 logger.verbose("Trying sendcoin pre-transcation execution",err,callResult);
                 if (err) {
                     reject("Failed to perform pre-call");
@@ -195,7 +189,7 @@ class WebGold extends EthereumContract {
                     actual_sendcoin();
                 }
                 else {
-                    reject("Can't pre check failed, check your balances");
+                    reject("Pre check failed, check your balances");
                 }
             });
         });
@@ -273,8 +267,7 @@ class WebGold extends EthereumContract {
         if (!toWrio) throw new Error("toWrio address not specified");
 
         logger.info("Emitting new wrg to",dest,"Amount=",amount);
-        this.widgets.unlockAccount(masterAccount,masterPassword);
-        let txId = await this.coinTransfer(masterAccount,dest,amount);
+        let txId = await this.emitCoin(masterAccount,dest,amount);
         await this.ensureMinimumEther(dest,toWrio);
         var emission = new Emissions();
         await emission.create(toWrio,amount);
@@ -375,7 +368,6 @@ class WebGold extends EthereumContract {
                 logger.info("Starting presale record");
 
                 const actual_presale = () => {
-                    this.widgets.unlockAccount(masterAccount, masterPassword);
                     this.presaleContract.markSale(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST, {from: masterAccount}, (err, result) => {
                         if (err) {
                             logger.error("cointransfer failed", err);

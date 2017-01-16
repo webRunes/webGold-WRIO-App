@@ -23,15 +23,6 @@ import logger from 'winston';
 let wei = Const.WEI;
 let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
-let masterAccount = nconf.get("payment:ethereum:masterAdr");
-let masterPassword = nconf.get("payment:ethereum:masterPass");
-if (!masterAccount) {
-    throw new Error("Can't get master account address from config.json");
-}
-if (!masterPassword) {
-    throw new Error("Can't get master account password from config.json");
-}
-
 
 export const giveaway = async (request,response) => {  // TODO: remove this method
 
