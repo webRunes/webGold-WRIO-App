@@ -41,7 +41,7 @@ export const giveaway = async (request,response) => {  // TODO: remove this meth
 
 export const free_wrg = async (request,response) => {  // TODO: remove this method
 
-    setTimeout(async () => { // SAFETY DELAY TO PREVENT MULTIPLE EMISSIONS
+   // setTimeout(async () => { // SAFETY DELAY TO PREVENT MULTIPLE EMISSIONS
         let user = request.user;
         logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
 
@@ -56,7 +56,7 @@ export const free_wrg = async (request,response) => {  // TODO: remove this meth
         const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
         const txUrl = formatBlockUrl(txId);
         response.send(`<html><body>Successfully sent ${amount}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
-    },3000);
+   // },3000);
 
 
 };

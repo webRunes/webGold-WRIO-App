@@ -194,7 +194,8 @@ function setup_routes(db) {
     app.use('/', express.static(path.join(__dirname, '../../hub')));
 
     app.use(function (err, req, res, next) {
-        utils.dumpError(err);
+        console.log("Error catch middleware");
+        dumpError(err);
         res.status(403).send("There was error processing your request");
     });
 

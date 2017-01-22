@@ -20,5 +20,4 @@ router.get('/get_balance', restOnly, wrioAuth, wrap(get_balance));
 router.get('/get_exchange_rate', restOnly, wrioAuth, get_exchange_rate);
 router.use('/coinadmin',AdminRoute);
 
-
 export default router;

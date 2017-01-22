@@ -11,11 +11,10 @@ import WebRunesUsers from '../models/wriouser';
 import EtherFeed from '../models/etherfeed.js';
 import Emissions from '../models/emissions.js';
 import Donation from '../models/donations.js';
-import mongoKeyStore from './MongoKeystore.js';
 import logger from 'winston';
 import Const from '../../constant.js';
 import {txutils} from 'eth-lightwallet';
-import {isAddress,isBigNumber,randomBytes,formatAddress,formatNumber,formatHex} from './ethereum-node/utils.js';
+import {formatHex} from './ethutils.js';
 import PendingPaymentProcessor from './PendingPaymentProcessor.js';
 import Tx from 'ethereumjs-tx';
 import ethUtil from 'ethereumjs-util';
@@ -57,19 +56,14 @@ class WebGold extends EthereumContract {
         return instance;
     }
 
-    keyStoreInit(db) {
-        const provider = ServerSideSigner(nconf.get('payment:ethereum:host'),nconf.get('payment:ethereum:masterAdr'),nconf.get('payment:ethereum:masterKey'));
-        this.setProvider(provider);
-    }
 
     initWG(db) {
-        this.keyStoreInit(db);
+        const provider = ServerSideSigner(nconf.get('payment:ethereum:host'),nconf.get('payment:ethereum:masterAdr'),nconf.get('payment:ethereum:masterKey'));
+        this.setProvider(provider);
         this.token = this.contractInit('THX');
         this.presaleContract = this.contractInit('presale');
-        this.presale = this.contractInit('presale');
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
-
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
@@ -151,7 +145,7 @@ class WebGold extends EthereumContract {
 
     }
 
-    cointTransfer (from,to,amount) {
+    coinTransfer (from,to,amount) {
         return this._coinTransfer(from,to,amount,this.token.sendCoin);
     }
 
@@ -160,7 +154,6 @@ class WebGold extends EthereumContract {
     }
 
     _coinTransfer(from,to,amount,Fn) {
-
         return new Promise((resolve,reject)=> {
             const actual_sendcoin = () => {
                 Fn.sendTransaction(to, amount, {from: from}, (err,result)=>{
@@ -175,10 +168,9 @@ class WebGold extends EthereumContract {
             };
 
             logger.debug(`"Starting sendCoin cointransfer FROM:${from} TO:${to} COINS:${amount} ${Fn.name}`);
-            return actual_sendcoin();
 
             Fn.call(to, amount, {from: from},(err, callResult) => {
-                logger.verbose("Trying sendcoin pre-transcation execution",err,callResult);
+                logger.verbose("Trying sendcoin pre-transcation execution",err,callResult,to);
                 if (err) {
                     reject("Failed to perform pre-call");
                     return;
@@ -189,6 +181,7 @@ class WebGold extends EthereumContract {
                     actual_sendcoin();
                 }
                 else {
+                    logger.error("Pre check failed, check your balances");
                     reject("Pre check failed, check your balances");
                 }
             });

@@ -39,7 +39,7 @@ class EthereumContract {
         const addr_file = path.resolve(__dirname, `../../../contract/bin/${name}.addr`);
         const contractadress = fs.readFileSync(addr_file).toString();
         const abi = eval(fs.readFileSync(abi_file).toString());
-        return this.makeContract(this.contractadress,abi,name);
+        return this.makeContract(contractadress,abi,name);
     }
 
     unlockMaster() {
