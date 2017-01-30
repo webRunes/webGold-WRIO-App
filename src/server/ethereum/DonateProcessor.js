@@ -131,7 +131,6 @@ export default class DonateProcessor {
 
     async makeDonate (user, to, amount)  {
 
-       // await this.webGold.unlockByWrioID(user.wrioID);  // TODO request user sign transaction
 
         logger.debug("Prepare for transfer",this.destEthId,this.srcEthId,amount);
         await this.webGold.donate(this.srcEthId,this.destEthId,amount);

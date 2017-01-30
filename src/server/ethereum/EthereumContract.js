@@ -7,6 +7,7 @@ import path from 'path';
 import logger from 'winston';
 import nconf from 'nconf';
 import Web3 from 'web3'; var web3 = new Web3();
+import promisify from '../utils/promisify.js';
 
 class EthereumContract {
 
@@ -46,31 +47,10 @@ class EthereumContract {
         console.warn("unlockMaster deprecated")
     }
 
-    async unlockByWrioID (wrioID) {
-        if (!this.widgets) return;
-        var user = await this.users.getByWrioID(wrioID);
-        //logger.debug(user);
-        if (user.ethereumWallet) {
-            logger.debug("Unlocking existing wallet for " + wrioID);
-            this.widgets.unlockAccount(user.ethereumWallet,wrioID);
-        }
-    }
 
     async estimateGas(trans) {
         var result = this.web3.eth.estimateGas(trans);
         logger.debug(result);
-    }
-
-    async getEthereumAccountForWrioID (wrioID) {
-
-        var user = await this.users.getByWrioID(wrioID);
-        // logger.debug(user);
-        if (user.ethereumWallet) {
-            logger.debug("Returning existing wallet for "+wrioID);
-            return user.ethereumWallet;
-        } else {
-            return null;
-        }
     }
 
 
@@ -81,16 +61,8 @@ class EthereumContract {
      * @returns {Promise, string}
      */
 
-    getEtherBalance(account) {
-        return new Promise((resolve,reject) =>{
-            this.web3.eth.getBalance(account, (err,res) => {
-                if (err) {
-                    reject("getEtherBalance failed");
-                } else {
-                    resolve(res.toString());
-                }
-            });
-        });
+    async getEtherBalance(account) {
+        return await promisify(this.web3.eth.getBalance)(account);
     }
 
     /**
@@ -101,101 +73,62 @@ class EthereumContract {
      * @returns {Promise}
      */
 
-    etherSend(sender,recipient,amount) {
-        return new Promise((resolve,reject)=> {
-            logger.verbose("Preparing to transfer",amount,"ETH");
-
-            var amountWEI = this.web3.toWei(amount, "ether");
-            this.web3.eth.sendTransaction({from: sender, to: recipient, value: amountWEI}, (err, result) => {
-                if (err) {
-                    logger.error("etherTransfer failed",err);
-                    reject("Ether transfer failed");
-                    return;
-                }
-                logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
-                resolve(result);
-            });
-        });
+    async etherSend(sender,recipient,amount) {
+        logger.verbose("Preparing to transfer",amount,"ETH");
+        const  amountWEI = this.web3.toWei(amount, "ether");
+        const result = await promisify(this.web3.eth.sendTransaction)({from: sender, to: recipient, value: amountWEI});
+        logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
+        return result
     }
 
-    getTransactionCount(adr) {
+    async getTransactionCount(adr) {
         console.log("Getting trans count for ",adr);
-        return new Promise((resolve,reject) => {
-            this.web3.eth.getTransactionCount(adr,function(err,res) {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(res);
-            });
-        });
+        return await promisify(web3.eth.getTransactionCount)(adr);
     }
 
 
     /* executeSignedTransaction*/
 
-    executeSignedTransaction(tx) {
-        return new Promise((resolve,reject) => {
-            this.web3.eth.sendRawTransaction(tx, function(err, hash) {
-                if (!err) {
-                    console.log("Transaction has been executed, HASH:", hash);
+    async executeSignedTransaction(tx) {
 
-                    var trans = this.web3.eth.getTransaction(hash);
-                    console.log(trans);
+        const hash = await promisify(this.web3.eth.sendRawTransaction)(tx);
 
-                    /*         var filter = web3.eth.filter('latest');
-                     filter.watch(function(error, result) {
-                     if (error) {
-                     console.log("Watch error",error);
-                     return;
-                     }
-                     // XXX this should be made asynchronous as well.  time
-                     // to get the async library out...
-                     var receipt = web3.eth.getTransactionReceipt(hash);
-                     console.log(result,receipt);
-                     // XXX should probably only wait max 2 events before failing XXX
-                     if (receipt && receipt.transactionHash == hash) {
-                     var res = myContract.getData.call();
-                     console.log('the transactionally incremented data was: ' + res.toString(10));
-                     filter.stopWatching();
-                     }
-                     });*/
+        console.log("Transaction has been executed, HASH:", hash);
+        const trans = await promisify(this.web3.eth.getTransaction)(hash);
+        console.log(trans);
+        return hash;
+
+        /*         var filter = web3.eth.filter('latest');
+         filter.watch(function(error, result) {
+         if (error) {
+         console.log("Watch error",error);
+         return;
+         }
+         // XXX this should be made asynchronous as well.  time
+         // to get the async library out...
+         var receipt = web3.eth.getTransactionReceipt(hash);
+         console.log(result,receipt);
+         // XXX should probably only wait max 2 events before failing XXX
+         if (receipt && receipt.transactionHash == hash) {
+         var res = myContract.getData.call();
+         console.log('the transactionally incremented data was: ' + res.toString(10));
+         filter.stopWatching();
+         }
+         });*/
 
 
-
-                    resolve(hash);
-                } else {
-                    reject(err);
-                }
-
-            });
-        });
     }
 
-    getLatestBlock() {
-        return this.web3.eth.blockNumber;
+    async getLatestBlock() {
+        return await promisify(web3.eth.getBlockNumber)();
     }
 
-    getBlockSync() {
-        return new Promise((resolve,reject) => {
-            this.web3.eth.getSyncing((error, result) => {
-                if (error) {
-                    return reject(error);
-                }
-                resolve(result);
-
-            });
-        });
+    async getBlockSync() {
+        return await promisify(web3.eth.getSyncing)();
     }
 
-    getGasPrice() {
-        return new Promise((resolve,reject) => {
-            this.web3.eth.getGasPrice((error, result) => {
-                if (error) {
-                    return reject(error);
-                }
-                resolve(result);
-            });
-        });
+    async getGasPrice() {
+        return await promisify(web3.eth.getGasPrice)();
     }
 
     getWeb3() {

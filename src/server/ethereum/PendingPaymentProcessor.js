@@ -103,7 +103,6 @@ export default class PendingPaymentProcessor {
     async makeDonate(user,p,left) {
         var paym_amount = - p.amount;
         logger.info("Donating to",p.to,paym_amount);
-        await this.webGold.unlockByWrioID(user.wrioID);  // TODO save signed transactions in db or ask user to sign every transaction manually
         var donate = new DonateProcessor(p.to,user.wrioID,paym_amount);
         if (!(await donate.verifyDonateParameters())) {
             logger.error("Verify failed");

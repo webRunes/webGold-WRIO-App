@@ -34,7 +34,6 @@ export const giveaway = async (request,response) => {  // TODO: remove this meth
     logger.error("  =====  WARNING: GIVEAWAY CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
     var user = request.user;
     var webGold = new WebGold(db.db);
-    await webGold.unlockByWrioID(user.wrioID); // TODO request user sign transaction
     await webGold.giveAwayEther(user.ethereumWallet);
     response.send("Successfully given away");
 };

@@ -45,7 +45,7 @@
     "ethereum": {
       "host":"http://192.168.1.1:8545",
       "masterAdr":"0xde0b295669a9fd93d5f28d9ec85e40f4cb697b00",
-      "masterPass":"0123123123213123123123213124125151515151515"
+      "masterKey":"0x1111111111111111111111111111111111111111111111111111111111111111"
     },
      "currencyName":"THX",
      "grammPriceUSD": 30,

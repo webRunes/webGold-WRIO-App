@@ -21,7 +21,7 @@ import ethUtil from 'ethereumjs-util';
 import CurrencyConverter from '../../currency.js';
 import EthereumContract from './EthereumContract.js';
 import ServerSideSigner from './ServerSideSigner.js';
-
+import promisify from '../utils/promisify.js';
 
 const converter = new CurrencyConverter();
 const wei = Const.WEI;
@@ -62,6 +62,7 @@ class WebGold extends EthereumContract {
         this.setProvider(provider);
         this.token = this.contractInit('THX');
         this.presaleContract = this.contractInit('presale');
+        console.log(this.presaleContract);
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
 
@@ -103,15 +104,20 @@ class WebGold extends EthereumContract {
      * @returns {Promise, string}
      */
 
-    getBalance(account) {
-        return new Promise((resolve, reject) => {
-            this.token.coinBalanceOf(account, (err, balance)=> {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(balance);
-            });
-        });
+    async getBalance(account) {
+            return await promisify(this.token.coinBalanceOf)(account);
+    }
+
+    async getEthereumAccountForWrioID (wrioID) {
+
+        var user = await this.users.getByWrioID(wrioID);
+        // logger.debug(user);
+        if (user.ethereumWallet) {
+            logger.debug("Returning existing wallet for "+wrioID);
+            return user.ethereumWallet;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -153,51 +159,42 @@ class WebGold extends EthereumContract {
         return this._coinTransfer(from,to,amount,this.token.emitCoin);
     }
 
-    _coinTransfer(from,to,amount,Fn) {
-        return new Promise((resolve,reject)=> {
-            const actual_sendcoin = () => {
-                Fn.sendTransaction(to, amount, {from: from}, (err,result)=>{
-                    if (err) {
-                        logger.error("cointransfer failed",err);
-                        reject(err);
-                        return;
-                    }
-                    logger.info("cointransfer succeeded",result);
-                    resolve(result);
-                });
-            };
+    async _coinTransfer(from,to,amount,Fn) {
+        logger.debug(`"Starting sendCoin cointransfer FROM:${from} TO:${to} COINS:${amount} ${Fn.name}`);
+        const callResult = await promisify(Fn.call)(to, amount, {from: from});
+        logger.verbose("Trying sendcoin pre-transcation execution",callResult,to);
 
-            logger.debug(`"Starting sendCoin cointransfer FROM:${from} TO:${to} COINS:${amount} ${Fn.name}`);
-
-            Fn.call(to, amount, {from: from},(err, callResult) => {
-                logger.verbose("Trying sendcoin pre-transcation execution",err,callResult,to);
-                if (err) {
-                    reject("Failed to perform pre-call");
-                    return;
-                }
-
-                if (callResult) {
-                    logger.debug('sendCoin preview succeeds so now sendTx...');
-                    actual_sendcoin();
-                }
-                else {
-                    logger.error("Pre check failed, check your balances");
-                    reject("Pre check failed, check your balances");
-                }
-            });
-        });
-
+        if (callResult) {
+            logger.debug('sendCoin preview succeeds so now sendTx...');
+            const result = await promisify(Fn.sendTransaction)(to, amount, {from: from});
+            logger.info("cointransfer succeeded",result);
+            return result;
+        }
+        else {
+            throw new Error("Pre check failed, check your balances");
+        }
 
     }
+
+    async executeWithPreflight(Fn, ...params) {
+
+        const callResult = await promisify(Fn.call)(to, amount, {from: from});
+        if (callResult) {
+            const result = await promisify(Fn.sendTransaction)(to, amount, {from: from});
+            return result;
+        }
+        else {
+            throw new Error("Pre check failed, check your balances");
+        }
+
+    }
+
 
     getTime() {
         var d = new Date();
         return d.getTime();
     }
 
-    /*
-
-     */
 
     /**
      * waits for one minute for ether to be received by account
@@ -268,7 +265,7 @@ class WebGold extends EthereumContract {
     }
 
 
-    async makeTx(data,gasPrice,nonce) {
+    async makeTx(data,gasPrice,nonce,contract) {
 
         console.log("Current gas price",gasPrice,nonce.toString(16));
         gasPrice = formatHex(gasPrice.toString(16));
@@ -278,7 +275,7 @@ class WebGold extends EthereumContract {
             gasPrice: formatHex(ethUtil.stripHexPrefix(gasPrice)),
             gasLimit: formatHex(new BigNumber('414159').toString(16)),
             value: '0x00',
-            to: this.presaleContract.address,
+            to: contract.address,
             data: data
         };
         console.log("Resulting transaction",txObject);
@@ -289,7 +286,6 @@ class WebGold extends EthereumContract {
 
         return hex;
     }
-
 
 
     /* Prepare transaction to be signed by the userspace */
@@ -307,13 +303,13 @@ class WebGold extends EthereumContract {
         const nonce = (await this.getTransactionCount(from)).toString(16);
         console.log('Making nonce ',from, nonce);
 
-        return await this.makeTx(data,currentGasPrice,nonce);
+        return await this.makeTx(data,currentGasPrice,nonce,this.token);
     }
 
     async makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce, gasPrice) {
 
         let data = this.presaleContract.makePresale.getData(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST);
-        return await this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16));
+        return await this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16),this.presaleContract);
     }
 
 
