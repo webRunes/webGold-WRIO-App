@@ -269,7 +269,7 @@ class WebGold extends EthereumContract {
     }
 
 
-    async makeTx(data,gasPrice,nonce,contract) {
+    makeTx(data,gasPrice,nonce,contract) {
 
         console.log("Current gas price",gasPrice,nonce.toString(16));
         gasPrice = formatHex(gasPrice.toString(16));
@@ -284,11 +284,12 @@ class WebGold extends EthereumContract {
         };
         console.log("Resulting transaction",txObject);
        // console.log("Estimate gas ", await this.estimateGas({to:formatHex(this.contractadress),data:data}));
+        return txObject;
+    }
 
+    toHexTx(txObject) {
         var tx = new Tx(txObject);
-        var hex = tx.serialize().toString('hex');
-
-        return hex;
+        return tx.serialize().toString('hex');
     }
 
 
@@ -307,13 +308,13 @@ class WebGold extends EthereumContract {
         const nonce = (await this.getTransactionCount(from)).toString(16);
         console.log('Making nonce ',from, nonce);
 
-        return await this.makeTx(data,currentGasPrice,nonce,this.token);
+        return toHexTx(this.makeTx(data,currentGasPrice,nonce,this.token));
     }
 
     async makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce, gasPrice) {
 
         let data = this.presaleContract.makePresale.getData(mail, adr, satoshis, milliWRG, bitcoinSRC, bitcoinDEST);
-        return await this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16),this.presaleContract);
+        return this.makeTx(data,parseInt(gasPrice,16).toString(16),parseInt(nonce,16).toString(16),this.presaleContract);
     }
 
 

@@ -40,14 +40,13 @@ const getGasPrice = async () => {
 const masterAccount = nconf.get("payment:ethereum:masterAdr");
 import {db as dbMod} from '../common';var init = dbMod.init;
 import {dumpError} from '../common/utils/utils.js';
+const sign = require('ethjs-signer').sign;
 
 const presale = async (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST) => {
     const nonce = await getTransactionCount(masterAccount);
     const tx = await wg.makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce,await getGasPrice());
-    console.log("Unlocking");
-    wg.unlockMaster();
-    const signedTx = await wg.widgets.signRawTx(tx,masterAccount); // TODO fix it to the new format
-    console.log("Signing");
+    const signedTx = sign(tx, nconf.get("payment:ethereum:masterKey")); // TODO fix it to the new format
+    console.log("Signing",signedTx);
     console.log(await sendRawTX(signedTx));
 };
 export default presale;
