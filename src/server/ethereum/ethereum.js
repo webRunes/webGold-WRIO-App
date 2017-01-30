@@ -108,6 +108,10 @@ class WebGold extends EthereumContract {
             return await promisify(this.token.coinBalanceOf)(account);
     }
 
+    async getRtxBalance(account) {
+        return await promisify(this.token.rewardOf)(account);
+    }
+
     async getEthereumAccountForWrioID (wrioID) {
 
         var user = await this.users.getByWrioID(wrioID);

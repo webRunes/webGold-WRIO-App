@@ -173,6 +173,7 @@ class Balances extends React.Component {
                         <th>ETH BALANCE</th>
                         <th>TEMP BALANCE(DB)</th>
                         <th>WRG BALANCE</th>
+                        <th>RTX COINS</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -186,6 +187,7 @@ class Balances extends React.Component {
                                 <td>{ item.ethBalance}</td>
                                 <td onClick={this.showModal.bind(this,item.widgets)}>{ item.dbBalance}</td>
                                 <td>{ item.wrgBalance}</td>
+                                <td>{ item.rtxBalance}</td>
 
                             </tr>);
                         }.bind(this))}

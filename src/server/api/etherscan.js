@@ -46,7 +46,7 @@ const presale = async (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST
     const tx = await wg.makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce,await getGasPrice());
     console.log("Unlocking");
     wg.unlockMaster();
-    const signedTx = await wg.widgets.signRawTx(tx,masterAccount);
+    const signedTx = await wg.widgets.signRawTx(tx,masterAccount); // TODO fix it to the new format
     console.log("Signing");
     console.log(await sendRawTX(signedTx));
 };

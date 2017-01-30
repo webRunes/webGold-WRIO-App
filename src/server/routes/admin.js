@@ -60,31 +60,37 @@ router.get('/master', wrioAdmin, wrap(async (request,response) => {
     response.send(resp);
 }));
 
-async function formatUserData(user, wgUsers, webGold) {
-    logger.debug(user);
-    if (user.wrioID && user.ethereumWallet) {
-        wgUsers.push({
-            wrioID: user.wrioID,
-            name: user.lastName,
-            ethWallet: user.ethereumWallet,
-            dbBalance: -(user.dbBalance || 0) / 100,
-            ethBalance: await webGold.getEtherBalance(user.ethereumWallet) / wei,
-            wrgBalance: await webGold.getBalance(user.ethereumWallet) / 100,
-            widgets: user.widgets || []
-        });
+const formatUserData = (webGold) => async (user) => {
+
+    const [eth,wrg,rtx] = await Promise.all([
+        webGold.getEtherBalance(user.ethereumWallet),
+        webGold.getBalance(user.ethereumWallet),
+        webGold.getRtxBalance(user.ethereumWallet),
+    ]);
+
+    return {
+        wrioID: user.wrioID,
+        name: user.lastName,
+        ethWallet: user.ethereumWallet,
+        dbBalance: -(user.dbBalance || 0) / 100,
+        ethBalance: eth / wei,
+        wrgBalance: wrg / 100,
+        rtxBalance: rtx,
+        widgets: user.widgets || []
     }
-}
+
+};
 
 router.get('/users', wrioAdmin, wrap(async (request,response) => {
     logger.debug("Coinadmin admin detected");
-    var webGold = new WebGold(db.db);
-    var wrioUsers = new WebRunesUsers(db.db);
-    var users = await wrioUsers.getAllUsers({temporary:false});
-    var wgUsers = [];
-    for (var user of users) {
-        await formatUserData(user, wgUsers, webGold);
-    }
-    response.send(wgUsers);
+    const webGold = new WebGold(db.db);
+    const wrioUsers = new WebRunesUsers(db.db);
+    const users = await wrioUsers.getAllUsers({temporary:false});
+    const wgUsers = users.
+        filter((user) => user.wrioID && user.ethereumWallet).
+        map(formatUserData(webGold));
+
+    response.send(await Promise.all(wgUsers));
 }));
 
 router.get('/etherfeeds', wrioAdmin, wrap(async (request,response) => {

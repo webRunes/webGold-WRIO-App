@@ -1,0 +1,20 @@
+mongo:
+  image: mongo:latest
+  ports:
+  - "27017:27017"
+
+webgold:
+  build: .
+  links:
+   - mongo
+   - testrpc
+  ports:
+   - "5003:5003"
+  volumes:
+   - ./webGold-WRIO-App/:/srv/www/
+  command: sh -c "export WRIO_CONFIG=config.json.travis && gulp test"
+
+testrpc:
+  build: ./testrpc-server/
+  ports:
+  - "8545:8545"

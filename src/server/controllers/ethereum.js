@@ -127,24 +127,25 @@ export const donate = async (request,response) => {
 
 export const get_balance = async (request,response) => {
 
-    var user = request.user;
-    var dbBalance = 0;
+    const user = request.user;
+    let dbBalance = 0;
     if (user.dbBalance) {
         dbBalance = user.dbBalance / 100;
     }
     logger.debug("balance from db:", dbBalance);
 
-    var webGold = new WebGold(db.db);
-    var dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-    var balance = await webGold.getBalance(dest) / 100;
-    var bal = balance - dbBalance;
-
+    const webGold = new WebGold(db.db);
+    const dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
+    const [rtx,_balance] = await Promise.all([webGold.getRtxBalance(dest), webGold.getBalance(dest)]);
+    const balance = _balance / 100;
+    const bal = balance - dbBalance;
 
     await webGold.processPendingPayments(user);
 
     //logger.debug("balance:",balance.add(dbBalance).toString());
     response.send({
         "balance": bal,
+        "rtx":rtx,
         "promised": dbBalance,
         "blockchain": balance
     });
