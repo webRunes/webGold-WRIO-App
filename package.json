@@ -8,8 +8,8 @@
     "test": "export WRIO_CONFIG=config.json.tests && gulp test",
     "testgrep": "export WRIO_CONFIG=config.json.tests && gulp test --grep DEVTEST",
     "shell": "docker exec -it wriolocaldev_webgold_1 sh",
-    "testd": "docker exec -it wriolocaldev_webgold_1 sh -c \"gulp test\"",
-    "testdgrep": "docker exec -it wriolocaldev_webgold_1 sh -c \"gulp testgrep\""
+    "testd": "docker exec -it wriolocaldev_webgold_1 sh -c \"npm run test\"",
+    "testdgrep": "docker exec -it wriolocaldev_webgold_1 sh -c \"npm run testgrep\""
   },
   "engines": {
     "node": ">= v0.8.0"
@@ -22,7 +22,7 @@
     "eslint": "2.2.0",
     "eslint-plugin-ideal": "^0.1.2",
     "eslint-plugin-react": "^3.1.0",
-    "ethereumjs-testrpc": "^2.2.3",
+    "ethereumjs-testrpc": "^3.0.3",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "2.0.0",

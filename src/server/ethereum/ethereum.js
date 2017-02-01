@@ -62,7 +62,6 @@ class WebGold extends EthereumContract {
         this.setProvider(provider);
         this.token = this.contractInit('THX');
         this.presaleContract = this.contractInit('presale');
-        console.log(this.presaleContract);
         this.users = new WebRunesUsers(db);
         this.pp = new PendingPaymentProcessor();
 
@@ -308,7 +307,7 @@ class WebGold extends EthereumContract {
         const nonce = (await this.getTransactionCount(from)).toString(16);
         console.log('Making nonce ',from, nonce);
 
-        return toHexTx(this.makeTx(data,currentGasPrice,nonce,this.token));
+        return this.toHexTx(this.makeTx(data,currentGasPrice,nonce,this.token));
     }
 
     async makePresaleTx(mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST, nonce, gasPrice) {

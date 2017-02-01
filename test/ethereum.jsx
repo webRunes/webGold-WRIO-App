@@ -32,11 +32,15 @@ const cacheToken = (code, callback) => {
         cache.findOne({code}, (err,data) => {
             //console.log(err,data);
             if (!err && data) {
+                    console.log("Cache hit!");
                     resolve(JSON.parse(data.data));
             } else {
-                const result = callback(code);
-                saveToCache(code,result, resolve);
-                resolve(result)
+                console.log("Cache miss");
+                callback(code).then((res) => {
+                    console.log(res);
+                    saveToCache(code, res, (err)=>console.log(err));
+                    resolve(res);
+                }).catch(reject);
             }
         });
     });
@@ -46,17 +50,45 @@ const compileDeploy = async(name) => {
     const web3 = wg.getWeb3();
     console.log("Compiling...");
     const file = fs.readFileSync(name).toString();
-    const tokenCompiled = await cacheToken(file, (code) => web3.eth.compile.solidity(code));
-    wg.unlockMaster();
+    const [abi,code] = await cacheToken(file, async(code) => await wg.compileContract(code));
     console.log("Deploying...");
     return {
-        address:await wg.deploy(testAccounts[0], tokenCompiled.code, tokenCompiled.info.abiDefinition),
-        abi: tokenCompiled.info.abiDefinition
+        address:await wg.deploy(testAccounts[0], code, abi),
+        abi: abi
     };
 
 };
 
 const delay = (time) => new Promise((resolve,reject) => setTimeout(resolve,time));
+
+var serverObj;
+const startTestRPC = () => new Promise((resolve,reject)=>{
+    console.log("Starting test RPC server");
+    const TestRPC = require("ethereumjs-testrpc");
+    const params = { // predefine test accounts for functional testing purposes
+        unlocked_accounts: ["0x64b1ca6c22567bdbae74cab3a694d48c7a6b4789"],
+        secure: true,
+        logger: console,
+        debug:true,
+        blocktime: "0.5",
+        accounts: [
+            {secretKey: "0x4749870d2632ff65dccdd61073e69a2e9f32c757e10efbf584cfe93c1d139f1c", balance: 1000000000},
+            {secretKey: "0x51389cd120c059bbfd003e325550eace06c1515cbc6c8c7f8735728a54edfdc4", balance: 0},
+            {secretKey: "0x1fb9710adb5b43df3f378e4007fdbdadd54f76dc162a1b59d368c7d66b926685", balance: 0}],
+        locked: true
+    };
+    var server = TestRPC.server(params);
+    server.listen(8545, function(err, blockchain) {
+        if (err) {
+            reject(err);
+        }
+        console.log("TestRPC server started",blockchain);
+        serverObj = server;
+        resolve(blockchain);
+    });
+});
+
+//startTestRPC();
 
 
 describe("Blockchain unit tests", () => {
@@ -65,6 +97,11 @@ describe("Blockchain unit tests", () => {
         db = await dbMod.init();
         wg = new WebGold(db);
         converter = new CurrencyConverter(30);
+    });
+
+    after((done)=> {
+        serverObj.close(()=>console.log("TestRPC shutdown"));
+        done();
     });
 
     it ('should be able to create contract from the abi using EthereumContract.makeContract function', async(done) => {

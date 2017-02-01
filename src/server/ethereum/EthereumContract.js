@@ -9,6 +9,8 @@ import nconf from 'nconf';
 import Web3 from 'web3'; var web3 = new Web3();
 import promisify from '../utils/promisify.js';
 
+const COMPILER_VER = "v0.4.8+commit.60cc1668";
+
 class EthereumContract {
 
     constructor (db) {
@@ -16,6 +18,7 @@ class EthereumContract {
     }
 
     setProvider(provider) {
+
         const fallbackProvider = () => {
             console.log("Using default plain provider");
             return new web3.providers.HttpProvider(nconf.get('payment:ethereum:host'));
@@ -35,11 +38,11 @@ class EthereumContract {
             }); // change to contract address
     }
 
-    contractInit(name) {
+    contractInit(name, _abi, _addr) {
         const abi_file = path.resolve(__dirname, `../../../contract/bin/${name}.abi`);
         const addr_file = path.resolve(__dirname, `../../../contract/bin/${name}.addr`);
-        const contractadress = fs.readFileSync(addr_file).toString();
-        const abi = eval(fs.readFileSync(abi_file).toString());
+        const contractadress = _addr || fs.readFileSync(addr_file).toString();
+        const abi = _abi || eval(fs.readFileSync(abi_file).toString());
         return this.makeContract(contractadress,abi,name);
     }
 
@@ -82,7 +85,6 @@ class EthereumContract {
     }
 
     async getTransactionCount(adr) {
-        console.log("Getting trans count for ",adr);
         return await promisify(web3.eth.getTransactionCount)(adr);
     }
 
@@ -135,8 +137,24 @@ class EthereumContract {
         return this.web3;
     }
 
+
+    compileContract(source) {
+        return new Promise((resolve, reject) => {
+            const solc = require('solc');
+            solc.loadRemoteVersion(COMPILER_VER, async (err, solcSnapshot) => {
+                console.log(`Compiler version ${COMPILER_VER} downloaded`);
+                if (err) {
+                    reject(err);
+                }
+                let compiledContract = solcSnapshot.compile(source, 1);
+                let abi = compiledContract.contracts[contractName].interface;
+                let bytecode = compiledContract.contracts[contractName].bytecode;
+                resolve([abi, bytecode]);
+            });
+        });
+    }
+
     deploy(from,data,abi) {
-        console.log(abi);
         return new Promise((resolve,reject) => {
 
             let web3 = this.getWeb3();

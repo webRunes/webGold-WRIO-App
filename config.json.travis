@@ -43,7 +43,7 @@
           "key":"12lk3j123lk213l12k312l3kj123lk21j3lk21j12lk3j"
     },
     "ethereum": {
-      "host":"http://192.168.1.1:8545",
+      "host":"localhost:8545",
       "masterAdr":"0xde0b295669a9fd93d5f28d9ec85e40f4cb697b00",
       "masterKey":"0x1111111111111111111111111111111111111111111111111111111111111111"
     },

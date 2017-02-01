@@ -187,7 +187,10 @@ function setup_routes(db) {
         }))
     }
 
-    if (nconf.get("db:workdomain") === '.wrioos.local') {
+    const localdev = nconf.get("db:workdomain") === '.wrioos.local';
+    const isInTest = typeof global.it === 'function';
+
+    if (localdev && !isInTest) {
         setupDevServer();
     }
 
