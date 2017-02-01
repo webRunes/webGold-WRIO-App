@@ -1,13 +1,13 @@
-import nconf from '../src/server/wrio_nconf';
+import nconf from '../src/server/utils/wrio_nconf';
 import app from "../src/server/index.js";
 import request from 'supertest';
 import assert from 'assert';
 import should from 'should';
 
-import {db as dbMod} from 'wriocommon';var db = dbMod.db;
-import Invoices from '../src/server/dbmodels/invoice.js'
-import Presale from '../src/server/dbmodels/presale.js'
-import Users from '../src/server/dbmodels/wriouser.js'
+import {db as dbMod} from '../src/server/common';var db = dbMod.db;
+import Invoices from '../src/server/models/invoice.js'
+import Presale from '../src/server/models/presale.js'
+import Users from '../src/server/models/wriouser.js'
 import apitest from "./apitest"
 import {generateFakeSession,clearTestDb} from "./testutils.jsx"
 

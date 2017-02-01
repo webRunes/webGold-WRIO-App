@@ -8,7 +8,7 @@
     "rules": {
         "no-mixed-requires": [0, false],
         "strict": [1, "never"],
-        "semi": [2, "always"],
+        "semi": [2, "never"],
         "curly": 1,
         "no-bitwise": 1,
         "max-len": [1, 1110, 4],
