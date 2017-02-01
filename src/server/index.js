@@ -1,22 +1,25 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import nconf from './wrio_nconf.js';
+import nconf from './utils/wrio_nconf.js';
 import path from 'path';
-import {utils} from 'wriocommon'; const dumpError = utils.dumpError;
-import BlockChainRoute from './blockchain.info';
-import {BlockChain} from './blockchain.info';
-import EthereumRoute from './ethereum-route';
-import UserStatsRoute from './user-stats.js';
-import {login as loginImp} from 'wriocommon'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
-import WebGold from './ethereum';
+import {utils} from './common'; const dumpError = utils.dumpError;
+import BlockChain from './api/blockchainApi.js';
+import {login as loginImp} from './common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import WebGold from './ethereum/ethereum';
 import BigNumber from 'bignumber.js';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from '../constant.js';
-import setupIO from './notifications.js';
-import {server,db,login} from 'wriocommon';
+//import setupIO from './notifications.js';
+import {server,db,login} from './common';
+
+import BlockChainRoute from './routes/blockchain.info.js';
+import EthereumRoute from './routes/ethereum-route';
+import UserStatsRoute from './routes/user-stats.js';
+
+
 
 import CurrencyConverter from '../currency.js';
 const converter = new CurrencyConverter();
@@ -44,7 +47,7 @@ async function init() {
     console.log('app listening on port ' + nconf.get('server:port') + '...');
     setup_server(dbInstance);
     setup_routes(dbInstance);
-    setupIO(httpServ,dbInstance);
+   // setupIO(httpServ,dbInstance);
     app.ready();
 }
 
@@ -179,19 +182,23 @@ function setup_routes(db) {
             stats: {colors: true},
             watchOptions: {
                 aggregateTimeout: 300,
-                poll: true
+                poll: false
             },
         }))
     }
 
-    if (nconf.get("db:workdomain") === '.wrioos.local') {
+    const localdev = nconf.get("db:workdomain") === '.wrioos.local';
+    const isInTest = typeof global.it === 'function';
+
+    if (localdev && !isInTest) {
         setupDevServer();
     }
 
-    app.use('/', express.static(path.join(__dirname, '../hub')));
+    app.use('/', express.static(path.join(__dirname, '../../hub')));
 
     app.use(function (err, req, res, next) {
-        utils.dumpError(err);
+        console.log("Error catch middleware");
+        dumpError(err);
         res.status(403).send("There was error processing your request");
     });
 

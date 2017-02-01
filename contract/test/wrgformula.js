@@ -2,51 +2,33 @@
  * Created by michbil on 27.09.15.
  */
 
+const wrgMul = 100;
+const percentMul = 1000000; /*  add percent multiplier */
+
+function get_percent(amount) {
+    const inWrg = amount / wrgMul;
+
+    if ((inWrg >= 0) && (inWrg < 2)) return 50;
+    if ((inWrg >= 2) && (inWrg < 4)) return 55;
+    if ((inWrg >= 4) && (inWrg < 8)) return 60;
+    if ((inWrg >= 8) && (inWrg < 16)) return 65;
+    if ((inWrg >= 16) && (inWrg < 32)) return 70;
+    if ((inWrg >= 32) && (inWrg < 64)) return 75;
+    if ((inWrg >= 64) && (inWrg < 128)) return 80;
+    if ((inWrg >= 128) && (inWrg < 256)) return 85;
+    if ((inWrg >= 256) && (inWrg < 512)) return 90;
+    if (inWrg >= 512) return 95;
+    return 95;
+}
+
 function calc_percent(wrg) {
-    var p;
-    if (wrg === 0) {
-        p = 1
-    } else {
-        p = Math.floor(Math.log10(wrg)+1);
-    }
-
-    d1 = Math.floor(wrg/1000);var rest = wrg%1000;
-    d2 = Math.floor(rest/100);rest = rest % 100;
-    d3 = Math.floor(rest/10);
-    d4 = rest%10;
-
-    console.log("=",d1,d2,d3,d4,"=");
-
-    var percent = 75 + (p - 1) * 5 + d1 * 0.5 + d2 * 0.05 + d3 * 0.005 + d4 * 0.0005;
 
 
-    return percent;
+
+    return wrg * get_percent(wrg) / 100;
 
 }
 
-function calc_percent1(wrg) {
-    var p;
-    if (wrg === 0) {
-        p = 1
-    } else {
-        p = Math.floor(Math.log10(wrg)+1);
-    }
-
-    d1 = Math.floor(wrg/1000);var rest = wrg%1000;
-    d2 = Math.floor(rest/100);rest = rest % 100;
-    d3 = Math.floor(rest/10);
-    d4 = rest%10;
-
-    console.log("=",d1,d2,d3,d4,"=");
-
-    var percent = 75 + (p - 1) * 5 + wrg*0.0005;
-
-
-    return percent;
-
-}
-
-
-for (var i=0;i < 1000;i+= 10) {
-    console.log(i,"    ",calc_percent(i),"  | ", calc_percent1(i))
+for (var i=0;i < 60000;i+= 1600) {
+    console.log("SUM", i/wrgMul,"    ",get_percent(i),"   ",calc_percent(i)/wrgMul)
 }
