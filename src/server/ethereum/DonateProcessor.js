@@ -141,6 +141,13 @@ export default class DonateProcessor {
     };
 
     async generateDonateTx(user,to,amount) {
+        if (!user.etherumWallet) {
+            logger.error("Attemt to donate for user without ethereum wallet!");
+            return {
+                success: false,
+                error: "User don't have ethereum wallet"
+            }
+        }
         await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
         var hex = await this.webGold.makeDonateTx(this.srcEthId,this.destEthId,amount);
         return {
