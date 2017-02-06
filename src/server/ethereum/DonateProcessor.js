@@ -141,7 +141,7 @@ export default class DonateProcessor {
     };
 
     async generateDonateTx(user,to,amount) {
-        if (!user.etherumWallet) {
+        if (!this.destUser.ethereumWallet) {
             logger.error("Attemt to donate for user without ethereum wallet!");
             return {
                 success: false,
