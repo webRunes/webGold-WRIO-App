@@ -72,7 +72,8 @@ export default class CreateWallet extends React.Component {
     constructor (props) {
         super(props);
         const saveEthId = (addr) => this.saveEthereumId("0x"+addr).then(()=> {
-            parent.postMessage(JSON.stringify({
+
+            window.opener.postMessage(JSON.stringify({
                 "reload": true
             }), "*");
             window.close();
