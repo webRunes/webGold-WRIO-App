@@ -45,7 +45,7 @@ export default class Emissions {
             console.log(q);
             let em =  await this.get(q);
             console.log("Found emissions",em);
-            return true;
+            return (new Date(em.timestamp).getTime() - target)/(60*1000);
         } catch(e) {
             dumpError(e);
             console.log("No emission found in time interval");

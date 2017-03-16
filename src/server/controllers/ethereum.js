@@ -23,6 +23,7 @@ import logger from 'winston';
 let wei = Const.WEI;
 let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
+const formatWRGamount = (amount) => amount / 100;
 
 export const giveaway = async (request,response) => {  // TODO: remove this method
 
@@ -45,8 +46,12 @@ export const free_wrg = async (request,response) => {  // TODO: remove this meth
         logger.error("  =====  WARNING: FREE WRG CALLED, SHOULD BE USED ONLY ON TESTNET ====  to user", user);
 
         let emissions = new Emissions();
-        if (await emissions.haveRecentEmission(user,1)) { // allom emission every hour
-            return response.status(403).send("Please wait");
+        let emissionTimeStamp = await emissions.haveRecentEmission(user,1);
+        if (emissionTimeStamp) { // allom emission every hour
+            return response.status(403).send({
+                reason: "wait",
+                timeleft: emissionTimeStamp
+            });
         };
 
         let amount = 10 * 100; // We can give 10 WRG every hour
@@ -54,9 +59,24 @@ export const free_wrg = async (request,response) => {  // TODO: remove this meth
         let webGold = new WebGold(db.db);
         const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
         const txUrl = formatBlockUrl(txId);
-        response.send(`<html><body>Successfully sent ${amount}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
+        //response.send(`<html><body>Successfully sent ${formatWRGamount(amount)}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
+        const resp = {
+            amount: formatWRGamount(amount),
+            txhash: txId,
+            txurl: txUrl
+        };
+        response.send(resp);
    // },3000);
+};
 
+
+export const tx_poll = async (request,response) => {
+
+        const user = request.user;
+        const hash = request.query.txhash; // todo add validation
+        const webGold = new WebGold(db.db);
+        console.log("Validating hash");
+        response.send(await webGold.getTxHashData(hash));
 
 };
 
