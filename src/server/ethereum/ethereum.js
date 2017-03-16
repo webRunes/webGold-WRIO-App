@@ -395,7 +395,9 @@ class WebGold extends EthereumContract {
         });
     }
 
-
+    async getTxHashData(hash) {
+        return await promisify(this.web3.eth.getTransaction)(hash);
+    }
 
 
 }
