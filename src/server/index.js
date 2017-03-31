@@ -181,8 +181,8 @@ function setup_routes(db) {
             publicPath: "/assets/",
             stats: {colors: true},
             watchOptions: {
-                aggregateTimeout: 300,
-                poll: false
+                aggregateTimeout: 600,
+                poll: true
             },
         }))
     }

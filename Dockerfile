@@ -6,7 +6,7 @@ RUN npm install -g gulp ethereumjs-testrpc
 
 #COPY yarn.lock /srv/yarn.lock
 COPY package.json /srv/package.json
-RUN cd /srv/ && npm install && cd . rm -fr ~/.cache
+RUN cd /srv/ && npm install
 COPY . /srv/www/
 
 WORKDIR /srv/www
