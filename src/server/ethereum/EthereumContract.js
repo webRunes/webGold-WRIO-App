@@ -93,7 +93,7 @@ class EthereumContract {
 
     async executeSignedTransaction(tx) {
 
-        const hash = await promisify(this.web3.eth.sendRawTransaction)(tx);
+        const hash = await promisify(this.web3.eth.sendRawTransaction)('0x'+tx);
 
         console.log("Transaction has been executed, HASH:", hash);
         const trans = await promisify(this.web3.eth.getTransaction)(hash);

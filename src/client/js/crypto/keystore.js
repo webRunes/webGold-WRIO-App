@@ -1,9 +1,59 @@
+import lightwallet from 'eth-lightwallet'
+const keyStore = lightwallet.keystore;
 
+// monkeypatch (see: bitpay/bitcore-lib#34)
+import crypto from 'crypto'
+const sourceCreateHash = crypto.createHash;
+crypto.createHash = function createHash(alg) {
+    if (alg === 'ripemd160') {
+        alg = 'rmd160'
+    }
+    return sourceCreateHash(alg)
+};
 
 export default class KeyStore {
-    constructor() {
-        this.keystore = [];
+
+    extractKey(seed,password) {
+        return new Promise((resolve,reject) => {
+
+            const ks = keyStore.createVault({
+                password: password,
+                seedPhrase: seed, // Optionally provide a 12-word seed phrase
+                // salt: fixture.salt,     // Optionally provide a salt.
+                // A unique salt will be generated otherwise.
+                // hdPathString: hdPath    // Optional custom HD Path String
+            }, function (err, ks) {
+                if (err) return reject(err);
+                ks.keyFromPassword(password, function (err, pwDerivedKey) {
+                    if (err) return reject(err);
+
+                    // generate five new address/private key pairs
+                    // the corresponding private keys are also encrypted
+                    ks.generateNewAddress(pwDerivedKey, 1);
+                    var addr = ks.getAddresses()[0];
+                    resolve({addr, pwDerivedKey, ks});
+                });
+            });
+
+        });
     }
+
+    signTx(tx){
+        return ({addr,pwDerivedKey,ks}) => lightwallet.signing.signTx(ks, pwDerivedKey, tx, addr);
+    }
+
+    verifySeedAgainstEthId(id) {
+        return ({addr,pwDerivedKey,ks}) => {
+            console.log("Comparing ",id,addr);
+            return id == ("0x"+addr)
+        }
+    };
+
+    static generateSeed(entropy) {
+        return lightwallet.keystore.generateRandomSeed(entropy);
+    }
+
+    // private members, not use otside class
 
     deserialize(serialized) {
         this.keystore = lightwallet.keystore.deserialize(serialized);
@@ -48,7 +98,7 @@ export default class KeyStore {
             }
 
             console.log(this.keystore.serialize());
-            cb();
+            cb(null);
         });
     }
 

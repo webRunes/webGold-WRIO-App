@@ -60,7 +60,7 @@
     "cookie-parser": "1.4.3",
     "crypto-js": "3.1.6",
     "es6-promise": "^3.0.2",
-    "eth-lightwallet": "^2.3.3",
+    "eth-lightwallet": "^2.5.4",
     "ethereumjs-tx": "^1.1.2",
     "ethereumjs-util": "4.5.0",
     "ethjs-provider-signer": "^0.1.3",
