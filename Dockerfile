@@ -1,13 +1,10 @@
-FROM webrunes/wriobase:latest
+FROM mhart/alpine-node:6
 MAINTAINER denso.ffff@gmail.com
-#RUN add-apt-repository -y ppa:ethereum/ethereum
-#RUN add-apt-repository -y ppa:ethereum/ethereum-dev
-#RUN apt-get update && apt-get install -y nodejs mc libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ git  libkrb5-dev
-#RUN apt-get install -y ethereum
 
-RUN npm install -g babel-cli@6 ethereumjs-testrpc webpack-dev-server webpack
+RUN apk add --no-cache make gcc g++ python git openssl openssl-dev
+RUN npm install -g gulp ethereumjs-testrpc
 
-
+#COPY yarn.lock /srv/yarn.lock
 COPY package.json /srv/package.json
 RUN cd /srv/ && npm install
 COPY . /srv/www/

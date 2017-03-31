@@ -76,16 +76,14 @@ class Amount extends React.Component {
         var BTC = this.state.BTC.toString();
         var wrg = this.state.WRG.toFixed(2).toString();
 
-        var cls = "col-xs-4 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
+        var cls = "col-xs-5 col-sm-4 col-md-4 col-lg-3" + (this.state.error ? " has-error": "");
 
         return (
-             <div className="form-inline form-group">
-                <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2">
-                    <label className="col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
-                </div>
+             <div className="form-group">
+                <label className="col-xs-12 col-sm-4 col-md-3 control-label" htmlFor="amountBTC">Amount</label>
 
                 <div className={cls}>
-                    <div className="input-group input-group-sm">
+                    <div className="input-group">
                         <span className="input-group-addon">WRG</span>
                         <input type="number" step="0.1" className="form-control" name="amountWRG" value={wrg} onChange={ this.onWRGChange.bind(this) } min="0" />
                     </div>
@@ -93,11 +91,11 @@ class Amount extends React.Component {
                 </div>
 
                  <div className="col-xs-1 col-sm-1 col-md-1 col-lg-1 align-center">
-                     <label className="control-label">{'='}</label>
+                     <label className="control-label" style={{paddingTop:"8px"}}>{'='}</label>
                  </div>
 
                  <div className={cls}>
-                     <div className="input-group input-group-sm tooltip-demo">
+                     <div className="input-group tooltip-demo">
                          <span className="input-group-addon">BTC</span>
                          <input type="number" step="0.001" className="form-control" name="amount" value={BTC} onChange={ this.onBTCChange.bind(this) } min="0.1" />
                      </div>

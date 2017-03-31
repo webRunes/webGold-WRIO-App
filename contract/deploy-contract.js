@@ -3,53 +3,38 @@
  */
 
 
-import WebGold from "../src/server/ethereum.js";
+import WebGold from "../src/server/ethereum/ethereum.js";
 import fs from 'fs';
-import {db as dbMod} from 'wriocommon';var init = dbMod.init;
-import {dumpError} from '../src/server/utils.js';
+import {db as dbMod} from '../src/server/common';var init = dbMod.init;
+import {dumpError} from '../src/server/common/utils/utils.js';
+import solc from 'solc';
+
+
 
 class WebGoldDeploy extends WebGold {
 
-    compile(solfiles) {
-        var web3 = this.getWeb3();
-        console.log("Compiling...");
 
-        var file = fs.readFileSync('./src/webgold.sol').toString();
-        this.tokenCompiled = web3.eth.compile.solidity(file);
-       // console.log(this.tokenCompiled);
-        return this;
-    }
 
-    deploy(solfile) {
-        console.log("Deploying...");
-        var web3 = this.getWeb3();
 
-        this.unlockMaster();
+    async compileDeploy(contractName) {
+        try {
 
-        var supply = 500000000;
-        var tokenContract = web3.eth.contract(this.tokenCompiled.token.info.abiDefinition);
-        var token = tokenContract.new(
-            supply,
-            {
-                from:"0x740f63f535bc86fb87f9482adbec5ca289a2d59e",
-                data:this.tokenCompiled.token.code,
-                gas: 1000000
-            }, (e, contract) => {
-                if(!e) {
-                    console.log("contract",contract);
-                    if(!contract.address) {
-                        console.log("Contract transaction send: TransactionHash: " + contract.transactionHash + " waiting to be mined...");
+            const web3 = this.getWeb3();
+            console.log("Compiling...");
+            const source = fs.readFileSync(`./src/${contractName}.sol`).toString();
+            const [abi,bytecode] = await this.compileContract(source);
 
-                    } else {
-                        console.log("Contract mined! Address: " + contract.address);
-                        console.log(contract);
-                        this.saveContractAddress(contract.address,solfile);
-                    }
+            fs.writeFileSync(`./bin/${contractName}.abi`,abi);
+            fs.writeFileSync(`./bin/${contractName}.binary`,bytecode);
+            console.log("Deploying...");
+            this.unlockMaster();
+            const contraddr = await this.deploy("0x740f63f535bc86fb87f9482adbec5ca289a2d59e", bytecode,JSON.parse(abi));
+            this.saveContractAddress(contraddr,`./bin/${contractName}.addr`);
 
-                } else {
-                    console.log("Error compiling your token",e);
-                }
-            });
+
+        } catch(e) {
+            console.log(e);
+        }
     }
 
     saveContractAddress(addr,solfile) {
@@ -63,6 +48,7 @@ try {
         console.log("Db ready");
         var depl = new WebGoldDeploy(db);
         console.log("Starting deploy process");
+        await depl.compileDeploy('THX');
         //depl.compile('./src/webgold.sol');
         //depl.deploy('./bin/token.addr');
 

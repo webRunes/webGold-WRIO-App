@@ -1,16 +1,14 @@
 import WebGold from "../src/server/ethereum.js";
 import fs from 'fs';
-import {db as dbMod} from 'wriocommon';var init = dbMod.init;
+import {db as dbMod} from '../src/server/common';var db = dbMod.db;
 import {dumpError} from '../src/server/utils.js';
 import Tx from 'ethereumjs-tx';
 import {TransactionSigner} from '../src/server/DonateProcessor.js';
 
+
 class WebGoldDeploy extends WebGold {
 
     async testtx() {
-
-
-
         var web3 = this.getWeb3();
         var from = await this.getEthereumAccountForWrioID("848825910709");
         var to = await this.getEthereumAccountForWrioID("713372365175");
