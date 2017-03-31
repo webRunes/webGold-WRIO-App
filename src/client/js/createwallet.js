@@ -49,6 +49,7 @@ class App extends React.Component {
     }
 }
 
+
 (function() {
     var throttle = function(type, name, obj) {
         obj = obj || window;

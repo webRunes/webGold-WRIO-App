@@ -20,7 +20,7 @@ class CurrencyConverter {
 
     _constructor (grammPrice) {
         if (typeof window === 'undefined') {
-            const nconf = require('./server/wrio_nconf').default;
+            const nconf = require('./server/utils/wrio_nconf').default;
             const rate = nconf.get('payment:grammPriceUSD');
             this.presalePrice = nconf.get('payment:presaleBTCPrice');
             if (!rate) {
