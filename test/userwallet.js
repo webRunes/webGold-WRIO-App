@@ -7,7 +7,7 @@ import lightwallet from 'eth-lightwallet'
 const SAMPLETX = 'f86a03850df8475800830651cf9497538850ad45948d983a66c3bb26e39b0b00603a80b844e69d849d000000000000000000000000f3ac2c9940735f4cee1fd46581573d1b4a5b41ae000000000000000000000000000000000000000000000000000000000000044c1c8080';
 const SEED = "eagle today cause tenant buffalo whisper half nest safe private index solid";
 
-describe('DEVTEST: should allow keystore changes',() => {
+describe(': should allow keystore changes',() => {
 
    before(()=>{
    });
@@ -39,6 +39,30 @@ describe('DEVTEST: should allow keystore changes',() => {
             expect(txs[0]).to.not.equal(SAMPLETX);
             done();
         }).catch(console.log);
+
+    });
+    it('should be able, to unlock the password from saved keystore', (done) => {
+        let store = new KeyStore();
+        let invPass = false;
+        store.extractKey(SEED,'123').
+            then(({ks})=> {
+                console.log("STORE",ks);
+                return ks.serialize();
+
+            }).
+            then((serialized)=> {
+                let store_d = new KeyStore();
+                store_d.deserialize(serialized);
+
+                store_d.extractKey(SEED,'1234',store_d.keystore).catch((err)=>{
+                   invPass = true;
+                });
+
+                return store_d.extractKey(SEED,'123',store_d.keystore);
+            }).then(({addr})=> {
+                    console.log(addr);
+                    if (invPass == false) done("Not rejected invalid password"); else done();
+            }).catch(console.log);
 
     })
 });
