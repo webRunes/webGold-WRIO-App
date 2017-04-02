@@ -13,16 +13,20 @@ crypto.createHash = function createHash(alg) {
 
 export default class KeyStore {
 
-    extractKey(seed,password) {
+    extractKey(seed,password,store) {
         return new Promise((resolve,reject) => {
-
-            const ks = keyStore.createVault({
-                password: password,
-                seedPhrase: seed, // Optionally provide a 12-word seed phrase
-                // salt: fixture.salt,     // Optionally provide a salt.
-                // A unique salt will be generated otherwise.
-                // hdPathString: hdPath    // Optional custom HD Path String
-            }, function (err, ks) {
+            if (store) {
+                extract(null,store);
+            } else {
+                keyStore.createVault({
+                    password: password,
+                    seedPhrase: seed, // Optionally provide a 12-word seed phrase
+                    // salt: fixture.salt,     // Optionally provide a salt.
+                    // A unique salt will be generated otherwise.
+                    // hdPathString: hdPath    // Optional custom HD Path String
+                }, extract);
+            }
+            function extract(err, ks) {
                 if (err) return reject(err);
                 ks.keyFromPassword(password, function (err, pwDerivedKey) {
                     if (err) return reject(err);
@@ -33,9 +37,9 @@ export default class KeyStore {
                     var addr = ks.getAddresses()[0];
                     resolve({addr, pwDerivedKey, ks});
                 });
-            });
-
+            }
         });
+
     }
 
     signTx(tx){
