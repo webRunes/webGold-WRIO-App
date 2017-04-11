@@ -18,5 +18,5 @@ export function calc_percent(wrg) {
 }
 
 export function formatBlockUrl(block) {
-    return 'https://testnet.etherscan.io/tx/'+block;
+    return 'https://ropsten.etherscan.io/tx/'+block;
 }

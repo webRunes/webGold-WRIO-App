@@ -61,7 +61,7 @@ class EthereumStats extends React.Component {
     }
 
     getLatestBlockEtherscan() {
-        let url = 'https://testnet.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=3854N5NEEKKCP4E4EB26W5SRG5D8ZSBGSK';
+        let url = 'https://ropsten.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=3854N5NEEKKCP4E4EB26W5SRG5D8ZSBGSK';
         request.get(url).end((err,res) => {
             if (err) {
                 console.log("Can't get stats from Etherscan");
@@ -76,7 +76,7 @@ class EthereumStats extends React.Component {
 
     render() {
         let sync = this.getSyncBlock();
-        let master = "https://testnet.etherscan.io/address/" + this.state.masterAddr;
+        let master = "https://ropsten.etherscan.io/address/" + this.state.masterAddr;
         return (
             <div>
                 <h1>Webgold admin</h1>
@@ -179,7 +179,7 @@ class Balances extends React.Component {
                     <tbody>
                     {
                         this.state.data.map(function (item) {
-                            var explorerLink = "https://testnet.etherscan.io/address/"+item.ethWallet;
+                            var explorerLink = "https://ropsten.etherscan.io/address/"+item.ethWallet;
                             return  (<tr>
                                 <td>{ item.wrioID }</td>
                                 <td>{ item.name }</td>

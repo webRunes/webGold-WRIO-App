@@ -69,7 +69,7 @@ export default class EthWallet extends React.Component {
                 error: "",
                 finished: true,
                 txId:res.text,
-                txUrl: 'https://testnet.etherscan.io/tx/'+res.text
+                txUrl: 'https://ropsten.etherscan.io/tx/'+res.text
             });
             window.opener.postMessage(JSON.stringify({closePopup:true, txId:res.text}),'*');
             console.log('transaction sent');
