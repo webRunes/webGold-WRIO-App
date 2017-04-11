@@ -71,7 +71,9 @@ export default class EthWallet extends React.Component {
                 txId:res.text,
                 txUrl: 'https://testnet.etherscan.io/tx/'+res.text
             });
+            window.opener.postMessage(JSON.stringify({closePopup:true, txId:res.text}),'*');
             console.log('transaction sent');
+            window.close();
         }).catch((err)=> {
             console.log(err);
             this.setState({error: "Oops, something went wrong during transaction processing"});
