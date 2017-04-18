@@ -10,11 +10,14 @@ import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import wrio_app from './wrio_app.js';
+import expressValidator from 'express-validator';
 
 export default function initserv(app,db) {
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
+
+    app.use(expressValidator([]));
 
 //For app pages
     app.set('view engine', 'ejs');

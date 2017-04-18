@@ -5,7 +5,7 @@ import should from 'should';
 import {expect} from 'chai';
 import noncetracker from '../src/server/models/noncetracker.js';
 
-describe('DEVTEST: should allow keystore changes',() => {
+describe('Check db models',() => {
 
     before(()=>{
     });

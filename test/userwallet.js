@@ -3,6 +3,8 @@ import assert from 'assert';
 import should from 'should';
 import {expect} from 'chai';
 import lightwallet from 'eth-lightwallet'
+import {UnSignTransaction} from '../src/server/ethereum/DonateProcessor';
+
 
 const SAMPLETX = 'f86a03850df8475800830651cf9497538850ad45948d983a66c3bb26e39b0b00603a80b844e69d849d000000000000000000000000f3ac2c9940735f4cee1fd46581573d1b4a5b41ae000000000000000000000000000000000000000000000000000000000000044c1c8080';
 const SEED = "eagle today cause tenant buffalo whisper half nest safe private index solid";
@@ -31,7 +33,7 @@ describe(': should allow keystore changes',() => {
         let ks = new KeyStore();
         let ks2 = new KeyStore();
         let key1Promise = ks.extractKey(SEED,"1dfsdfasdfsd2").then(ks.signTx(SAMPLETX));
-        let key2Promise = ks.extractKey(SEED,"1231121212121").then(ks2.signTx(SAMPLETX));
+        let key2Promise = ks2.extractKey(SEED,"1231121212121").then(ks2.signTx(SAMPLETX));
 
         Promise.all([key1Promise,key2Promise]).then((txs)=>{
             console.log(txs);
@@ -64,6 +66,14 @@ describe(': should allow keystore changes',() => {
                     if (invPass == false) done("Not rejected invalid password"); else done();
             }).catch(console.log);
 
-    })
+    });
+    it(' should be able to test if source transaction matches signed transaction', async ()=> {
+        const ks = new KeyStore();
+        let SAMPLE_SIGNED = await ks.extractKey(SEED,"1dfsdfasdfsd2").then(ks.signTx(SAMPLETX));
+        console.log(SAMPLE_SIGNED);
+        console.log(SAMPLETX);
+        expect(UnSignTransaction(SAMPLE_SIGNED)).to.equal(SAMPLETX);
+
+    });
 });
 

@@ -13,15 +13,32 @@ import Emissions from '../models/emissions.js';
 import EtherFeeds from '../models/etherfeed.js';
 import Invoices from "../models/invoice.js";
 import WrioUser from "../models/wriouser.js";
+import util from 'util';
+import {ObjectID} from 'mongodb';
 
 import DonateProcessor from '../ethereum/DonateProcessor.js';
 import {TransactionSigner} from '../ethereum/DonateProcessor.js';
 import Const from '../../constant.js';
 import logger from 'winston';
-
+import amqplib from 'amqplib';
 
 let wei = Const.WEI;
 let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
+
+var queuePromise = require('amqplib').connect('amqp://rabbitmq');
+
+let ch;
+const QUEUE = 'deferredTweets';
+queuePromise.then((q)=>{
+    console.log('Connected to the rabbitmq server');
+    return q.createChannel();
+}).then((channel)=>{
+    channel.assertQueue(QUEUE);
+    ch = channel;
+}).catch((err)=>{
+    console.log("Unable connect to the queue, aborting",err);
+    process.exit(-1);
+});
 
 const formatWRGamount = (amount) => amount / 100;
 
@@ -109,10 +126,47 @@ export const save_wallet = async(request,response) => {
 
 };
 
+/**
+ * Sign transaction made by donate() method
+ * @param request
+ * @param response
+ *
+ * GET PARAMETERS:
+ *
+ * tx - signed tx code
+ * txId - transaction id code
+ *
+ */
+
 export const sign_tx = async (request,response) => {
+
+    request.checkQuery('tx', 'Invalid TX').isHexadecimal();
+    request.checkQuery('id', 'Invalid transaction id').isHexadecimal();
+
+    let result = await request.getValidationResult();
+    if (!result.isEmpty()) {
+        response.status(400).send('There have been validation errors: ' + util.inspect(result.array()));
+        return;
+    }
+
+    let donationObj = new Donations();
+    let donate = await donationObj.get({
+        "status": 'pending',
+        _id: ObjectID(request.query.id)
+    });
+
+    if (!donate) {
+        throw new Error("Cannot find source transaction");
+    }
+
     const tx = request.query.tx;
     let signer = new TransactionSigner(tx);
-    response.send(await signer.process());
+    let dResult = await signer.process();
+    await donationObj.update({
+        "status": 'finished'
+    });
+    ch.sendToQueue(QUEUE, new Buffer(request.query.id));
+    response.send(dResult);
 
 };
 
@@ -130,7 +184,7 @@ export const sign_tx = async (request,response) => {
 
  */
 
-export const donate = async (request,response) => {
+export const donate = async (request, response) => {
     var to = request.query.to;
     var from = request.query.from;
     var amount = request.query.amount;
@@ -160,7 +214,7 @@ export const get_balance = async (request,response) => {
     const balance = _balance / 100;
     const bal = balance - dbBalance;
 
-    await webGold.processPendingPayments(user);
+//    await webGold.processPendingPayments(user);
 
     //logger.debug("balance:",balance.add(dbBalance).toString());
     response.send({

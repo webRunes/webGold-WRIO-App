@@ -28,32 +28,22 @@ export default class EthWallet extends React.Component {
 
     constructor (props) {
         super(props);
-        this.tx = extractUrlParameter('tx');
+        this.tx = window.params.tx;
         console.log("TX to sign",this.tx);
         if (!this.tx) throw new Error("Not tx specified!");
 
         window.txA = this.dbgTransaction(this.tx);
         this.state = {
-            haveEthId:"pending",
+            ethId: window.params.ethID,
             finished: false,
+            busy: false,
             error: ""
         };
     }
 
     componentDidMount() {
-        getEthereumId().then((id)=>{
-            this.setState({
-                ethId:id,
-                haveEthId: true
-            });
-        }).catch(()=>{
-            this.setState({
-                haveEthId: false
-            });
-        });
+
     }
-
-
 
     dbgTransaction(tx) {
         var stx = new Tx(tx);
@@ -64,16 +54,18 @@ export default class EthWallet extends React.Component {
     }
 
     sendSignedTransaction (tx) {
-        sendSignedTransaction(tx).then((res)=>{
+        const txId = extractUrlParameter('id');
+        sendSignedTransaction(tx,txId).then((res)=>{
             this.setState({
                 error: "",
+                busy: false,
                 finished: true,
                 txId:res.text,
                 txUrl: 'https://ropsten.etherscan.io/tx/'+res.text
             });
             window.opener.postMessage(JSON.stringify({closePopup:true, txId:res.text}),'*');
             console.log('transaction sent');
-            window.close();
+            setTimeout(window.close,2000);
         }).catch((err)=> {
             console.log(err);
             this.setState({error: "Oops, something went wrong during transaction processing"});
@@ -85,6 +77,7 @@ export default class EthWallet extends React.Component {
         ks.extractKey(seed,'123').then(ks.signTx(this.tx)).then((signed) => {
             this.sendSignedTransaction(signed);
             this.dbgTransaction(signed);
+            this.setState({busy:true})
         }).catch((err) => {
             this.setState({error: "There was trouble signing your transaction"});
             console.log(err);
@@ -112,16 +105,18 @@ export default class EthWallet extends React.Component {
 
 
     render() {
-
-        if (this.state.haveEthId == "pending") {
-            return <img src="https://wrioos.com/Default-WRIO-Theme/img/loading.gif"/>;
-        }
-
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
+        if (this.state.busy) {
+            return (
+                <div>
+                    <h1>Submitting Transaction</h1><br />
+                    <img src="https://default.wrioos.com/img/loading.gif"/>
+                </div>)
+        }
 
         return (
             <div>
-                { this.state.haveEthId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
+                { this.state.ethId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
             </div>
         );
     }
@@ -129,7 +124,7 @@ export default class EthWallet extends React.Component {
     renderUnlock () {
         if (this.state.finished) {
             return (<div>
-                <h1>Your transaction successfully processed! Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></h1>
+                <h1>Your transaction successfully submitted! Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></h1>
                 <div><a href="javascript:history.back()">Go back</a></div>
             </div>);
         }
