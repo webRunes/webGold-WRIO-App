@@ -54,7 +54,7 @@ export default class EthWallet extends React.Component {
     }
 
     sendSignedTransaction (tx) {
-        const txId = extractUrlParameter('id')
+        const txId = extractUrlParameter('id');
         sendSignedTransaction(tx,txId).then((res)=>{
             this.setState({
                 error: "",
