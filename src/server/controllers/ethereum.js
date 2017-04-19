@@ -25,10 +25,10 @@ import amqplib from 'amqplib';
 let wei = Const.WEI;
 let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
 
-var queuePromise = require('amqplib').connect('amqp://rabbitmq');
+var queuePromise = require('amqplib').connect(nconf.get('rabbitmq:url'));
 
 let ch;
-const QUEUE = 'deferredTweets';
+const QUEUE = nconf.get('rabbitmq:tweetQueue');
 queuePromise.then((q)=>{
     console.log('Connected to the rabbitmq server');
     return q.createChannel();
