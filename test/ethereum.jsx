@@ -21,11 +21,15 @@ var wg;
 var converter;
 
 // cache compiled token sources to speedup development
-const saveToCache = (code,data,callback) => {
+const saveToCache = async (code,data) => {
     const cache = db.collection('codeCache');
-    cache.insertOne({code:code,data:JSON.stringify(data)},(err,res) => callback());
-};
+    await cache.insertOne({
+        code:code,
+        data:JSON.stringify(data)
+    });
 
+};
+/*
 const cacheToken = (code, callback) => {
     return new Promise((resolve,reject) => {
         const cache = db.collection('codeCache');
@@ -44,7 +48,25 @@ const cacheToken = (code, callback) => {
             }
         });
     });
+};*/
+
+const cacheToken = async (code, callback) =>
+{
+    const cache = db.collection('codeCache');
+    const data = await cache.findOne({code});
+    console.log("Data",data);
+    if (data) {
+        console.log("Cache hit!");
+        return resolve(JSON.parse(data.data));
+    } else {
+        console.log("Cache miss");
+        const res = await callback();
+        console.log(res);
+        await saveToCache(code, res);
+        return res;
+    }
 };
+
 
 const compileDeploy = async(name) => {
     const web3 = wg.getWeb3();
@@ -111,7 +133,7 @@ describe("Blockchain unit tests", () => {
         done();
     });
 
-    it ('DEVTEST: should be able to compile THX contract', async(done) => {
+    it ('should be able to compile THX contract', async(done) => {
         try {
             const {address,abi} = await compileDeploy('./contract/src/THX.sol');
             wg.token = await wg.makeContract(address,abi,"tokenTest"); // replace webgold token with wg object

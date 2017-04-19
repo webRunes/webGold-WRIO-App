@@ -1,5 +1,5 @@
 import nconf from '../src/server/utils/wrio_nconf';
-import app from "../src/server/index.js";
+import init_serv from "../src/server/index.js";
 import request from 'supertest';
 import assert from 'assert';
 import should from 'should';
@@ -9,7 +9,7 @@ import Invoices from '../src/server/models/invoice.js'
 import Presale from '../src/server/models/presale.js'
 import Users from '../src/server/models/wriouser.js'
 import apitest from "./apitest"
-import {generateFakeSession,clearTestDb} from "./testutils.jsx"
+import {generateFakeSession,clearTestDb} from "./utils/testutils.js"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -17,25 +17,7 @@ var stdout_write = process.stdout._write,
 process.stdout._write = stdout_write;
 process.stderr._write = stderr_write;
 
-var ready = false;
-app.ready = () => {
-    ready = true;
-};
-
-
-function waitdb() {
-    return new Promise((resolve,reject) => {
-        setInterval(function() {
-            if (ready) {
-                console.log("App ready, starting tests");
-                resolve();
-                clearInterval(this);
-            }
-
-        }, 1000);
-    });
-
-}
+var app;
 
 
 var serialize = (obj) => {
@@ -55,7 +37,7 @@ var invoiceID;
 
 describe("Blockchain unit tests", function() {
     before(async () => {
-       await waitdb();
+       app = await init_serv();
         //var invoice = new Invoices();
         var invoice = new Presale();
         var users = new Users();

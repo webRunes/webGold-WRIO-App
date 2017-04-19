@@ -10,75 +10,43 @@ import {db as dbMod} from '../common';var db = dbMod.db;
 export default class Donations {
 
     constructor () {
-
         this.widgets = db.db.collection('webGold_Donations');
-
+        this.record_id = null;
     }
 
-    create(srcWrioID,destWrioID,amount,feePaid) {
-        var that = this;
+    async create(srcWrioID,destWrioID,amount,feePaid) {
         let invoice_data = {
             srcWrioID:srcWrioID,
             destWrioID:destWrioID,
             amount: amount,
             feePaid: feePaid,
-            timestamp: new Date()
-
-
+            timestamp: new Date(),
+            "status": 'pending'
         };
-
-        return new Promise((resolve, reject) => {
-            this.widgets.insertOne(invoice_data,function(err,res) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                that.invoice_id = invoice_data._id;
-                resolve(invoice_data._id);
-            });
-        });
-
+        let invoice = await this.widgets.insertOne(invoice_data);
+        this.record_id = invoice_data._id;
+        return invoice_data._id;
     }
 
-    get(mask) {
-        var that=this;
-        logger.debug(nonce);
+    async get(mask) {
+        let data = await this.widgets.findOne(mask);
+        if (!data) return null;
+        this.record_id = data._id;
+        return data;
 
-        return new Promise((resolve,reject) => {
-
-            this.widgets.findOne(mask,function (err,data) {
-                if (err) {
-                    logger.error("Error while searching invoice");
-                    reject(err);
-                    return;
-                }
-                if (!data) {
-                    logger.error('No invoice found');
-                    reject('Invoce not found');
-                    return;
-                }
-                that.invoice_id = data._id;
-                resolve(data);
-            });
-        });
     }
-    getAll(query) {
+    async getAll(query) {
         query = query || {};
-        return new Promise((resolve,reject) =>{
-            this.widgets.find(query).sort({'timestamp':-1}).toArray(function (err,data) {
-                if (err) {
-                    logger.error("Db user search error");
-                    reject(err);
-                    return;
-                }
-                if (!data) {
-                    logger.error('Db user not found');
-                    reject('Users not found');
-                    return;
-                }
-                resolve(data);
-            });
-        });
+        let data = await this.widgets.find(query).sort({'timestamp':-1});
+        return data.toArray();
     }
+
+    async update (invoice_data) {
+        if (this.record_id == null) {
+            throw ("Invoice not defined, please use get or create method first");
+        }
+        await this.widgets.updateOne({_id:this.record_id },{$set: invoice_data});
+    }
+
 
 }
