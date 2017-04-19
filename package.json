@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^6.0.0",
+    "babel-cli":"^6.24.1",
     "babel-preset-es2015-node4": "2.1.0",
     "browserify": "^10.2.4",
     "chai": "^2.1.2",
