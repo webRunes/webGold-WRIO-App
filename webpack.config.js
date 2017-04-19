@@ -25,7 +25,7 @@ var e = {
     entry: './src/client/js/client.js',
     output:
     {
-        path: '.',
+        path: path.resolve(__dirname,'.'),
         filename: './app/client/client.js',
         devtoolModuleFilenameTemplate: '[absolute-resource-path]'
     },

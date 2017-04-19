@@ -1,10 +1,10 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import nconf from './utils/wrio_nconf.js';
 import path from 'path';
 import {utils} from './common'; const dumpError = utils.dumpError;
 import BlockChain from './api/blockchainApi.js';
 import {login as loginImp} from './common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+import {ObjectID} from 'mongodb'
 import WebGold from './ethereum/ethereum';
 import BigNumber from 'bignumber.js';
 import session from 'express-session';
@@ -12,34 +12,46 @@ import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import logger from 'winston';
 import Const from '../constant.js';
+import Donations from './models/donations.js';
+import ejs from 'ejs';
+import util from 'util';
+
 //import setupIO from './notifications.js';
 import {server,db,login} from './common';
-
 import BlockChainRoute from './routes/blockchain.info.js';
 import EthereumRoute from './routes/ethereum-route';
 import UserStatsRoute from './routes/user-stats.js';
-
-
-
 import CurrencyConverter from '../currency.js';
 const converter = new CurrencyConverter();
 
 logger.level = 'debug';
-var app = express();
-app.ready = () => {};
-app.override_session = {sid:null};
+var app = null;
 
+/**
+ * Initialize server wrapper
+ * @returns {App} app object after initialization
+ */
 
-async function init_env() {
+async function init_serv() {
+    if (app) return app;
     try {
-        await init();
+        let app = await init();
+        return app;
     } catch (e) {
         console.log("Caught error during server init");
         utils.dumpError(e);
+        throw(e);
     }
 }
 
+/**
+ * Initialize server
+ * @returns {Promise} app object after initialization
+ */
+
 async function init() {
+    app = express();
+    app.override_session = {sid:null};
     let dbInstance =  await db.init();
     logger.log('info','Successfuly connected to Mongo');
     server.initserv(app,dbInstance);
@@ -47,18 +59,17 @@ async function init() {
     console.log('app listening on port ' + nconf.get('server:port') + '...');
     setup_server(dbInstance);
     setup_routes(dbInstance);
-   // setupIO(httpServ,dbInstance);
-    app.ready();
+    return app;
 }
 
-init_env();
 
 const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 function setup_server(db) {
 
     //For app pages
-  //  app.set('view engine', 'ejs');
+    app.set('view engine', 'ejs');
+    app.set('views',path.resolve(__dirname, '../client/views/'));
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
     const DOMAIN = nconf.get("db:workdomain");
 
@@ -69,6 +80,8 @@ function setup_server(db) {
         }
         return next();
     });
+
+
 
 
 
@@ -101,9 +114,31 @@ function setup_routes(db) {
 
     });
 
-    app.get('/sign_tx', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH, '/txsigner.html'));
-    });
+    app.get('/sign_tx' ,wrioAuth, wrap(async function (request, response) {
+
+        request.checkQuery('id', 'Invalid ID').isHexadecimal();
+        let result = await request.getValidationResult();
+        if (!result.isEmpty()) {
+            response.status(400).send('There have been validation errors: ' + util.inspect(result.array()));
+            return;
+        }
+
+        const d = await (new Donations()).get({
+            _id: ObjectID(request.query.id)
+        });
+
+        if (!d) {
+            response.status(400).send('Invalid ID');
+        }
+
+        console.log("=============================================",d);
+
+        response.render('txsigner.ejs', {
+            "tx":d.unsignedTX,
+            "ethID": request.user.ethereumWallet
+        });
+
+    }));
 
     app.get('/create_wallet', function (request, response) {
         response.sendFile(path.join(TEMPLATE_PATH,'/createwallet.html'));
@@ -164,13 +199,11 @@ function setup_routes(db) {
     app.use('/api/blockchain/',BlockChainRoute);
     app.use('/api/webgold/',EthereumRoute);
     app.use('/api/user/',UserStatsRoute);
-
     app.use('/assets', express.static(path.join(__dirname, '../client')));
 
     function setupDevServer () {
         const webpack = require('webpack');
         const webpackDevMiddleware = require('webpack-dev-middleware');
-        const webpackHotMiddleware = require('webpack-hot-middleware');
         let config = require('../../webpack.config');
         config.output.filename = 'client.js'; //override output filename
         config.output.path = '/';
@@ -205,4 +238,4 @@ function setup_routes(db) {
 
 }
 
-module.exports = app;
+export default init_serv;

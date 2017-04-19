@@ -2,7 +2,7 @@
  * Created by michbil on 03.10.15.
  */
 // Donations made by users
-
+// TODO: switch to mongo promised API
 
 import logger from 'winston';
 import {db as dbMod} from '../common';var db = dbMod.db;

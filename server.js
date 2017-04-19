@@ -1,6 +1,6 @@
 require('babel-register');
 require('regenerator-runtime/runtime');
 
-var app = require('./app/server/index.js');
-
-module.exports = app;
+var init_serv = require('./app/server/index.js').default;
+console.log(init_serv);
+init_serv();

@@ -2,17 +2,21 @@ var request = require('supertest');
 var assert = require('assert');
 var should = require('should');
 
-import {dbready} from "./testutils.jsx"
+import init_serv from "../src/server/index.js";
 
 
-dbready((app,db)=> {
-    describe("API unit tests", function () {
-        it("shoud return default page", function (done) {
-            request(app)
-                .get('/')
-                .expect(200, done);
+var app;
+
+    describe("DEVTEST: API unit tests", function () {
+        before(async ()=>{
+            app = await init_serv();
         });
-        it("/api/search should fail with empty credentials", function (done) {
+        it("shoud return default page", async function () {
+            await request(app)
+                .get('/')
+                .expect(200);
+        });
+        it("/api/search should fail with empty credentials", async function () {
             var postdata = {
                 twitterCreds: {
                     access_token: "",
@@ -20,30 +24,28 @@ dbready((app,db)=> {
                     query: "test_query"
                 }
             };
-            request(app)
+            await request(app)
                 .post('/api/search')
                 .send(postdata)
-                .expect(404, done);
+                .expect(404);
         });
 
 
-        it("get_balance should fail with wrong origin header", (done) => {
-            request(app)
-                .post('/api/webgold/get_balance')
-                .expect(200, (res) => {
+        it("get_balance should fail with wrong origin header", async () => {
+            await request(app)
+                .get('/api/webgold/get_balance')
+                .expect(403, (res) => {
                     console.log(res);
-                    done();
                 })
         });
 
 
-        it("donate should work with credentials", (done) => {
+        it("donate should work with credentials", async () => {
             console.log("*****get_balance start****");
-            request(app)
+            await request(app)
                 .get('/api/webgold/donate')
-                .expect(403, done)
+                .expect(403)
         })
     });
-});
 
 
