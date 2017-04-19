@@ -79,6 +79,7 @@
     "node-uuid": "^1.4.3",
     "nodemailer": "2.6.4",
     "numeral": "^1.5.3",
+    "prop-types":"^15.5.8",
     "react": "^0.14.6",
     "react-bootstrap": "^0.30.7",
     "react-dom": "^0.14.3",
