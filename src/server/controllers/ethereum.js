@@ -210,15 +210,19 @@ export const get_balance = async (request,response) => {
 
     const webGold = new WebGold(db.db);
     const dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
-    const [rtx,_balance] = await Promise.all([webGold.getRtxBalance(dest), webGold.getBalance(dest)]);
-    const balance = _balance / 100;
-    const bal = balance - dbBalance;
+    let [rtx,balance] = await Promise.all([webGold.getRtxBalance(dest), webGold.getBalance(dest)]);
+    balance = balance / 100;
 
+    if (!rtx) {
+        rtx = 0;
+    }
+    rtx = rtx / 100;
 //    await webGold.processPendingPayments(user);
+    //const bal = balance - dbBalance;
 
     //logger.debug("balance:",balance.add(dbBalance).toString());
     response.send({
-        "balance": bal,
+        "balance": balance,
         "rtx":rtx,
         "promised": dbBalance,
         "blockchain": balance
