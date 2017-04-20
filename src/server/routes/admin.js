@@ -75,7 +75,7 @@ const formatUserData = (webGold) => async (user) => {
         dbBalance: -(user.dbBalance || 0) / 100,
         ethBalance: eth / wei,
         wrgBalance: wrg / 100,
-        rtxBalance: rtx,
+        rtxBalance: rtx / 100,
         widgets: user.widgets || []
     }
 
