@@ -13,6 +13,13 @@ import CreateWallet from './components/createwallet.js';
 
 let SATOSHI = Const.SATOSHI;
 
+window.okGO = false;
+window.addEventListener("beforeunload", function(e){
+    if (!okGO) {
+        window.opener.postMessage(JSON.stringify({"cancelPopup":true}),"*")
+    }
+}, false);
+
 function getLoginUrl() {
 
     var host = window.location.host;
