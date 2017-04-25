@@ -63,6 +63,7 @@ export default class EthWallet extends React.Component {
                 txId:res.text,
                 txUrl: 'https://ropsten.etherscan.io/tx/'+res.text
             });
+            okGO=true;
             window.opener.postMessage(JSON.stringify({closePopup:true, txId:res.text}),'*');
             console.log('transaction sent');
             setTimeout(window.close,2000);
