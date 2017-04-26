@@ -3,7 +3,7 @@ import KeyStore from '../crypto/keystore.js';
 import Tx from 'ethereumjs-tx';
 import {getEthereumId,sendSignedTransaction} from '../libs/apicalls.js';
 import extractUrlParameter from '../libs/url.js';
-
+import lightwallet from 'eth-lightwallet'
 /*
 
  Sample transaction, first nonce should be '0x100000' for the testnet
@@ -88,6 +88,12 @@ export default class EthWallet extends React.Component {
 
     checkCreds() {
         let seed = this.refs.seed ? this.refs.seed.value : "";
+
+        if (!lightwallet.keystore.isSeedValid(seed)) {
+            this.setState({error:"You've entered invalid seed. Your seed should be 12 words separated by spaces."});
+            return;
+        }
+
         ks.extractKey(seed,'123').
             then(ks.verifySeedAgainstEthId(this.state.ethId)).
             then((result) => {
@@ -96,7 +102,7 @@ export default class EthWallet extends React.Component {
                 } else {
                     this.signTX(seed);
                 }
-            }).catch(()=>{
+            }).catch((err)=>{
                 this.setState({error:"Keystore init error"});
                 console.log("Keystore init error",err);
             });

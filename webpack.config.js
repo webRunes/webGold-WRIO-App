@@ -22,7 +22,7 @@ if (process.env.DOCKER_DEV) {
 
 console.log(envs);
 var e = {
-    entry: './src/client/js/client.js',
+    entry: ['babel-polyfill','./src/client/js/client.js'],
     output:
     {
         path: path.resolve(__dirname,'.'),
