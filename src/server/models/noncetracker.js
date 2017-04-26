@@ -37,7 +37,6 @@ export default class NonceTracker {
             console.log("Found nonces",em);
             return em.nonce;
         } catch(e) {
-            dumpError(e);
             console.log("No nonce found in time interval");
             return -1
         }
