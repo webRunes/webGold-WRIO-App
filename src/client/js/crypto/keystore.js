@@ -11,8 +11,6 @@ crypto.createHash = function createHash(alg) {
     return sourceCreateHash(alg)
 };
 
-
-
 export default class KeyStore {
 
     extractKey(seed,password,store) {
