@@ -163,13 +163,21 @@ class WebGold extends EthereumContract {
     }
 
     async _coinTransfer(from,to,amount,Fn) {
+        const nonce = await this.getTransactionCount(from);
         logger.debug(`"Starting sendCoin cointransfer FROM:${from} TO:${to} COINS:${amount} ${Fn.name}`);
-        const callResult = await promisify(Fn.call)(to, amount, {from: from});
+        const callResult = await promisify(Fn.call)(to, amount, {
+            from: from,
+            nonce
+        });
         logger.verbose("Trying sendcoin pre-transcation execution",callResult,to);
 
         if (callResult) {
             logger.debug('sendCoin preview succeeds so now sendTx...');
-            const result = await promisify(Fn.sendTransaction)(to, amount, {from: from});
+            const result = await promisify(Fn.sendTransaction)(to, amount, {
+                from: from,
+                nonce
+            });
+            await this.saveNonce(from,nonce);
             logger.info("cointransfer succeeded",result);
             return result;
         }

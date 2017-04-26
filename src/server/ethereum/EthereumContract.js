@@ -80,7 +80,14 @@ class EthereumContract {
     async etherSend(sender,recipient,amount) {
         logger.verbose("Preparing to transfer",amount,"ETH");
         const  amountWEI = this.web3.toWei(amount, "ether");
-        const result = await promisify(this.web3.eth.sendTransaction)({from: sender, to: recipient, value: amountWEI});
+        const nonce = await this.getTransactionCount(sender);
+        const result = await promisify(this.web3.eth.sendTransaction)({
+            from: sender,
+            to: recipient,
+            value: amountWEI,
+            nonce
+        });
+        await this.saveNonce(sender,nonce);
         logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
         return result
     }
@@ -88,15 +95,20 @@ class EthereumContract {
     async getTransactionCount(adr) {
         let nt = new NonceTracker();
         let savedNonce = await nt.getSavedNonce(adr);
-        console.log("TR count",adr,savedNonce);
         let apiNonce =  await promisify(web3.eth.getTransactionCount)(adr);
-        if (savedNonce) return apiNonce;
+        console.log("TR count",adr,apiNonce,savedNonce);
         if (savedNonce >= apiNonce) {
             console.log("USING SAVED NONCE", savedNonce+1);
             return savedNonce+1;
         } else {
             return apiNonce;
         }
+    }
+
+    async saveNonce(from,nonce) {
+        let nt = new NonceTracker();
+        await nt.create(from,nonce);
+        console.log("Saving nonce",nonce);
     }
 
 
@@ -110,8 +122,7 @@ class EthereumContract {
         const trans = await promisify(this.web3.eth.getTransaction)(hash);
         console.log(trans);
         if (trans) {
-            let nt = new NonceTracker();
-            await nt.create(trans.from,trans.nonce);
+           await this.saveNonce(trans.from,trans.nonce);
         }
         return hash;
 
