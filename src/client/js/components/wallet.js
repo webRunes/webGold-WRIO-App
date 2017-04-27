@@ -70,6 +70,8 @@ export default class EthWallet extends React.Component {
         }).catch((err)=> {
             console.log(err);
             this.setState({error: "Oops, something went wrong during transaction processing"});
+            window.opener.postMessage(JSON.stringify({closePopup:true, error: err}),'*');
+            setTimeout(window.close,2000);
         });
     }
 
@@ -113,6 +115,9 @@ export default class EthWallet extends React.Component {
 
     render() {
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
+        if (this.state.error) {
+            return <h5 className="breadcrumb danger">{this.state.error} </h5>;
+        }
         if (this.state.busy) {
             return (
                 <div>
