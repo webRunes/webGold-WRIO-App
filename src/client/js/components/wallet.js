@@ -115,17 +115,14 @@ export default class EthWallet extends React.Component {
 
     render() {
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
-        if (this.state.error) {
-            return <h5 className="breadcrumb danger">{this.state.error} </h5>;
-        }
         if (this.state.busy) {
             return (
                 <div>
                     <h1>Submitting Transaction</h1><br />
+                    {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
                     <img src="https://default.wrioos.com/img/loading.gif"/>
                 </div>)
         }
-
         return (
             <div>
                 { this.state.ethId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
