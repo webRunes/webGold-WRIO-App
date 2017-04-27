@@ -204,7 +204,7 @@ export const get_balance = async (request,response) => {
     const user = request.user;
 
     if (!user.ethereumWallet) {
-        response.status(406).send("No ethereum wallet")
+        return response.status(406).send("No ethereum wallet")
     }
 
     let dbBalance = 0;
