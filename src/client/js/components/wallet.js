@@ -70,6 +70,8 @@ export default class EthWallet extends React.Component {
         }).catch((err)=> {
             console.log(err);
             this.setState({error: "Oops, something went wrong during transaction processing"});
+            window.opener.postMessage(JSON.stringify({closePopup:true, error: err}),'*');
+            setTimeout(window.close,2000);
         });
     }
 
@@ -117,10 +119,10 @@ export default class EthWallet extends React.Component {
             return (
                 <div>
                     <h1>Submitting Transaction</h1><br />
+                    {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
                     <img src="https://default.wrioos.com/img/loading.gif"/>
                 </div>)
         }
-
         return (
             <div>
                 { this.state.ethId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
