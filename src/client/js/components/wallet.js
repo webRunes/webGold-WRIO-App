@@ -132,19 +132,23 @@ export default class EthWallet extends React.Component {
 
     renderUnlock () {
         if (this.state.finished) {
-            return (<div>
-                <h1>Your transaction successfully submitted! Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></h1>
-                <div><a href="javascript:history.back()">Go back</a></div>
+            return (<div className="content col-xs-12">
+              <div className="margin">
+                <ul className="breadcrumb"><li className="active">Success!</li></ul>
+                <p>Your transaction successfully submitted. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></p>
+                <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
+              </div>
             </div>);
         }
-        return (<div>
-            <h1> Unlock your account </h1>
-            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
+        return (<div className="content col-xs-12">
+          <div className="margin">
+            <ul className="breadcrumb"><li className="active">Unlock your account</li></ul>
+            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
             <div className="input-group">
-                { this.savedKeystore? "" : <input className="form-control" type="text" ref="seed" placeholder="Enter 12 word wallet" size="80"></input> }
-                <button className="btn btn-default" onClick={this.checkCreds.bind(this)}>Load wallet</button>
+              { this.savedKeystore? "" : <input className="form-control" type="text" ref="seed" placeholder="Enter 12 word wallet" size="80"></input> }
+              <button className="btn btn-primary" onClick={this.checkCreds.bind(this)}>Submit</button>
             </div>
-
+          </div>
         </div>);
     }
 
