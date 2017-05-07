@@ -36,7 +36,7 @@ var e = {
                 loader: 'babel-loader',
                 exclude: [/node_modules/,/app/],
                 query: {
-                    presets: ['react', 'es2015','stage-0']
+                    presets: ['react', 'es2015','stage-0',"transform-object-rest-spread"]
                 }
             },
             { test: /\.json$/, loader: "json-loader" }

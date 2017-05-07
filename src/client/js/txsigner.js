@@ -8,8 +8,8 @@ import PaymentHistory from './components/PaymentHistory';
 import EthereumClient from './components/EthereumClient';
 import BigNumber from 'bignumber.js';
 import Const from '../../constant.js';
-import EthWallet from './components/wallet.js';
-import CreateWallet from './components/createwallet.js';
+import EthWallet from './components/Wallet/wallet.js';
+
 
 let SATOSHI = Const.SATOSHI;
 
@@ -43,8 +43,8 @@ class TxSignerView extends React.Component {
     render() {
         var that = this;
         return (
-            <div>
-                <EthWallet />
+            <div className="container">
+                <EthWallet ethID={window.params.ethID} tx={window.params.tx} to={window.params.to} amount={window.params.amount}/>
             </div>
         );
     }

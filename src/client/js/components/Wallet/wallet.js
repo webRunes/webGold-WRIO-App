@@ -1,8 +1,8 @@
 import React from 'react';
-import KeyStore from '../crypto/keystore.js';
+import KeyStore from '../../crypto/keystore.js';
 import Tx from 'ethereumjs-tx';
-import {getEthereumId,sendSignedTransaction} from '../libs/apicalls.js';
-import extractUrlParameter from '../libs/url.js';
+import {getEthereumId,sendSignedTransaction} from '../../libs/apicalls.js';
+import extractUrlParameter from '../../libs/url.js';
 import lightwallet from 'eth-lightwallet'
 /*
 
@@ -28,13 +28,12 @@ export default class EthWallet extends React.Component {
 
     constructor (props) {
         super(props);
-        this.tx = window.params.tx;
+        this.tx = this.props.tx;
         console.log("TX to sign",this.tx);
         if (!this.tx) throw new Error("Not tx specified!");
 
         window.txA = this.dbgTransaction(this.tx);
         this.state = {
-            ethId: window.params.ethID,
             finished: false,
             busy: false,
             error: ""
@@ -97,7 +96,7 @@ export default class EthWallet extends React.Component {
         }
 
         ks.extractKey(seed,'123').
-            then(ks.verifySeedAgainstEthId(this.state.ethId)).
+            then(ks.verifySeedAgainstEthId(this.props.ethID)).
             then((result) => {
                 if (!result) {
                     this.setState({error:"You've entered seed not matching your account"});
@@ -125,7 +124,7 @@ export default class EthWallet extends React.Component {
         }
         return (
             <div>
-                { this.state.ethId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
+                { this.props.ethID ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
             </div>
         );
     }
@@ -138,7 +137,10 @@ export default class EthWallet extends React.Component {
             </div>);
         }
         return (<div>
-            <h1> Unlock your account </h1>
+            <h1> Please approve  </h1>
+            <h5> transfer of {this.props.amount / 100} THX to
+                <a href={`https://wr.io/${this.props.to}/index.html` } target="_blank">{this.props.to}</a> user
+            </h5>
             {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
             <div className="input-group">
                 { this.savedKeystore? "" : <input className="form-control" type="text" ref="seed" placeholder="Enter 12 word wallet" size="80"></input> }

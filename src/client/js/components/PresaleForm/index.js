@@ -7,7 +7,7 @@ import PaymentData from "./PaymentData";
 import request from 'superagent';
 import Const from '../../../../constant.js';
 import EmailEntry from './EmailEntry.js';
-import CreateWallet, {Disclaimer} from '../createwallet.js';
+import CreateWallet, {Disclaimer} from '../Wallet/createwallet.js';
 
 let SATOSHI = Const.SATOSHI;
 var recapEvent = null;

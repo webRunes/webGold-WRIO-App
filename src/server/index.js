@@ -134,7 +134,9 @@ function setup_routes(db) {
         console.log("=============================================",d);
 
         response.render('txsigner.ejs', {
-            "tx":d.unsignedTX,
+            "tx": d.unsignedTX,
+            "to":d.destWrioID,
+            "amount":d.amount,
             "ethID": request.user.ethereumWallet
         });
 
