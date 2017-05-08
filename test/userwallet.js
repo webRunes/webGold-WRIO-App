@@ -43,7 +43,7 @@ describe(': should allow keystore changes',() => {
         }).catch(console.log);
 
     });
-    it('should be able, to unlock the password from saved keystore', (done) => {
+    it('DEVTEST: should be able, to unlock the password from saved keystore', (done) => {
         let store = new KeyStore();
         let invPass = false;
         store.extractKey(SEED,'123').
@@ -60,7 +60,7 @@ describe(': should allow keystore changes',() => {
                    invPass = true;
                 });
 
-                return store_d.extractKey(SEED,'123',store_d.keystore);
+                return store_d.extractKey(null,'123',store_d.keystore);
             }).then(({addr})=> {
                     console.log(addr);
                     if (invPass == false) done("Not rejected invalid password"); else done();

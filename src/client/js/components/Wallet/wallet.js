@@ -1,9 +1,10 @@
 import React from 'react';
-import KeyStore from '../crypto/keystore.js';
+import KeyStore from '../../crypto/keystore.js';
 import Tx from 'ethereumjs-tx';
-import {getEthereumId,sendSignedTransaction} from '../libs/apicalls.js';
-import extractUrlParameter from '../libs/url.js';
+import {getEthereumId,sendSignedTransaction} from '../../libs/apicalls.js';
+import extractUrlParameter from '../../libs/url.js';
 import lightwallet from 'eth-lightwallet'
+import ObtainKeystore from './ObtainKeystore.js';
 /*
 
  Sample transaction, first nonce should be '0x100000' for the testnet
@@ -24,20 +25,37 @@ sampleTransaction(addr) {
 let ks = new KeyStore();
 
 
+const ExtractKeyHeader = (wrioID) => {
+    return (<div className="callout">
+        <h5>Confirmation</h5>
+        <p>To confirm transaction please enter your seed for account {wrioID}</p>
+    </div>);
+};
+
+const ApproveReject = ({onApprove,onReject}) => {
+    return (<div className="col-xs-12">
+        <a onClick={onReject} className="btn btn-danger"><span className="glyphicon glyphicon-minus-sign"></span>Reject</a>
+        <div className="pull-right">
+            <a href="#" className="btn btn-primary" onClick={onApprove}><span className="glyphicon glyphicon-ok"></span>Approve</a>
+        </div>
+    </div>);
+}
+
+
 export default class EthWallet extends React.Component {
 
     constructor (props) {
         super(props);
-        this.tx = window.params.tx;
+        this.tx = this.props.tx;
         console.log("TX to sign",this.tx);
         if (!this.tx) throw new Error("Not tx specified!");
 
         window.txA = this.dbgTransaction(this.tx);
         this.state = {
-            ethId: window.params.ethID,
             finished: false,
             busy: false,
-            error: ""
+            error: "",
+            approveStage: false
         };
     }
 
@@ -76,8 +94,8 @@ export default class EthWallet extends React.Component {
     }
 
 
-    signTX(seed) {
-        ks.extractKey(seed,'123').then(ks.signTx(this.tx)).then((signed) => {
+    signTX(keystore) {
+        ks.extractKey(null,'123',keystore).then(ks.signTx(this.tx)).then((signed) => {
             this.sendSignedTransaction(signed);
             this.dbgTransaction(signed);
             this.setState({busy:true})
@@ -88,30 +106,23 @@ export default class EthWallet extends React.Component {
     }
 
 
-    checkCreds() {
-        let seed = this.refs.seed ? this.refs.seed.value : "";
-
-        if (!lightwallet.keystore.isSeedValid(seed)) {
-            this.setState({error:"You've entered invalid seed. Your seed should be 12 words separated by spaces."});
-            return;
-        }
-
-        ks.extractKey(seed,'123').
-            then(ks.verifySeedAgainstEthId(this.state.ethId)).
+    checkCreds(keystore) {
+        ks.extractKey(null,'123',keystore).
+            then(ks.verifySeedAgainstEthId(this.props.ethID)).
             then((result) => {
                 if (!result) {
                     this.setState({error:"You've entered seed not matching your account"});
                 } else {
-                    this.signTX(seed);
+                    this.setState({
+                        approveStage: true,
+                        keystoreSaved: keystore
+                    });
                 }
             }).catch((err)=>{
                 this.setState({error:"Keystore init error"});
                 console.log("Keystore init error",err);
             });
-
     }
-
-
 
     render() {
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
@@ -125,7 +136,7 @@ export default class EthWallet extends React.Component {
         }
         return (
             <div>
-                { this.state.ethId ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
+                { this.props.ethID ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
             </div>
         );
     }
@@ -140,15 +151,24 @@ export default class EthWallet extends React.Component {
               </div>
             </div>);
         }
-        return (<div className="content col-xs-12">
-          <div className="margin">
-            <ul className="breadcrumb"><li className="active">Unlock your account</li></ul>
-            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
-            <div className="input-group">
-              { this.savedKeystore? "" : <input className="form-control" type="text" ref="seed" placeholder="Enter 12 word wallet" size="80"></input> }
-              <button className="btn btn-primary" onClick={this.checkCreds.bind(this)}>Submit</button>
-            </div>
-          </div>
+        return (<div>
+            <h1> Please approve  </h1>
+            <h5> transfer of {this.props.amount / 100} THX to
+                <a href={`https://wr.io/${this.props.to}/index.html` } target="_blank">{this.props.to}</a> user
+            </h5>
+            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
+
+            { this.state.approveStage ? <ApproveReject onApprove={()=>{
+                this.signTX(this.state.keystoreSaved);
+            }} onReject={()=>{
+                 window.opener.postMessage(JSON.stringify({closePopup:true, error: "Rejected by user"}),'*');
+                 window.close();
+            }} /> :
+            < ObtainKeystore id={this.props.wrioID}
+                header={ExtractKeyHeader(this.props.wrioID)}
+                confirmCallback={(ks) => this.checkCreds(ks)}
+                backCallback={()=>console.log('back')} />
+            }
         </div>);
     }
 

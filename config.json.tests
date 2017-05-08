@@ -8,6 +8,10 @@
     "mongouser": "",
     "mongodbname": "webrunes_test"
   },
+    "rabbitmq": {
+            "tweetQueue": "deferredTweets",
+            "url": "amqp://rabbitmq"
+    },
   "mongo": {
     "host": "mongo",
     "dbname": "webrunes_test",
