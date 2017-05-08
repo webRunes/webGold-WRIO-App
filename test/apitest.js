@@ -7,7 +7,7 @@ import init_serv from "../src/server/index.js";
 
 var app;
 
-    describe("DEVTEST: API unit tests", function () {
+    describe("API unit tests", function () {
         before(async ()=>{
             app = await init_serv();
         });
