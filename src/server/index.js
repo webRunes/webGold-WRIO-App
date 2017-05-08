@@ -137,13 +137,16 @@ function setup_routes(db) {
             "tx": d.unsignedTX,
             "to":d.destWrioID,
             "amount":d.amount,
+            "wrioID":request.user.wrioID,
             "ethID": request.user.ethereumWallet
         });
 
     }));
 
-    app.get('/create_wallet', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH,'/createwallet.html'));
+    app.get('/create_wallet',wrioAuth, function (request, response) {
+        response.render('createwallet.ejs', {
+            "wrioID":request.user.wrioID,
+        });
     });
 
 

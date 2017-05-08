@@ -42,7 +42,7 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <CreateWallet />
+                <CreateWallet wrioID={window.params.wrioID} />
             </div>
         );
     }

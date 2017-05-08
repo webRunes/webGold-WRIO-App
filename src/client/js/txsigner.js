@@ -44,7 +44,11 @@ class TxSignerView extends React.Component {
         var that = this;
         return (
             <div className="container">
-                <EthWallet ethID={window.params.ethID} tx={window.params.tx} to={window.params.to} amount={window.params.amount}/>
+                <EthWallet ethID={window.params.ethID}
+                           tx={window.params.tx}
+                           to={window.params.to}
+                           wrioID={window.params.wrioID}
+                           amount={window.params.amount}/>
             </div>
         );
     }
