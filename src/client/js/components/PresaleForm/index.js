@@ -119,13 +119,13 @@ export default class PresaleForm extends React.Component {
         }
 
         return (
-          <form name="presaleForm"  onSubmit={this.addFunds.bind(this)}>
+          <form name="presaleForm" onSubmit={this.addFunds.bind(this)}>
 
               {this.state.stage == 0 && <div className="well enable-comment">
                   <h4>Get your first crypto currency wallet!</h4>
                   <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No control, ID or verification will be required of you.</p>
                   <br />
-                  <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-record"></span>Create wallet</a>
+                  <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-ok-sign"></span>Create wallet</a>
               </div>}
 
               {this.state.stage == 1 && <div className="col-xs-12" >

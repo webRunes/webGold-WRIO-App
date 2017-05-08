@@ -143,9 +143,12 @@ export default class EthWallet extends React.Component {
 
     renderUnlock () {
         if (this.state.finished) {
-            return (<div>
-                <h1>Your transaction successfully submitted! Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></h1>
-                <div><a href="javascript:history.back()">Go back</a></div>
+            return (<div className="content col-xs-12">
+              <div className="margin">
+                <ul className="breadcrumb"><li className="active">Success!</li></ul>
+                <p>Your transaction successfully submitted. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></p>
+                <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
+              </div>
             </div>);
         }
         return (<div>
