@@ -34,10 +34,10 @@ const ExtractKeyHeader = (wrioID) => {
 
 const ApproveReject = ({onApprove,onReject}) => {
     return (<div className="col-xs-12">
-        <a onClick={onReject} className="btn btn-danger"><span className="glyphicon glyphicon-minus-sign"></span>Reject</a>
-        <div className="pull-right">
-            <a href="#" className="btn btn-primary" onClick={onApprove}><span className="glyphicon glyphicon-ok"></span>Approve</a>
-        </div>
+      <div className="pull-right">
+        <a onClick={onReject} className="btn btn-default"><span className="glyphicon glyphicon-remove"></span>Reject</a>
+        <a href="#" className="btn btn-success" onClick={onApprove}><span className="glyphicon glyphicon-ok"></span>Send</a>
+      </div>
     </div>);
 }
 
@@ -65,7 +65,7 @@ export default class EthWallet extends React.Component {
 
     dbgTransaction(tx) {
         var stx = new Tx(tx);
-        console.log("Validating signed   transaction....",stx.validate(),stx.verifySignature());
+        console.log("Validating signed transaction....",stx.validate(),stx.verifySignature());
         console.log(stx.toJSON());
         console.log(stx);
         return stx;
@@ -129,14 +129,14 @@ export default class EthWallet extends React.Component {
         if (this.state.busy) {
             return (
                 <div>
-                    <h1>Submitting Transaction</h1><br />
+                  <h1>Submitting the transaction</h1><br />
                     {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
                     <img src="https://default.wrioos.com/img/loading.gif"/>
                 </div>)
         }
         return (
             <div>
-                { this.props.ethID ? this.renderUnlock() :  <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
+              { this.props.ethID ? this.renderUnlock() : <a href="javascript:;" target="popup" onClick={openPopup}>Please register your Ethereum wallet</a> }
             </div>
         );
     }
@@ -146,29 +146,31 @@ export default class EthWallet extends React.Component {
             return (<div className="content col-xs-12">
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Success!</li></ul>
-                <p>Your transaction successfully submitted. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></p>
+                <p>Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></p>
                 <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
               </div>
             </div>);
         }
-        return (<div>
-            <h1> Please approve  </h1>
-            <h5> transfer of {this.props.amount / 100} THX to
-                <a href={`https://wr.io/${this.props.to}/index.html` } target="_blank">{this.props.to}</a> user
-            </h5>
-            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
+        return (<div className="content col-xs-12">
+          <div className="margin">
+            <ul className="breadcrumb"><li className="active">Confirm transaction</li></ul>
+            <p> transfer of {this.props.amount / 100} THX to
+              <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a> user
+            </p>
+            {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
 
             { this.state.approveStage ? <ApproveReject onApprove={()=>{
-                this.signTX(this.state.keystoreSaved);
+              this.signTX(this.state.keystoreSaved);
             }} onReject={()=>{
-                 window.opener.postMessage(JSON.stringify({closePopup:true, error: "Rejected by user"}),'*');
-                 window.close();
+              window.opener.postMessage(JSON.stringify({closePopup:true, error: "Rejected by user"}),'*');
+              window.close();
             }} /> :
-            < ObtainKeystore id={this.props.wrioID}
-                header={ExtractKeyHeader(this.props.wrioID)}
-                confirmCallback={(ks) => this.checkCreds(ks)}
-                backCallback={()=>console.log('back')} />
+              < ObtainKeystore id={this.props.wrioID}
+              header={ExtractKeyHeader(this.props.wrioID)}
+              confirmCallback={(ks) => this.checkCreds(ks)}
+              backCallback={()=>console.log('back')} />
             }
+          </div>
         </div>);
     }
 
