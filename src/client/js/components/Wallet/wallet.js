@@ -48,7 +48,7 @@ export default class EthWallet extends React.Component {
         super(props);
         this.tx = this.props.tx;
         console.log("TX to sign",this.tx);
-        if (!this.tx) throw new Error("Not tx specified!");
+        if (!this.tx) throw new Error("No TX specified!");
 
         window.txA = this.dbgTransaction(this.tx);
         this.state = {
@@ -100,7 +100,7 @@ export default class EthWallet extends React.Component {
             this.dbgTransaction(signed);
             this.setState({busy:true})
         }).catch((err) => {
-            this.setState({error: "There was trouble signing your transaction"});
+            this.setState({error: "There seems to have been an error initializing your transaction."});
             console.log(err);
         });
     }
@@ -111,7 +111,7 @@ export default class EthWallet extends React.Component {
             then(ks.verifySeedAgainstEthId(this.props.ethID)).
             then((result) => {
                 if (!result) {
-                    this.setState({error:"You've entered seed not matching your account"});
+                    this.setState({error:"The seed you entered does not match your account."});
                 } else {
                     this.setState({
                         approveStage: true,
@@ -131,7 +131,7 @@ export default class EthWallet extends React.Component {
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Transaction is being processed</li></ul>
                 <p>
-                  {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
+                  {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
                   <img src="https://default.wrioos.com/img/loading.gif"/>
                 </p>
               </div>
