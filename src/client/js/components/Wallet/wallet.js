@@ -128,14 +128,14 @@ export default class EthWallet extends React.Component {
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
         if (this.state.busy) {
             return (<div className="content col-xs-12">
-                <div className="margin">
-                  <ul className="breadcrumb"><li className="active">Transaction is being processed</li></ul>
-                  <p>
-                    {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
-                    <img src="https://default.wrioos.com/img/loading.gif"/></p>
-                  <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
-                </div>
-              </div>)
+              <div className="margin">
+                <ul className="breadcrumb"><li className="active">Transaction is being processed</li></ul>
+                <p>
+                  {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
+                  <img src="https://default.wrioos.com/img/loading.gif"/>
+                </p>
+              </div>
+            </div>)
         }
         return (
             <div>
