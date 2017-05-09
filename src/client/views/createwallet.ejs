@@ -14,7 +14,10 @@
 
 <script src="/assets/client.js"></script>
 <script >
-    RenderTxSigner();
+    window.params = {
+        wrioID: '<%= wrioID %>'
+    };
+    RenderCreateWallet();
 </script>
 
 </body>

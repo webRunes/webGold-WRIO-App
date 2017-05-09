@@ -19,7 +19,7 @@ class WebGoldDeploy extends WebGold {
         //console.log(tx.toJSON());
 
         var signer = new TransactionSigner(tx);
-        var r = await signer.checkTx();
+        var r = await signer.validateTx();
         if (r) {
             console.log("Check succeded");
         } else {

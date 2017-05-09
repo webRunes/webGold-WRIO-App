@@ -27,9 +27,9 @@ export function saveEthereumId(id) {
 
 }
 
-export function sendSignedTransaction (tx) {
+export function sendSignedTransaction (tx,id) {
     return new Promise((resolve,reject) => {
-        request.get('/api/webgold/signtx?tx='+tx).
+        request.get(`/api/webgold/signtx?tx=${tx}&id=${id}`).
             set('X-Requested-With',"XMLHttpRequest").
             withCredentials().end((err,res) => err? reject(err) : resolve(res));
     });

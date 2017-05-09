@@ -8,6 +8,8 @@ import WrioUser from "../models/wriouser.js";
 import logger from 'winston';
 import {calc_percent} from '../utils/utils.js';
 import Tx from 'ethereumjs-tx';
+import {bufferToHex} from 'ethereumjs-util';
+import Donations from '../models/donations.js';
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
@@ -106,10 +108,38 @@ export default class DonateProcessor {
         logger.debug("Checking balance before donation", this.amount, blockchainBalance);
 
 
+        try {
+
+            if (this.amount > blockchainBalance) {
+                return {"success":false,'error':"Not enough funds"}
+            } else {
+                let donationObj = new Donation();
+                donationObj.create(this.srcUser.wrioID,this.to,this.amount,0);
+                let tx = await this.generateDonateTx(this.srcUser, this.to, this.amount);
+                await donationObj.update({
+                    unsignedTX: tx,
+                    state: 'UNSIGNED'
+                });
+                return {
+                    "success": "true",
+                    "txID": donationObj.record_id,
+                    "callback":"//webgold"+nconf.get('server:workdomain')+"/sign_tx?id="+donationObj.record_id
+                };
+            }
+        } catch (e) {
+            console.log("ERROR during donate", e);
+            return {
+                success: false,
+                error: e
+            }
+        }
+
+
+        /* Temporary disable prepayments
+
         if (this.amount > blockchainBalance) {
             this.createPrepayment();
         } else {
-
             //generate transaction to be signed by user
             return await this.generateDonateTx(this.srcUser, this.to, this.amount);
 
@@ -125,12 +155,21 @@ export default class DonateProcessor {
             amountUser: amountUser,
             fee:fee,
             feePercent:calc_percent(this.amount)
-        };
+        };*/
 
     }
 
-    async makeDonate (user, to, amount)  {
 
+    async generateDonateTx(user,to,amount) {
+        if (!this.destUser.ethereumWallet) {
+            throw new Error("User don't have a wallet");
+        }
+        await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
+        var hex = await this.webGold.makeDonateTx(this.srcEthId,this.destEthId,amount);
+        return hex;
+    }
+
+    async makeDonate (user, to, amount)  {
 
         logger.debug("Prepare for transfer",this.destEthId,this.srcEthId,amount);
         await this.webGold.donate(this.srcEthId,this.destEthId,amount);
@@ -140,37 +179,27 @@ export default class DonateProcessor {
 
     };
 
-    async generateDonateTx(user,to,amount) {
-        if (!this.destUser.ethereumWallet) {
-            logger.error("You trying to donate to user without a wallet");
-            return {
-                success: false,
-                error: "User don't have a wallet"
-            }
-        }
-        await this.webGold.ensureMinimumEther(user.ethereumWallet,user.wrioID);
-        var hex = await this.webGold.makeDonateTx(this.srcEthId,this.destEthId,amount);
-        return {
-            "success": "true",
-            "tx": hex,
-            "callback":"//webgold"+nconf.get('server:workdomain')+"/sign_tx?tx="+hex
-        };
-    }
-
 
 
 }
 
 export class TransactionSigner {
 
-    constructor (tx) {
-        this.tx = tx;
+    constructor (signedTx, sourceTx) {
+        this.tx = signedTx;
+        this.sourceTx = sourceTx
         this.webGold = new WebGold(db.db);
     }
 
-    async checkTx() {
+    async compareTxS(signed,source) {
+       UnSignTransaction(signed);
+       return signed == source;
+    }
+
+    validateTx(transaction) {
+
         try {
-            var tx = new Tx(this.tx);
+            var tx = new Tx(transaction);
             var v = tx.validate();
             var s = tx.verifySignature();
             console.log(tx.toJSON());
@@ -188,13 +217,29 @@ export class TransactionSigner {
     }
 
     async process() {
-        if (await this.checkTx()) {
+        if (this.validateTx(this.tx) && this.compareTxS(this.tx,this.sourceTx)) {
             console.log("CheckTX succeeded");
             return await this.executeTx();
         } else {
-            console.log("CheckTX failed",this.tx);
+            throw new Error("CheckTX failed" + this.tx);
         }
 
     }
+
+}
+
+
+/**
+ * Reconstructs original transaction from signed transaction
+ * @constructor
+ */
+
+export function UnSignTransaction (tx) {
+    var tx = new Tx(tx);
+    tx.validate();
+    tx.v = new Buffer([0x1c]); // refer to https://github.com/ethereumjs/ethereumjs-tx/blob/master/index.js
+    tx.r = new Buffer([]);
+    tx.s = new Buffer([]);
+    return bufferToHex(tx.serialize()).replace('0x','');
 
 }

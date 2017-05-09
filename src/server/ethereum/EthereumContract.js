@@ -8,6 +8,7 @@ import logger from 'winston';
 import nconf from 'nconf';
 import Web3 from 'web3'; var web3 = new Web3();
 import promisify from '../utils/promisify.js';
+import NonceTracker from '../models/noncetracker.js';
 
 const COMPILER_VER = "v0.4.8+commit.60cc1668";
 
@@ -79,13 +80,35 @@ class EthereumContract {
     async etherSend(sender,recipient,amount) {
         logger.verbose("Preparing to transfer",amount,"ETH");
         const  amountWEI = this.web3.toWei(amount, "ether");
-        const result = await promisify(this.web3.eth.sendTransaction)({from: sender, to: recipient, value: amountWEI});
+        const nonce = await this.getTransactionCount(sender);
+        const result = await promisify(this.web3.eth.sendTransaction)({
+            from: sender,
+            to: recipient,
+            value: amountWEI,
+            nonce
+        });
+        await this.saveNonce(sender,nonce);
         logger.info("Ether transfer succeeded: ",recipient, amount,amountWEI,result);
         return result
     }
 
     async getTransactionCount(adr) {
-        return await promisify(web3.eth.getTransactionCount)(adr);
+        let nt = new NonceTracker();
+        let savedNonce = await nt.getSavedNonce(adr);
+        let apiNonce =  await promisify(web3.eth.getTransactionCount)(adr);
+        console.log("TR count",adr,apiNonce,savedNonce);
+        if (savedNonce >= apiNonce) {
+            console.log("USING SAVED NONCE", savedNonce+1);
+            return savedNonce+1;
+        } else {
+            return apiNonce;
+        }
+    }
+
+    async saveNonce(from,nonce) {
+        let nt = new NonceTracker();
+        await nt.create(from,nonce);
+        console.log("Saving nonce",nonce);
     }
 
 
@@ -98,6 +121,9 @@ class EthereumContract {
         console.log("Transaction has been executed, HASH:", hash);
         const trans = await promisify(this.web3.eth.getTransaction)(hash);
         console.log(trans);
+        if (trans) {
+           await this.saveNonce(trans.from,trans.nonce);
+        }
         return hash;
 
         /*         var filter = web3.eth.filter('latest');
