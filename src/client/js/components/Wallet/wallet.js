@@ -27,8 +27,8 @@ let ks = new KeyStore();
 
 const ExtractKeyHeader = (wrioID) => {
     return (<div className="callout">
-        <h5>Confirmation</h5>
-        <p>To confirm transaction please enter your seed for account {wrioID}</p>
+      <h5>Confirmation</h5>
+      <p>To confirm transaction please enter your seed for account {wrioID}.</p>
     </div>);
 };
 
@@ -65,7 +65,7 @@ export default class EthWallet extends React.Component {
 
     dbgTransaction(tx) {
         var stx = new Tx(tx);
-        console.log("Validating signed transaction....",stx.validate(),stx.verifySignature());
+        console.log("Validating signed transaction...",stx.validate(),stx.verifySignature());
         console.log(stx.toJSON());
         console.log(stx);
         return stx;
@@ -127,12 +127,15 @@ export default class EthWallet extends React.Component {
     render() {
         const openPopup = () => window.open('/create_wallet','name','width=600,height=400');
         if (this.state.busy) {
-            return (
-                <div>
-                  <h1>Submitting the transaction</h1><br />
+            return (<div className="content col-xs-12">
+                <div className="margin">
+                  <ul className="breadcrumb"><li className="active">Transaction is being processed</li></ul>
+                  <p>
                     {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error} </h5> : ""}
-                    <img src="https://default.wrioos.com/img/loading.gif"/>
-                </div>)
+                    <img src="https://default.wrioos.com/img/loading.gif"/></p>
+                  <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
+                </div>
+              </div>)
         }
         return (
             <div>
@@ -146,7 +149,7 @@ export default class EthWallet extends React.Component {
             return (<div className="content col-xs-12">
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Success!</li></ul>
-                <p>Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a>></p>
+                <p>Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a></p>
                 <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
               </div>
             </div>);
