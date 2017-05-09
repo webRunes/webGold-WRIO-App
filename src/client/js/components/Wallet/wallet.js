@@ -35,7 +35,7 @@ const ExtractKeyHeader = (wrioID) => {
 const ApproveReject = ({onApprove,onReject}) => {
     return (<div className="col-xs-12">
       <div className="pull-right">
-        <a onClick={onReject} className="btn btn-default"><span className="glyphicon glyphicon-remove"></span>Reject</a>
+        <a onClick={onReject} className="btn btn-default"><span className="glyphicon glyphicon-remove"></span>Cancel</a>
         <a href="#" className="btn btn-success" onClick={onApprove}><span className="glyphicon glyphicon-ok"></span>Send</a>
       </div>
     </div>);
@@ -154,9 +154,7 @@ export default class EthWallet extends React.Component {
         return (<div className="content col-xs-12">
           <div className="margin">
             <ul className="breadcrumb"><li className="active">Confirm transaction</li></ul>
-            <p> transfer of {this.props.amount / 100} THX to
-              <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a> user
-            </p>
+            <p>Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
             {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
 
             { this.state.approveStage ? <ApproveReject onApprove={()=>{
