@@ -48,7 +48,7 @@ export default class EthWallet extends React.Component {
         super(props);
         this.tx = this.props.tx;
         console.log("TX to sign",this.tx);
-        if (!this.tx) throw new Error("No TX specified!");
+        if (!this.tx) throw new Error("TX not specified!");
 
         window.txA = this.dbgTransaction(this.tx);
         this.state = {
@@ -119,8 +119,8 @@ export default class EthWallet extends React.Component {
                     });
                 }
             }).catch((err)=>{
-                this.setState({error:"Keystore init error"});
-                console.log("Keystore init error",err);
+                this.setState({error:"Keystore init error."});
+                console.log("Keystore init error.",err);
             });
     }
 
@@ -159,7 +159,7 @@ export default class EthWallet extends React.Component {
             <ul className="breadcrumb"><li className="active">Confirm transaction</li></ul>
             <p>Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
             {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
-
+            
             { this.state.approveStage ? <ApproveReject onApprove={()=>{
               this.signTX(this.state.keystoreSaved);
             }} onReject={()=>{
