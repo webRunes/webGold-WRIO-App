@@ -21,7 +21,7 @@ export default class VerifyForm extends React.Component {
         return (<div className="content col-xs-12">
           <div className="margin">
             <ul className="breadcrumb"><li className="active">Confirmation</li></ul>
-            <p>To confirm you've written down your seed correctly, please type it here:</p>
+            <p className="col-xs-12">To confirm you've written down your seed correctly, please type it here:</p>
             <br />
             <div className="form-group form-inline">
               <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>

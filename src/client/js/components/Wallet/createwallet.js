@@ -10,7 +10,7 @@ const PASSPHRASE = "dummy";
 const ConfirmationHeader = (<div className="content col-xs-12">
   <div className="margin">
     <ul className="breadcrumb"><li className="active">Confirmation</li></ul>
-    <p>To confirm you've written down your seed correctly, please type it here:</p>
+    <p className="col-xs-12">To confirm you've written down your seed correctly, please type it here:</p>
   </div>
 </div>);
 

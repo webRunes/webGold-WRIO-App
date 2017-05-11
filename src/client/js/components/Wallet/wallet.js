@@ -130,7 +130,7 @@ export default class EthWallet extends React.Component {
             return (<div className="content col-xs-12">
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Transaction is being processed</li></ul>
-                <p>
+                <p className="col-xs-12">
                   {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
                   <img src="https://default.wrioos.com/img/loading.gif"/>
                 </p>
@@ -149,17 +149,16 @@ export default class EthWallet extends React.Component {
             return (<div className="content col-xs-12">
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Success!</li></ul>
-                <p>Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a></p>
-                <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
+                <p className="col-xs-12">Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a></p>
               </div>
             </div>);
         }
         return (<div className="content col-xs-12">
           <div className="margin">
             <ul className="breadcrumb"><li className="active">Confirm transaction</li></ul>
-            <p>Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
+            <p className="col-xs-12">Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
             {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
-            
+
             { this.state.approveStage ? <ApproveReject onApprove={()=>{
               this.signTX(this.state.keystoreSaved);
             }} onReject={()=>{
