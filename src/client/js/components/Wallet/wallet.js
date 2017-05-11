@@ -150,7 +150,6 @@ export default class EthWallet extends React.Component {
               <div className="margin">
                 <ul className="breadcrumb"><li className="active">Success!</li></ul>
                 <p className="col-xs-12">Transaction has been sent successfully. Transaction hash <a href={this.state.txUrl} target="_blank">{this.state.txId}</a></p>
-                <div><a href="javascript:history.back()" className="btn btn-default">Close</a></div>
               </div>
             </div>);
         }
