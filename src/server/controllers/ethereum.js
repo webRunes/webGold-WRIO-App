@@ -107,6 +107,26 @@ export const get_wallet = async(request,response) => {
 
 };
 
+
+export const get_user_wallet = async(request,response) => {
+    request.checkQuery('wrioID', 'Invalid wrio id').isInt();
+    let result = await request.getValidationResult();
+
+    if (!result.isEmpty()) {
+        return response.status(403).send("Invalid parameters");
+    }
+
+    let wrioUser = new WebRunesUsers();
+    try {
+        let user = await wrioUser.getByWrioID(request.query.wrioID);
+        return response.json({"wallet":user.ethereumWallet});
+    } catch (err) {
+        console.log(err);
+        response.send("false");
+    }
+
+};
+
 export const save_wallet = async(request,response) => {
     let wallet = request.query.wallet;
 
