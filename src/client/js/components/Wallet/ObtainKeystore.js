@@ -39,25 +39,24 @@ const PassPhraseEntry = ({header,backCallback,forwardCallback,error}) => {
     let input;
 
     return ( <div className="form-horizontal">
-        {header}
-        <br />
-        <div className="form-group form-inline">
-            <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>
-            <div className="col-sm-8 col-md-9">
-                <input className="form-control" ref={node => {
+      {header}
+      <br />
+      <div className="form-group form-inline">
+        <label for="id-Passphrase" className="col-xs-12 col-sm-4 col-md-3 control-label">12 word seed</label>
+        <div className="col-xs-12 col-sm-8 col-md-9">
+          <input className="col-xs-12 form-control" ref={node => {
                 input = node;
-                }} placeholder="Enter your 12 word seed" size="80"></input>
-                <br />
-                {error !== ""? <h5 className="breadcrumb danger">{error} </h5> : ""}
-            </div>
-
+          }} placeholder="Enter your 12 word seed"></input>
+          <br />
+          {error !== ""? <h5 className="breadcrumb danger">{error}</h5> : ""}
         </div>
-        <div className="col-xs-12">
-            <a onClick={backCallback} className="btn btn-default"><span className="glyphicon glyphicon-arrow-left"></span>Back</a>
-            <div className="pull-right">
-                <a href="#" className="btn btn-primary" onClick={() => forwardCallback(input.value)}><span className="glyphicon glyphicon-ok"></span>Verify</a>
-            </div>
+      </div>
+      <div className="col-xs-12">
+        <a onClick={backCallback} className="btn btn-default"><span className="glyphicon glyphicon-arrow-left"></span>Back</a>
+        <div className="pull-right">
+          <a href="#" className="btn btn-primary" onClick={() => forwardCallback(input.value)}><span className="glyphicon glyphicon-ok"></span>Verify</a>
         </div>
+      </div>
     </div>);
 };
 
