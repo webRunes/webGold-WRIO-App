@@ -269,7 +269,7 @@ class WebGold extends EthereumContract {
 
         logger.info("Emitting new wrg to",dest,"Amount=",amount);
         let txId = await this.emitCoin(masterAccount,dest,amount);
-        await this.ensureMinimumEther(dest,toWrio);
+        this.ensureMinimumEther(dest,toWrio).then(()=>console.log("Ether arrived"));
         var emission = new Emissions();
         await emission.create(toWrio,amount);
         return txId;
