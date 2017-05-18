@@ -21,12 +21,13 @@ export default class VerifyForm extends React.Component {
         return (<div className="content col-xs-12">
           <div className="margin">
             <ul className="breadcrumb"><li className="active">Confirmation</li></ul>
-            <p className="col-xs-12">To confirm you've written down your seed correctly, please type it here:</p>
-            <br />
+            <div className="callout">
+              <p>To confirm you've written down your seed correctly, please type it here:</p>
+            </div>
             <div className="form-group form-inline">
-              <label for="id-Passphrase" className="col-sm-4 col-md-3 control-label">12 word seed</label>
-              <div className="col-sm-8 col-md-9">
-                <input className="form-control" ref="seed" placeholder="Enter your 12 word seed" size="80"></input>
+              <label for="id-Passphrase" className="col-xs-12 col-sm-4 col-md-3 control-label">12 word seed</label>
+              <div className="col-xs-12 col-sm-8 col-md-9">
+                <input className="col-xs-12 form-control" ref="seed" placeholder="Enter your 12 word seed"></input>
               </div>
             </div>
             { /* <div className="form-group form-inline">
