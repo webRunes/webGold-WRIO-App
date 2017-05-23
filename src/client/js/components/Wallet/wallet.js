@@ -156,7 +156,7 @@ export default class EthWallet extends React.Component {
         return (<div className="content col-xs-12">
           <div className="margin">
             <ul className="breadcrumb"><li className="active">Confirm transaction</li></ul>
-            <p className="col-xs-12">Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
+            <p className="col-xs-12"><br />Transfer of {this.props.amount / 100} THX to user ID <a href={`https://wr.io/${this.props.to}/index.html`} target="_blank">{this.props.to}</a></p>
             {this.state.error !== ""? <h5 className="breadcrumb danger">{this.state.error}</h5> : ""}
 
             { this.state.approveStage ? <ApproveReject onApprove={()=>{
