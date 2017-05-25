@@ -247,6 +247,7 @@ export const get_balance = async (request,response) => {
 
     //logger.debug("balance:",balance.add(dbBalance).toString());
     response.send({
+	"wrioID":request.user.wrioID,    
         "balance": balance,
         "rtx":rtx,
         "promised": dbBalance,
