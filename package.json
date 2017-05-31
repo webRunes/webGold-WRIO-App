@@ -57,7 +57,6 @@
     "basic-auth": "^1.0.3",
     "bignumber.js": "^2.0.7",
     "body-parser": "^1.15.2",
-    "braintree": "^1.28.0",
     "connect-mongo": "^1.2.1",
     "cookie-parser": "1.4.3",
     "crypto-js": "3.1.6",
