@@ -7,9 +7,13 @@ import ObtainKeystore from './ObtainKeystore.js';
 
 const PASSPHRASE = "dummy";
 
-const ConfirmationHeader = (<div className="callout">
-    <h5>Confirmation</h5>
-    <p>To confirm you've written down your seed correctly, please type it here</p>
+const ConfirmationHeader = (<div className="content col-xs-12">
+  <div className="margin">
+    <ul className="breadcrumb"><li className="active">Confirmation</li></ul>
+    <div className="callout">
+      <p>To confirm you've written down your seed correctly, please type it here:</p>
+    </div>
+  </div>
 </div>);
 
 export default class CreateWallet extends React.Component {
@@ -72,21 +76,23 @@ export default class CreateWallet extends React.Component {
                                      backCallback={()=>this.setState({verifyStage: false})} />);
             //return (<VerifyForm callback={this.verifyCallback.bind(this)} backCallback={()=>this.setState({verifyStage: false})}/>);
         }
-        return ( <div className="form-horizontal">
-            <Disclaimer />
-            <br />
-            {this.state.walletCode && <div className="form-group form-inline">
-                <div className="col-sm-12">
-                    <div className="alert alert-warning">{this.state.walletCode}</div>
+        return (<div className="content col-xs-12">
+          <div className="margin">
+            <ul className="breadcrumb"><li className="active">Wallet seed</li></ul>
+            <div className="form-horizontal">
+              <Disclaimer />
+              {this.state.walletCode && <div className="form-group form-inline">
+                <div className="col-xs-12">
+                  <div className="alert alert-warning">{this.state.walletCode}</div>
                 </div>
-            </div>}
-            <br />
-
-            <div className="col-xs-12">
+              </div>}
+              <div className="col-xs-12">
                 <div className="pull-right">
-                    <a href="#" className="btn btn-primary" onClick={() => this.setState(({ verifyStage:true}))}><span className="glyphicon glyphicon-ok"></span>Create new wallet</a>
+                  <a href="#" className="btn btn-success" onClick={() => this.setState(({ verifyStage:true}))}><span class="glyphicon glyphicon-ok"></span>I'm ready, continue!</a>
                 </div>
+              </div>
             </div>
+          </div>
         </div>);
     }
  };

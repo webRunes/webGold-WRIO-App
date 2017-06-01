@@ -15,7 +15,7 @@ var recapEvent = null;
 export default class PresaleForm extends React.Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             alert: null,
             payment_data: null,
@@ -52,7 +52,7 @@ export default class PresaleForm extends React.Component {
 
     addFunds(e) {
         e.preventDefault();
-        
+
         let form = e.target;
 
         request
@@ -85,10 +85,10 @@ export default class PresaleForm extends React.Component {
                 });
             });
     }
-    
+
     onAlertClose() {
         this.setState({
-            alert: null 
+            alert: null
         });
     }
 
@@ -140,7 +140,7 @@ export default class PresaleForm extends React.Component {
                   /> : '' }
 
 
-              { this.state.showPaymentCredentials ?
+              {this.state.showPaymentCredentials ?
                   <div className="form-horizontal col-xs-12">
                       <div className="callout">
                           <h5>Enter your email and desired amount</h5>

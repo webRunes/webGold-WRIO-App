@@ -42,13 +42,16 @@ export default class ExtraEntropy extends React.Component {
             verticalAlign:"middle",
             textAlign:"center"
         };
-        return (<div className="col-sm-12">
+        return (<div className="col-xs-12">
+          <div className="margin">
+            <ul className="breadcrumb"><li className="active">Random key generator</li></ul>
             <div className="alert alert-warning" style={style}>
-                Please, move the mouse randomly to generate a secure key for the wallet
-                <div>
-                    Finished {this.state.percent} %
-                </div>
+              Please, move the mouse randomly to generate a secure key for the wallet
+              <div>
+                <b>Finished {this.state.percent} %</b>
+              </div>
             </div>
+          </div>
         </div>)
     }
 }
