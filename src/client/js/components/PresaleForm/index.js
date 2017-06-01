@@ -32,10 +32,7 @@ export default class PresaleForm extends React.Component {
     }
 
     componentDidMount() {
-        var that = this;
-        this.unsubscribe = PaymentStore.listen(function onStatusChange(status) {
-            that.changeAmount(status);
-        });
+        this.unsubscribe = PaymentStore.listen( status => this.changeAmount(status));
     }
     componentWillUnmount() {
         this.unsubscribe();
@@ -143,7 +140,7 @@ export default class PresaleForm extends React.Component {
                   /> : '' }
 
 
-              {this.state.showPaymentCredentials ?
+              { this.state.showPaymentCredentials ?
                   <div className="form-horizontal col-xs-12">
                       <div className="callout">
                           <h5>Enter your email and desired amount</h5>

@@ -6,7 +6,7 @@ contract WRG {
   
   mapping (address => uint) public coinBalanceOf;
   mapping (address => uint) public rewardOf;
-  unit constant tokenSupply = 5000000;
+  uint constant tokenSupply = 5000000;
   uint constant wrgMul = 100; /*  coinBallance is stored in cWRG, 1/100th of WRG */
   address master;
    event CoinTransfer(address sender, address receiver, uint amount);
