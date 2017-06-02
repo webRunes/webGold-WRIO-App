@@ -19,7 +19,7 @@ function getLoginUrl() {
     return "//"+host+'/';
 }
 
-const PRESALE_PRICE = 100000.0;
+const PRESALE_PRICE = 120000.0;
 
 class Presale extends React.Component {
     constructor(props) {
@@ -30,7 +30,7 @@ class Presale extends React.Component {
             exchangeRate: 10,
             showpending: false,
             loginUrl: getLoginUrl(),
-            btcExchangeRate: new BigNumber(1000 / PRESALE_PRICE)
+            btcExchangeRate: (new BigNumber(1000)).div(PRESALE_PRICE)
         };
 
         this.gotEmail = this.gotEmail.bind(this)
