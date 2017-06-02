@@ -32,10 +32,7 @@ export default class PresaleForm extends React.Component {
     }
 
     componentDidMount() {
-        var that = this;
-        this.unsubscribe = PaymentStore.listen(function onStatusChange(status) {
-            that.changeAmount(status);
-        });
+        this.unsubscribe = PaymentStore.listen( status => this.changeAmount(status));
     }
     componentWillUnmount() {
         this.unsubscribe();
@@ -121,46 +118,48 @@ export default class PresaleForm extends React.Component {
         return (
           <form name="presaleForm" onSubmit={this.addFunds.bind(this)}>
 
-            {this.state.stage == 0 && <div className="well enable-comment">
-              <h4>Get your first crypto currency wallet!</h4>
-              <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No control, ID or verification will be required of you.</p>
-              <br />
-              <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-ok-sign"></span>Create wallet</a>
-            </div>}
+              {this.state.stage == 0 && <div className="well enable-comment">
+                  <h4>Get your first crypto currency wallet!</h4>
+                  <p>Press "Create Wallet" to get your first crypto-wallet that will open a door into the world of financial independence. No control, ID or verification will be required of you.</p>
+                  <br />
+                  <a className="btn btn-sm btn-success" onClick={()=>this.showCaptcha()}><span className="glyphicon glyphicon-ok-sign"></span>Create wallet</a>
+              </div>}
 
-            {this.state.stage == 1 && <div className="col-xs-12" >
-              <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
-              <div id="googleRecaptcha" className="g-recaptcha"></div>
-            </div>}
+              {this.state.stage == 1 && <div className="col-xs-12" >
+                  <div className="col-xs-12 col-sm-3 col-md-3 col-lg-2"><label className="control-label">Prove you're not a robot</label></div>
+                  <div id="googleRecaptcha" className="g-recaptcha"></div>
+                </div>}
 
-            {this.state.showWallet ? <div className="col-xs-12" >
-              <CreateWallet saveCB={this.gotAddr.bind(this)}/>
-            </div> : "" }
+              {this.state.showWallet ? <div className="col-xs-12" >
+                    <CreateWallet saveCB={this.gotAddr.bind(this)}/>
+                </div> : "" }
 
-            { this.state.payment_data ? <PaymentData
-              amount= {this.state.payment_data.amount / SATOSHI}
-              adress= {this.state.payment_data.adress}
-                                        /> : '' }
+              { this.state.payment_data ? <PaymentData
+                  amount= {this.state.payment_data.amount / SATOSHI}
+                  adress= {this.state.payment_data.adress}
+                  /> : '' }
 
 
-            {this.state.showPaymentCredentials ?
-              <div className="form-horizontal col-xs-12">
-                <div className="callout">
-                  <h5>Enter your email and desired amount</h5>
-                  <p></p>
-                </div>
-                <br />
-                <EmailEntry gotMail={this.gotEmail.bind(this)} />
-                <Amount exchangeRate={ this.props.exchangeRate } />
-                <br />
-                <div className="col-xs-12">
-                  <div className="pull-right">
-                    <button className="btn btn-success" >
-                      <span className="glyphicon glyphicon-thumbs-up"></span>Continue
-                    </button>
-                  </div>
-                </div>
-              </div> : ""}
+              {this.state.showPaymentCredentials ?
+                  <div className="form-horizontal col-xs-12">
+                      <div className="callout">
+                          <h5>Enter your email and desired amount</h5>
+                          <p></p>
+                      </div>
+                      <br />
+                  <EmailEntry gotMail={this.gotEmail.bind(this)} />
+                      <Amount exchangeRate={ this.props.exchangeRate } />
+                      <br />
+                      <div className="col-xs-12">
+                            <div className="pull-right">
+                                <button className="btn btn-success" >
+                                    <span className="glyphicon glyphicon-thumbs-up"></span>Continue
+                                </button>
+                            </div>
+                      </div>
+               </div> : ""}
+
+
             </form>
         );
     }
@@ -169,3 +168,4 @@ PresaleForm.propTypes = {
     loginUrl: React.PropTypes.string.isRequired,
     exchangeRate: React.PropTypes.object
 };
+
