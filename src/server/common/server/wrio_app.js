@@ -16,6 +16,7 @@ export default function init_cors (app) {
 
         //console.log(request);
         let origin = request.get('origin');
+        if (origin == undefined) origin = "";
         let workDomain = nconf.get("server:workdomain");
 
         if (CORSDomainMatch(origin,workDomain)) {
