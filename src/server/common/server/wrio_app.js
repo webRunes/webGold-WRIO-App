@@ -20,7 +20,7 @@ export default function init_cors (app) {
         let workDomain = nconf.get("server:workdomain");
 
         if (CORSDomainMatch(origin,workDomain)) {
-            response.setHeader('Access-Control-Allow-Origin', host);
+            response.setHeader('Access-Control-Allow-Origin', origin);
             logger.log("debug","Allowing CORS for webrunes domains");
         } else {
             logger.log("debug",'host not match');
