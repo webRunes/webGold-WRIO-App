@@ -1,13 +1,13 @@
 
 
-import logger from 'winston';
+const logger = require('winston');
 
 var _ = require('underscore');
 var Tx = require('ethereumjs-tx');
 var BigNumber = require('bignumber.js');
 var JSZip = require("jszip");
 var crypto = require('crypto');
-import CryptoJS from 'crypto-js';
+const CryptoJS = require('crypto-js');
 
 var window = {};
 
@@ -21,7 +21,7 @@ var window = {};
  @return {String} The padded or formatted string for use as a hex string
  **/
 
-export function formatHex(str) {
+function formatHex(str) {
     return '0x'+ (String(str).length % 2 ? '0' + String(str) : String(str));
 }
 
@@ -33,7 +33,7 @@ export function formatHex(str) {
  @return {String} The padded, toString hex value of the number
  **/
 
-export function formatNumber(num) {
+function formatNumber(num) {
     if (_.isUndefined(num) || num == 0) num = '00';
 
     if (_.isString(num) || _.isNumber(num)) num = new BigNumber(String(num));
@@ -52,7 +52,7 @@ export function formatNumber(num) {
  @return {String} The prepaired ethereum address
  **/
 
-export function formatAddress(addr, format) {
+function formatAddress(addr, format) {
     if (_.isUndefined(format) || !_.isString(format)) format = 'hex';
 
     if (_.isUndefined(addr) || !_.isString(addr)) addr = '0000000000000000000000000000000000000000';
@@ -72,7 +72,7 @@ export function formatAddress(addr, format) {
  @return {String} A 16 char/UTF-8 byte string of random alpha-numeric characters
  **/
 
-export function randomBytes(length) {
+function randomBytes(length) {
     var charset = "abcdef0123456789";
     var i;
     var result = "";
@@ -92,7 +92,7 @@ export function randomBytes(length) {
  @method (isBigNumber)
  **/
 
-export function isBigNumber(value) {
+function isBigNumber(value) {
     if (_.isUndefined(value) || !_.isObject(value)) return false;
 
     return value instanceof BigNumber ? true : false;
@@ -106,7 +106,7 @@ export function isBigNumber(value) {
  * @return {Boolean}
  **/
 
-export function isAddress(address) {
+function isAddress(address) {
     return (/^(0x)?[0-9a-f]{40}$/.test(address)
     );
 };
@@ -121,3 +121,12 @@ export function isAddress(address) {
  @method (Accounts)
  @param {Object} options       The accounts object options.
  **/
+
+module.exports = {
+    formatHex,
+    formatNumber,
+    isAddress,
+    isBigNumber,
+    randomBytes,
+    formatAddress
+};

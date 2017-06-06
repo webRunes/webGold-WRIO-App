@@ -2,13 +2,13 @@
  * Created by michbil on 27.10.16.
  */
 
-import fs from 'fs';
-import path from 'path';
-import logger from 'winston';
-import nconf from 'nconf';
-import Web3 from 'web3'; var web3 = new Web3();
-import promisify from '../utils/promisify.js';
-import NonceTracker from '../models/noncetracker.js';
+const fs = require('fs');
+const path = require('path');
+const logger = require('winston');
+const nconf = require('nconf');
+const Web3 = require('web3'); var web3 = new Web3();
+const promisify = require('../utils/promisify.js');
+const NonceTracker = require('../models/noncetracker.js');
 
 const COMPILER_VER = "v0.4.8+commit.60cc1668";
 
@@ -208,4 +208,4 @@ class EthereumContract {
 
 
 }
-export default EthereumContract;
+module.exports = EthereumContract;

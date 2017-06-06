@@ -10,6 +10,7 @@ var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
 var util = require('gulp-util');
 var webpack = require('webpack');
+const {dumpError} = require('wriocommon').utils;
 
 function restart_nodemon () {
     if (nodemon_instance) {
@@ -57,28 +58,6 @@ gulp.task('lint', function () {
 
 
 
-gulp.task('babel-server-transpile', function() {
-    return gulp.src(['src/index.js','src/constant.js','src/currency.js'])
-        .on('error', function(err) {
-            console.log('Babel server:', err.toString());
-        })
-        .pipe(babel())
-        .pipe(gulp.dest('app'))
-        .on('end',function (){
-            gulp.src('src/server/**/*.*')
-                .on('error', function(err) {
-                    console.log('Babel server:', err.toString());
-                })
-                .pipe(babel())
-                .pipe(gulp.dest('app/server'))
-                .on('end',function() {
-                    restart_nodemon();
-                });
-        });
-});
-
-
-gulp.task('babel-server', ['babel-server-transpile']);
 gulp.task('babel-client',function(callback) {
     gulp.src('src/client/js/3rdparty/*.*')
         .on('error',function (err) {
@@ -103,11 +82,6 @@ gulp.task('babel-client',function(callback) {
 
 });
 
-gulp.task('views', function() {
-    return gulp.src('src/client/views/**/*.*')
-        .pipe(gulp.dest('app/client/views'));
-});
-
 
 var nodemon_instance;
 
@@ -128,24 +102,9 @@ gulp.task('nodemon', function() {
 
 });
 
-gulp.task('default', ['babel-server-transpile', 'views']);
+gulp.task('default', []);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
-    gulp.watch(['src/index.js', 'src/server/**/*.*'], ['babel-server-transpile']);
-    gulp.watch('src/client/views/**/*.*', ['views']);
+    gulp.watch(['src/index.js', 'src/server/**/*.*'],restart_nodemon);
 });
 
-
-function dumpError(err) {
-    if (!err) return;
-    if (typeof err === 'object') {
-        if (err.message) {
-            console.log('\nMessage: ' + err.message);
-        }
-        if (err.stack) {
-            console.log('\nStacktrace:');
-            console.log('====================');
-            console.log(err.stack);
-        }
-    }
-}

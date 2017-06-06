@@ -1,9 +1,9 @@
-import KeyStore from '../src/client/js/crypto/keystore';
-import assert from 'assert';
-import should from 'should';
-import {expect} from 'chai';
-import lightwallet from 'eth-lightwallet'
-import {UnSignTransaction} from '../src/server/ethereum/DonateProcessor';
+const KeyStore = require('../src/client/js/crypto/keystore');
+const assert = require('assert');
+const should = require('should');
+const {expect} = require('chai');
+const lightwallet = require('eth-lightwallet')
+const {UnSignTransaction} = require('../src/server/ethereum/DonateProcessor');
 
 
 const SAMPLETX = 'f86a03850df8475800830651cf9497538850ad45948d983a66c3bb26e39b0b00603a80b844e69d849d000000000000000000000000f3ac2c9940735f4cee1fd46581573d1b4a5b41ae000000000000000000000000000000000000000000000000000000000000044c1c8080';

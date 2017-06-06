@@ -1,16 +1,17 @@
-import request from 'superagent';
-import nconf from '../utils/wrio_nconf';
-import uuid from 'node-uuid';
-import {utils} from '../common'; const dumpError = utils.dumpError;
-import WebGold from '../ethereum/ethereum';
-import {db as dbMod} from '../common/';var db = dbMod.db;
-import Invoice from '../models/invoice.js';
-import Presale from '../models/presale.js';
-import User from '../models/wriouser.js';
-import RateGetter from './RateGetter.js';
-import CurrencyConverter from '../../currency.js';
-import logger from 'winston';
-import PresaleEtherscan from './etherscan.js';
+const request = require('superagent');
+const nconf = require('../utils/wrio_nconf');
+const uuid = require('node-uuid');
+const {dumpError} = require('wriocommon').utils;
+const WebGold = require('../ethereum/ethereum');
+const db = require('wriocommon').db.getInstance();
+const Invoice = require('../models/invoice.js');
+const Presale = require('../models/presale.js');
+const User = require('../models/wriouser.js');
+const RateGetter = require('./RateGetter.js');
+const CurrencyConverter = require('../../currency.js');
+const logger = require('winston');
+const PresaleEtherscan = require('./etherscan.js');
+const {ObjectID}  = require('mongodb');
 
 
 
@@ -19,12 +20,12 @@ const isInTest = typeof global.it === 'function';
 
 /* Blockchain.info client for bitcoin payments */
 
-export default class BlockChainApi {
+class BlockChainApi {
     constructor(options) {
         logger.silly("Creating blockchain object");
         this.key = nconf.get("payment:blockchain_v2:key");
         this.xpub = nconf.get("payment:blockchain_v2:xpub");
-        this.payments = db.db.collection('webGold_invoices');
+        this.payments = db.collection('webGold_invoices');
         this.secret = nconf.get("payment:blockchain_v2:secret");
 
         if (!this.key || !this.xpub || !this.secret) {
@@ -32,8 +33,7 @@ export default class BlockChainApi {
         }
 
 
-        this.payments = db.db.collection('webGold_invoices');
-        this.webgold = new WebGold(db.db);
+        this.webgold = new WebGold();
         this.get_rates().then((res)=>{
             logger.info("Got current rates from blockhain API",res.toString());
         });
@@ -43,7 +43,7 @@ export default class BlockChainApi {
     getInvoices(userID) {
         logger.verbose("Getting invoice list"); //   wrioID: userID
         return new Promise((resolve,reject) => {
-            this.payments.find({userID:db.ObjectID(userID)}).toArray((err,res) => {
+            this.payments.find({userID:ObjectID(userID)}).toArray((err,res) => {
 
                 if (err) {
                     reject();
@@ -245,3 +245,4 @@ export default class BlockChainApi {
     }
 }
 
+module.exports = BlockChainApi;

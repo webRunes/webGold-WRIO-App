@@ -1,12 +1,12 @@
-FROM mhart/alpine-node:6
+FROM mhart/alpine-node:7
 MAINTAINER denso.ffff@gmail.com
 
 RUN apk add --no-cache make gcc g++ python git openssl openssl-dev
-RUN npm install -g gulp ethereumjs-testrpc
+RUN npm install -g gulp yarn
 
 #COPY yarn.lock /srv/yarn.lock
 COPY package.json /srv/package.json
-RUN cd /srv/ && npm install
+RUN cd /srv/ && yarn
 COPY . /srv/www/
 
 RUN cd /srv && ./node_modules/.bin/babel ./node_modules/ethereumjs-tx --source-root ./node_modules/ethereumjs-tx  -d ./node_modules/ethereumjs-tx --presets=es2015 #https://github.com/ethereumjs/ethereumjs-tx/issues/59

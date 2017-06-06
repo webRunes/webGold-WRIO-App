@@ -1,9 +1,9 @@
-import WebGold from "../src/server/ethereum.js";
-import fs from 'fs';
-import {db as dbMod} from '../src/server/common';var db = dbMod.db;
-import {dumpError} from '../src/server/utils.js';
-import Tx from 'ethereumjs-tx';
-import {TransactionSigner} from '../src/server/DonateProcessor.js';
+const WebGold = require('../src/server/ethereum.js');
+const fs = require('fs');
+const db = require('wriocommon').db.getInstance();
+const {dumpError} = require('wriocommon').utils;
+const Tx = require('ethereumjs-tx');
+const {TransactionSigner} = require('../src/server/DonateProcessor.js');
 
 
 class WebGoldDeploy extends WebGold {

@@ -1,28 +1,11 @@
-import {expect} from 'chai';
-import User from '../src/client/js/components/User/index';
-import jsdom from 'jsdom';
+const {expect} = require('chai');
+const User = require('../src/client/js/components/User/index');
+const jsdom = require('jsdom');
 
-var FAKE_DOM_HTML = `
-<html>
-<body>
-</body>
-</html>
-`;
+require('./fakeDom');
 
-function setupFakeDOM() {
-    if (typeof document !== 'undefined') {
-        return;
-    }
-
-    global.document = jsdom.jsdom(FAKE_DOM_HTML);
-    global.window = document.defaultView;
-    global.navigator = window.navigator;
-}
-
-setupFakeDOM();
-
-import React from 'react';
-import {renderIntoDocument, Simulate} from 'react-addons-test-utils';
+const React = require('react');
+const {renderIntoDocument, Simulate} = require('react-addons-test-utils');
 
 const TEST_DATA = {
     username: 'test',

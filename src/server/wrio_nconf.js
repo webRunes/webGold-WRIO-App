@@ -1,5 +1,5 @@
-import path from 'path';
-import nconf from 'nconf';
+const path = require('path');
+const nconf = require('nconf');
 
 nconf.env().argv();
 

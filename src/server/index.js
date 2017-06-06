@@ -1,27 +1,23 @@
-import express from 'express';
-import nconf from './utils/wrio_nconf.js';
-import path from 'path';
-import {utils} from './common'; const dumpError = utils.dumpError;
-import BlockChain from './api/blockchainApi.js';
-import {login as loginImp} from './common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
-import {ObjectID} from 'mongodb'
-import WebGold from './ethereum/ethereum';
-import BigNumber from 'bignumber.js';
-import session from 'express-session';
-import cookieParser from 'cookie-parser';
-import MongoStore from 'connect-mongo';
-import logger from 'winston';
-import Const from '../constant.js';
-import Donations from './models/donations.js';
-import ejs from 'ejs';
-import util from 'util';
+const express = require('express');
+const nconf = require('./utils/wrio_nconf.js');
+const path = require('path');
+const {dumpError} = require('wriocommon').utils;
+const {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,restOnly,wrioAuth} = require('wriocommon').login;
+const {ObjectID} = require('mongodb');
+const BigNumber = require('bignumber.js');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const MongoStore = require('connect-mongo');
+const logger = require('winston');
+const Const = require('../constant.js');
 
-//import setupIO from './notifications.js';
-import {server,db,login} from './common';
-import BlockChainRoute from './routes/blockchain.info.js';
-import EthereumRoute from './routes/ethereum-route';
-import UserStatsRoute from './routes/user-stats.js';
-import CurrencyConverter from '../currency.js';
+
+const ejs = require('ejs');
+const util = require('util');
+
+//const setupIO = require('./notifications.js');
+const {server,db,login} = require('wriocommon');
+const CurrencyConverter = require('../currency.js');
 const converter = new CurrencyConverter();
 
 logger.level = 'debug';
@@ -39,7 +35,7 @@ async function init_serv() {
         return app;
     } catch (e) {
         console.log("Caught error during server init");
-        utils.dumpError(e);
+        dumpError(e);
         throw(e);
     }
 }
@@ -67,6 +63,10 @@ const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 function setup_server(db) {
 
+    const Donations = require('./models/donations.js');
+    const WebGold = require('./ethereum/ethereum');
+    const BlockChain = require('./api/blockchainApi.js');
+
     //For app pages
     app.set('view engine', 'ejs');
     app.set('views',path.resolve(__dirname, '../client/views/'));
@@ -87,6 +87,12 @@ function setup_server(db) {
 
 }
 function setup_routes(db) {
+
+    const BlockChainRoute = require('./routes/blockchain.info.js');
+    const EthereumRoute = require('./routes/ethereum-route');
+    const UserStatsRoute = require('./routes/user-stats.js');
+
+
     /*app.get('/', function (request, response) {
         response.sendFile(__dirname + '/hub/index.html');
     });*/
@@ -173,7 +179,7 @@ function setup_routes(db) {
                 });
             }
         } catch(e) {
-            utils.dumpError(e);
+            dumpError(e);
             response.json({
                 username: null,
                 loginUrl: loginUrl,
@@ -243,4 +249,4 @@ function setup_routes(db) {
 
 }
 
-export default init_serv;
+module.exports = init_serv;

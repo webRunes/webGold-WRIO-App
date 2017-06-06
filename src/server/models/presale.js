@@ -1,13 +1,14 @@
-import {db as dbMod} from '../common';var db = dbMod.db;
-import uuid from 'node-uuid';
-import logger from 'winston';
+const db = require('wriocommon').db.getInstance;
+const {dumpError} = require('wriocommon').utils;
+const uuid = require('node-uuid');
+const logger = require('winston');
 
-export default class Presale {
+class Presale {
 
     constructor () {
         this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
         this.invoice_id = null;
-        this.payments = db.db.collection('webGold_presales');
+        this.payments = db().collection('webGold_presales');
     }
 
     createPresale(email,ethAddr) {
@@ -111,9 +112,8 @@ export default class Presale {
 
         return new Promise((resolve,reject) => {
 
-                //logger.debug(db.db);
 
-                if (db.db.s.databaseName != "webrunes_test") {
+                if (db().s.databaseName != "webrunes_test") {
                     return reject("Wipe can be made only on test db");
                 }
                 this.payments.remove({},(err) => {
@@ -128,3 +128,4 @@ export default class Presale {
     }
 
 }
+module.exports = Presale;

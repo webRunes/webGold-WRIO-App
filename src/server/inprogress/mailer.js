@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import nconf from '../utils/wrio_nconf';
+const nodemailer = require('nodemailer');
+const nconf = require('../utils/wrio_nconf');
 
 
 var encodedMail = new Buffer(   "Content-Type: text/plain; charset=\"UTF-8\"\n" +     "MIME-Version: 1.0\n" +     "Content-Transfer-Encoding: 7bit\n" +    "to: denso.ffff@gmail.com\n" +     "from: info@webrunes.com\n" + "subject: Subject Text\n\n" + "The actual message text goes here").toString("base64").replace(/\+/g, '-').replace(/\//g, '_');

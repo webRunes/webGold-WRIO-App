@@ -2,17 +2,17 @@
  * Created by michbil on 03.10.15.
  */
 
-import {db as dbMod} from '../common';var db = dbMod.db;
-import uuid from 'node-uuid';
-import logger from 'winston';
+const db = require('wriocommon').db.getInstance;
+const uuid = require('node-uuid');
+const logger = require('winston');
 
-export default class Invoice {
+class Invoice {
 
     constructor () {
 
         this.allowed_states = ['invoice_created', 'request_sent','payment_checking','payment_confirmed'];
         this.invoice_id = null;
-        this.payments = db.db.collection('webGold_invoices');
+        this.payments = db().collection('webGold_invoices');
 
     }
 
@@ -115,10 +115,7 @@ export default class Invoice {
     clearTestDb() {
 
         return new Promise((resolve,reject) => {
-
-                //logger.debug(db.db);
-
-                if (db.db.s.databaseName != "webrunes_test") {
+                if (db().s.databaseName != "webrunes_test") {
                     return reject("Wipe can be made only on test db");
                 }
                 this.payments.remove({},(err) => {
@@ -133,3 +130,4 @@ export default class Invoice {
     }
 
 }
+module.exports = Invoice;

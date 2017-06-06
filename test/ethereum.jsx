@@ -1,13 +1,13 @@
-import WebGold from '../src/server/ethereum/ethereum.js';
-//import EthereumContract from '../src/server/ethereum/EthereumContract.js';
-import {db as dbMod} from '../src/server/common';var db = dbMod.db;
-import {utils} from '../src/server/common'; const dumpError = utils.dumpError;
-import BigNumber from 'bignumber.js';
-import Const from '../src/constant.js';
-import {expect} from 'chai';
-import nconf from 'nconf';
-import CurrencyConverter from '../src/currency.js';
-import fs from 'fs';
+const WebGold = require('../src/server/ethereum/ethereum.js');
+//const EthereumContract = require('../src/server/ethereum/EthereumContract.js');
+const db = require('wriocommon').db.getInstance();
+const {utils} = require('../src/server/common'); const dumpError = utils.dumpError;
+const BigNumber = require('bignumber.js');
+const Const = require('../src/constant.js');
+const {expect} = require('chai');
+const nconf = require('nconf');
+const CurrencyConverter = require('../src/currency.js');
+const fs = require('fs');
 const masterAccount = nconf.get("payment:ethereum:masterAdr");
 const testAccounts = ["0x64b1ca6c22567bdbae74cab3a694d48c7a6b4789",
     "0xf6b20e61a7ae9e4390e9ec34f8322b5287c3cc5a",
@@ -117,7 +117,7 @@ describe("Blockchain unit tests", () => {
 
     before(async() => {
         db = await dbMod.init();
-        wg = new WebGold(db);
+        wg = new WebGold();
         converter = new CurrencyConverter(30);
     });
 

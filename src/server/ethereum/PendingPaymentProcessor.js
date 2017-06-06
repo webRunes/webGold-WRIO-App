@@ -2,22 +2,21 @@
  * Created by michbil on 16.02.16.
  */
 
-import {Promise} from 'es6-promise';
-import {utils} from '../common'; const dumpError = utils.dumpError;
-import {db as dbMod} from '../common';var db = dbMod.db;
-import fs from 'fs';
-import path from 'path';
-import nconf from '../utils/wrio_nconf';
-import BigNumber from 'bignumber.js';
-import WebRunesUsers from '../models/wriouser';
-import Emissions from '../models/emissions.js';
-import Donation from '../models/donations.js';
-import logger from 'winston';
-import DonateProcessor from "./DonateProcessor.js";
+const {Promise} = require('es6-promise');
+const {dumpError} = require('wriocommon').utils;
+const fs = require('fs');
+const path = require('path');
+const nconf = require('../utils/wrio_nconf');
+const BigNumber = require('bignumber.js');
+const WebRunesUsers = require('../models/wriouser');
+const Emissions = require('../models/emissions.js');
+const Donation = require('../models/donations.js');
+const logger = require('winston');
+const {DonateProcessor} = require('./DonateProcessor.js');
 
 var prepaymentProcessLock = {};
 
-export default class PendingPaymentProcessor {
+class PendingPaymentProcessor {
 
     constructor() {
          this.wrioUser = new WebRunesUsers();
@@ -114,3 +113,4 @@ export default class PendingPaymentProcessor {
     }
 
 }
+module.exports = PendingPaymentProcessor;

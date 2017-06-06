@@ -2,25 +2,24 @@
  * Created by michbil on 12.01.17.
  */
 
-import WebGold from '../ethereum/ethereum.js';
-import {formatBlockUrl} from '../utils/utils';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import WebRunesUsers from '../models/wriouser';
-import nconf from '../utils/wrio_nconf';
-import BigNumber from 'bignumber.js';
-import Donations from '../models/donations.js';
-import Emissions from '../models/emissions.js';
-import EtherFeeds from '../models/etherfeed.js';
-import Invoices from "../models/invoice.js";
-import WrioUser from "../models/wriouser.js";
-import util from 'util';
-import {ObjectID} from 'mongodb';
+const WebGold = require('../ethereum/ethereum.js');
+const {formatBlockUrl} = require('../utils/utils');
+const WebRunesUsers = require('../models/wriouser');
+const nconf = require('../utils/wrio_nconf');
+const BigNumber = require('bignumber.js');
+const Donations = require('../models/donations.js');
+const Emissions = require('../models/emissions.js');
+const EtherFeeds = require('../models/etherfeed.js');
+const Invoices = require('../models/invoice.js');
+const WrioUser = require('../models/wriouser.js');
+const util = require('util');
+const {ObjectID} = require('mongodb');
 
-import DonateProcessor from '../ethereum/DonateProcessor.js';
-import {TransactionSigner} from '../ethereum/DonateProcessor.js';
-import Const from '../../constant.js';
-import logger from 'winston';
-import amqplib from 'amqplib';
+const {DonateProcessor} = require('../ethereum/DonateProcessor.js');
+const {TransactionSigner} = require('../ethereum/DonateProcessor.js');
+const Const = require('../../constant.js');
+const logger = require('winston');
+const amqplib = require('amqplib');
 
 let wei = Const.WEI;
 let min_amount = Const.MIN_ETH_AMOUNT; //0.002// ETH, be sure that each ethereum account has this minimal value to have ability to perform one transaction
@@ -42,7 +41,9 @@ queuePromise.then((q)=>{
 
 const formatWRGamount = (amount) => amount / 100;
 
-export const giveaway = async (request,response) => {  // TODO: remove this method
+
+
+const giveaway = async (request,response) => {  // TODO: remove this method
 
     if (nconf.get('server:workdomain') !== '.wrioos.local') {
         logger.error("  ===== LOG FORBIDDEN ACTION DETECTED!!! =====");
@@ -51,12 +52,12 @@ export const giveaway = async (request,response) => {  // TODO: remove this meth
     }
     logger.error("  =====  WARNING: GIVEAWAY CALLED, ONLY FOR DEBUGGING PURPOSES ====  ");
     var user = request.user;
-    var webGold = new WebGold(db.db);
+    var webGold = new WebGold();
     await webGold.giveAwayEther(user.ethereumWallet);
     response.send("Successfully given away");
 };
 
-export const free_wrg = async (request,response) => {  // TODO: remove this method
+const free_wrg = async (request,response) => {  // TODO: remove this method
 
    // setTimeout(async () => { // SAFETY DELAY TO PREVENT MULTIPLE EMISSIONS
         let user = request.user;
@@ -73,7 +74,7 @@ export const free_wrg = async (request,response) => {  // TODO: remove this meth
 
         let amount = 10 * 100; // We can give 10 WRG every hour
 
-        let webGold = new WebGold(db.db);
+        let webGold = new WebGold();
         const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
         const txUrl = formatBlockUrl(txId);
         //response.send(`<html><body>Successfully sent ${formatWRGamount(amount)}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
@@ -87,17 +88,17 @@ export const free_wrg = async (request,response) => {  // TODO: remove this meth
 };
 
 
-export const tx_poll = async (request,response) => {
+const tx_poll = async (request,response) => {
 
         const user = request.user;
         const hash = request.query.txhash; // todo add validation
-        const webGold = new WebGold(db.db);
+        const webGold = new WebGold();
         console.log("Validating hash");
         response.send(await webGold.getTxHashData(hash));
 
 };
 
-export const get_wallet = async(request,response) => {
+const get_wallet = async(request,response) => {
     var user = request.user;
     if (user.ethereumWallet) {
         return response.send(user.ethereumWallet);
@@ -108,7 +109,7 @@ export const get_wallet = async(request,response) => {
 };
 
 
-export const get_user_wallet = async(request,response) => {
+const get_user_wallet = async(request,response) => {
     request.checkQuery('wrioID', 'Invalid wrio id').isInt();
     let result = await request.getValidationResult();
 
@@ -127,7 +128,7 @@ export const get_user_wallet = async(request,response) => {
 
 };
 
-export const save_wallet = async(request,response) => {
+const save_wallet = async(request,response) => {
     let wallet = request.query.wallet;
 
     if (!wallet) { // TODO: validate vallet there
@@ -158,7 +159,7 @@ export const save_wallet = async(request,response) => {
  *
  */
 
-export const sign_tx = async (request,response) => {
+const sign_tx = async (request,response) => {
 
     request.checkQuery('tx', 'Invalid TX').isHexadecimal();
     request.checkQuery('id', 'Invalid transaction id').isHexadecimal();
@@ -204,7 +205,7 @@ export const sign_tx = async (request,response) => {
 
  */
 
-export const donate = async (request, response) => {
+const donate = async (request, response) => {
     var to = request.query.to;
     var from = request.query.from;
     var amount = request.query.amount;
@@ -219,7 +220,7 @@ export const donate = async (request, response) => {
 
 };
 
-export const get_balance = async (request,response) => {
+const get_balance = async (request,response) => {
 
     const user = request.user;
 
@@ -233,7 +234,7 @@ export const get_balance = async (request,response) => {
     }
     logger.debug("balance from db:", dbBalance);
 
-    const webGold = new WebGold(db.db);
+    const webGold = new WebGold();
     const dest = await webGold.getEthereumAccountForWrioID(user.wrioID);
     let [rtx,balance] = await Promise.all([webGold.getRtxBalance(dest), webGold.getBalance(dest)]);
     balance = balance / 100;
@@ -256,6 +257,19 @@ export const get_balance = async (request,response) => {
 
 };
 
-export const get_exchange_rate = async (request,response) => {
+const get_exchange_rate = async (request,response) => {
     response.send("10");
+};
+
+module.exports = {
+    giveaway,
+    free_wrg,
+    tx_poll,
+    get_wallet,
+    get_user_wallet,
+    save_wallet,
+    sign_tx,
+    donate,
+    get_balance,
+    get_exchange_rate
 };

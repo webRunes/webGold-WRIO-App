@@ -1,6 +1,6 @@
-import nodemailer from 'nodemailer';
-import logger from 'winston';
-import nconf from '../utils/wrio_nconf.js';
+const nodemailer = require('nodemailer');
+const logger = require('winston');
+const nconf = require('../utils/wrio_nconf.js');
 
 var transporter = nodemailer.createTransport({
     host: nconf.get('mail:host'),
@@ -28,4 +28,6 @@ export function sendEmail(options) {
     });
 }
 
-export default transporter;
+module.exports = {
+    transporter,sendEmail
+};

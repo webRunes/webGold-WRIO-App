@@ -3,13 +3,14 @@
  * Created by michbil on 26.09.15.
  */
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import uuid from 'node-uuid';
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
+const {dumpError} = require('wriocommon').utils;
+const uuid = require('node-uuid');
 
 class WebRunesUsers {
     constructor() {
-        this.users = db.db.collection('webRunes_Users');
+        this.users = db().collection('webRunes_Users');
     }
 
     getByWrioID(wrioID) {
@@ -194,7 +195,7 @@ class WebRunesUsers {
 
               //  logger.debug(db);
 
-            if (db.db.s.databaseName != "webrunes_test") {
+            if (db().s.databaseName != "webrunes_test") {
                 return reject("Wipe can be made only on test db");
             }
             this.users.remove({},(err) => {
@@ -210,4 +211,4 @@ class WebRunesUsers {
 
 }
 
-export default WebRunesUsers;
+module.exports =  WebRunesUsers;

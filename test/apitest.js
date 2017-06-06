@@ -2,7 +2,7 @@ var request = require('supertest');
 var assert = require('assert');
 var should = require('should');
 
-import init_serv from "../src/server/index.js";
+const init_serv = require('../src/server/index.js');
 
 
 var app;
