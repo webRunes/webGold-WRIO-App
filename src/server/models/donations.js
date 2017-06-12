@@ -4,13 +4,13 @@
 // Donations made by users
 
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
 
-export default class Donations {
+class Donations {
 
     constructor () {
-        this.widgets = db.db.collection('webGold_Donations');
+        this.widgets = db().collection('webGold_Donations');
         this.record_id = null;
     }
 
@@ -50,3 +50,4 @@ export default class Donations {
 
 
 }
+module.exports = Donations;

@@ -2,9 +2,9 @@
  * Created by michbil on 13.09.15.
  */
 
-import logger from 'winston';
+const logger = require('winston');
 
-export function calc_percent(wrg) {
+function calc_percent(wrg) {
     var p;
     if (wrg === 0) {
         p = 1;
@@ -17,6 +17,7 @@ export function calc_percent(wrg) {
 
 }
 
-export function formatBlockUrl(block) {
+function formatBlockUrl(block) {
     return 'https://ropsten.etherscan.io/tx/'+block;
 }
+module.exports = {calc_percent,formatBlockUrl};

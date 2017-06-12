@@ -4,14 +4,14 @@
 // Donations made by users
 // TODO: switch to mongo promised API
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import {utils} from '../common'; const dumpError = utils.dumpError;
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
+const {dumpError} = require('wriocommon').utils;
 
-export default class Emissions {
+class Emissions {
 
     constructor () {
-        this.widgets = db.db.collection('webGold_Emission');
+        this.widgets = db().collection('webGold_Emission');
     }
 
     create(userID,amount) {
@@ -78,3 +78,4 @@ export default class Emissions {
     }
 
 }
+module.exports = Emissions;

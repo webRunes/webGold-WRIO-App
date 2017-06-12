@@ -14,27 +14,10 @@
         "max-len": [1, 1110, 4],
         "vars-on-top": 0,
         "guard-for-in": 1,
-        "jsx-quotes": [2, "prefer-double"],
-        "react/jsx-no-undef": 2,
-        "react/jsx-sort-props": 0,
-        "react/jsx-uses-react": 1,
-        "react/jsx-uses-vars": 1,
-        "react/no-did-mount-set-state": 0,
-        "react/no-did-update-set-state": 2,
-        "react/no-multi-comp": 0,
-        "react/no-unknown-property": 1,
-        "react/prop-types": 2,
-        "react/react-in-jsx-scope": 1,
-        "react/self-closing-comp": 1,
-        "react/wrap-multilines": 2,
-        "ideal/vars-with-default": 0,
-        "ideal/vars-on-newline": 0
-    },
-    "ecmaFeatures": {
-        "jsx": true
     },
 
-    "plugins": [ "react", "ideal" ],
+
+    "plugins": [ "ideal" ],
 
     "globals": {
         "require": "true",

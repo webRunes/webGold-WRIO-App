@@ -1,11 +1,10 @@
-import {Router} from 'express';
-import wrioLogin from './wriologin';
-import nconf from '../utils/wrio_nconf';
-import braintree from 'braintree';
-import {sendEmail} from './wrio_mailer.js';
-import {db as dbMod} from './common';var db = dbMod.db;
-import path from 'path';
-import logger from 'winston';
+const {Router} = require('express');
+const wrioLogin = require('./wriologin');
+const nconf = require('../utils/wrio_nconf');
+const braintree = require('braintree');
+const {sendEmail} = require('./wrio_mailer.js');
+const path = require('path');
+const logger = require('winston');
 
 const router = Router();
 
@@ -42,7 +41,7 @@ router.post("/payment-methods", function  (req, res)  {
         var userId = User.userID;
 
         var nonce = req.body.payment_method_nonce;
-        var webRunes_webGold = db.db.collection('webRunes_webGold');
+        var webRunes_webGold = db.collection('webRunes_webGold');
         var amount = parseFloat(req.body.amount);
         if (isNaN(amount) || (amount < 0) || !nonce) {
             res.status(400).send({"error": "bad request"});
@@ -112,7 +111,7 @@ router.post('/add_funds', async (request, response) => {
 });
 
 router.post('/donate', function(request, response) {
-    var webRunes_webGold = db.db.collection('webRunes_webGold');
+    var webRunes_webGold = db.collection('webRunes_webGold');
     wrioLogin.loginWithSessionId(request.sessionID, function(err, User) {
         if (err) {
             logger.error("User not found");
@@ -160,7 +159,7 @@ router.post('/donate', function(request, response) {
 });
 
 router.post('/withdraw', function(request, response) {
-    var webRunes_webGold_withdraw = db.db.collection('webRunes_webGold_withdraw');
+    var webRunes_webGold_withdraw = db.collection('webRunes_webGold_withdraw');
     var ssid = request.sessionID;
     //var query = 'INSERT INTO webRunes_webGold_withdraw (Amount , Added, UserId ) values (?,NOW(),? )';
     //connection.query(query, [request.body.amount, ssid], function(error, result) {

@@ -12,7 +12,7 @@ import {Promise} from 'es6-promise'
 var operate = async (db) => {
 
     try {
-        var webGold = new WebGold(db);
+        var webGold = new WebGold();
 
         console.log(web3.eth.widgets);
 
@@ -33,7 +33,6 @@ var operate = async (db) => {
     } catch (e) {
         console.log("operate error",e);
         dumpError(e);
-
     }
 
 };

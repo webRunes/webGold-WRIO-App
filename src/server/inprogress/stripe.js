@@ -1,10 +1,10 @@
-import {Router} from 'express';
+const {Router} = require('express');
 
-import {login as loginImp} from './common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
-import nconf from '../utils/wrio_nconf';
-import Stripe from 'stripe';
-import {sendEmail} from './wrio_mailer.js';
-import logger from 'winston';
+const {login as loginImp} = require('./common'); let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth} = loginImp;
+const nconf = require('../utils/wrio_nconf');
+const Stripe = require('stripe');
+const {sendEmail} = require('./wrio_mailer.js');
+const logger = require('winston');
 
 const router = Router(); 
 const stripe = Stripe(nconf.get('payment:stripe:secreteKey'));

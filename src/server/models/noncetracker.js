@@ -1,13 +1,13 @@
 // used to track donation numbers
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import {utils} from '../common'; const dumpError = utils.dumpError;
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
+const {dumpError} = require('wriocommon').utils;
 
-export default class NonceTracker {
+class NonceTracker {
 
     constructor () {
-        this.widgets = db.db.collection('webGold_noncetracker');
+        this.widgets = db().collection('webGold_noncetracker');
     }
 
     async create(ethID, nonce) {
@@ -58,3 +58,4 @@ export default class NonceTracker {
     }
 
 }
+module.exports = NonceTracker;
