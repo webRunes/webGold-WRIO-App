@@ -2,7 +2,6 @@ const nconf = require('../src/server/utils/wrio_nconf');
 const request = require('supertest');
 const assert = require('assert');
 const should = require('should');
-const apitest = require('./apitest');
 const {ObjectID}  = require('mongodb');
 
 
@@ -34,7 +33,6 @@ let db,generateFakeSession,clearTestDb;
 describe("Blockchain unit tests", function() {
     before(async () => {
         const init_serv = require('../src/server/index.js');
-        const Invoices = require('../src/server/models/invoice.js');
         const Presale = require('../src/server/models/presale.js');
         const Users = require('../src/server/models/wriouser.js');
         var {generateFakeSession,clearTestDb} = require('./utils/testutils.js');
@@ -68,17 +66,16 @@ describe("Blockchain unit tests", function() {
 
         });
 
-        app.override_session.sid = "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW";
-        await generateFakeSession(user._id);
 
         console.log(invoiceID);
-
     });
-    it ("should fail with blockchain callback with wrong secret", (done) => {
+   it ("should fail with blockchain callback with wrong secret", (done) => {
         request(app)
             .get('/api/blockchain/callback?secret=fffddsdf')
             .expect(403,done);
     });
+
+
 
     it ("should fail with blockchain callback with no nonce",function (done){
         let secret = nconf.get("payment:blockchain_v2:secret");

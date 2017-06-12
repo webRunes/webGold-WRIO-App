@@ -2,7 +2,6 @@
  * Created by michbil on 06.12.15.
  */
 
-const {Promise} = require('es6-promise');
 const db = require('wriocommon').db.getInstance();
 const WebRunesUsers = require('../models/wriouser');
 const Donations = require('../models/donations.js');

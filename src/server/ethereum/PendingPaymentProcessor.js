@@ -2,7 +2,6 @@
  * Created by michbil on 16.02.16.
  */
 
-const {Promise} = require('es6-promise');
 const {dumpError} = require('wriocommon').utils;
 const fs = require('fs');
 const path = require('path');

@@ -7,7 +7,6 @@ const {ObjectID} = require('mongodb');
 const BigNumber = require('bignumber.js');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-const MongoStore = require('connect-mongo');
 const logger = require('winston');
 const Const = require('../constant.js');
 
@@ -63,15 +62,16 @@ const TEMPLATE_PATH = path.resolve(__dirname, '../client/views/');
 
 function setup_server(db) {
 
-    const Donations = require('./models/donations.js');
-    const WebGold = require('./ethereum/ethereum');
-    const BlockChain = require('./api/blockchainApi.js');
+
+
+    const validator = require('express-validator');
+    app.use(validator());
 
     //For app pages
     app.set('view engine', 'ejs');
     app.set('views',path.resolve(__dirname, '../client/views/'));
     //app.use(express.static(path.join(TEMPLATE_PATH, '/')));
-    const DOMAIN = nconf.get("db:workdomain");
+   
 
     app.use((req,res,next)=> {  // stub for unit testing, we can override sessionID, if app.override_session is set
         if (app.override_session.sid) {
@@ -88,29 +88,28 @@ function setup_server(db) {
 }
 function setup_routes(db) {
 
+    const Donations = require('./models/donations.js');
+    const BlockChain = require('./api/blockchainApi.js');
+
     const BlockChainRoute = require('./routes/blockchain.info.js');
     const EthereumRoute = require('./routes/ethereum-route');
     const UserStatsRoute = require('./routes/user-stats.js');
 
-
-    /*app.get('/', function (request, response) {
-        response.sendFile(__dirname + '/hub/index.html');
-    });*/
-    app.get('/coinadmin', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH, '/admin.html'));
+    const DOMAIN = nconf.get("db:workdomain");
+    const staticDomain = {domain: (DOMAIN === '.wrioos.local') ? '//localhost:3033/' : '//wrioos.local/'};
+    
+    app.get('/coinadmin',     (req, res) => res.render('admin.ejs',staticDomain));
+    app.get('/transactions',  (req, res) => res.render('transactions.ejs',staticDomain));
+    app.get('/wrg_faucet',             (req, res) => res.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html')));
+    app.get('/presale',                (req, res) =>   res.render('presale.ejs',staticDomain));
+    app.get('/create_wallet',wrioAuth, (req, res) => {
+        res.render('createwallet.ejs',{
+            domain: staticDomain.domain,
+            wrioID:req.user.wrioID
+        })
     });
 
-    app.get('/transactions', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH,'/webgold-transactions.html'));
-    });
-
-    app.get('/wrg_faucet', function (request, response) {
-        response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
-    });
-
-    app.get('/presale', (request, response) => response.sendFile(path.join(TEMPLATE_PATH, '/presale.html')));
-
-    app.get('/add_funds', function (request, response) {
+    /*app.get('/add_funds', function (request, response) {
         let testnet = nconf.get('payment:ethereum:testnet');
         if (testnet) {
             response.sendFile(path.join(TEMPLATE_PATH,'/get-wrg.html'));
@@ -118,7 +117,7 @@ function setup_routes(db) {
             response.sendFile(path.join(TEMPLATE_PATH, '/index.html'));
         }
 
-    });
+    });*/
 
     app.get('/sign_tx' ,wrioAuth, wrap(async function (request, response) {
 
@@ -140,6 +139,7 @@ function setup_routes(db) {
         console.log("=============================================",d);
 
         response.render('txsigner.ejs', {
+            domain: staticDomain.domain,
             "tx": d.unsignedTX,
             "to":d.destWrioID,
             "amount":d.amount,
@@ -149,11 +149,7 @@ function setup_routes(db) {
 
     }));
 
-    app.get('/create_wallet',wrioAuth, function (request, response) {
-        response.render('createwallet.ejs', {
-            "wrioID":request.user.wrioID,
-        });
-    });
+   
 
 
     app.get('/add_funds_data', wrioAuth, async (request, response) => {
@@ -212,31 +208,9 @@ function setup_routes(db) {
     app.use('/api/user/',UserStatsRoute);
     app.use('/assets', express.static(path.join(__dirname, '../client')));
 
-    function setupDevServer () {
-        const webpack = require('webpack');
-        const webpackDevMiddleware = require('webpack-dev-middleware');
-        let config = require('../../webpack.config');
-        config.output.filename = 'client.js'; //override output filename
-        config.output.path = '/';
-        const compiler = webpack(config);
-
-
-        app.use(webpackDevMiddleware(compiler,{
-            publicPath: "/assets/",
-            stats: {colors: true},
-            watchOptions: {
-                aggregateTimeout: 600,
-                poll: true
-            },
-        }))
-    }
 
     const localdev = nconf.get("db:workdomain") === '.wrioos.local';
     const isInTest = typeof global.it === 'function';
-
-    if (localdev && !isInTest) {
-        setupDevServer();
-    }
 
     app.use('/', express.static(path.join(__dirname, '../../hub')));
 

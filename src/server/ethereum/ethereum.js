@@ -13,7 +13,6 @@ const logger = require('winston');
 const Const = require('../../constant.js');
 const {txutils} = require('eth-lightwallet');
 const {formatHex} = require('./ethutils.js');
-const PendingPaymentProcessor = require('./PendingPaymentProcessor.js');
 const Tx = require('ethereumjs-tx');
 const ethUtil = require('ethereumjs-util');
 const CurrencyConverter = require('../../currency.js');
@@ -65,7 +64,6 @@ class WebGold extends EthereumContract {
         this.token = this.contractInit('THX');
         this.presaleContract = this.contractInit('presale');
         this.users = new WebRunesUsers(db);
-        this.pp = new PendingPaymentProcessor();
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
@@ -85,7 +83,7 @@ class WebGold extends EthereumContract {
             var wrioUsers = new WebRunesUsers();
             var user = await wrioUsers.getByEthereumWallet(receiver);
             logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
-            await this.processPendingPayments(user);
+           // await this.processPendingPayments(user);
 
         } catch (e) {
             logger.error("Processing payment failed",e);
@@ -93,9 +91,9 @@ class WebGold extends EthereumContract {
         }
     }
 
-    async processPendingPayments(user) {
+  /*  async processPendingPayments(user) {
         return await this.pp.process(user,this);
-    }
+    }*/
 
 
 

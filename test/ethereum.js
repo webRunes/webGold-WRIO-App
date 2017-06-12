@@ -1,7 +1,7 @@
+require('../src/server/utils/wrio_nconf');
 const WebGold = require('../src/server/ethereum/ethereum.js');
 //const EthereumContract = require('../src/server/ethereum/EthereumContract.js');
-const db = require('wriocommon').db.getInstance();
-const {utils} = require('../src/server/common'); const dumpError = utils.dumpError;
+const {dumpError} = require('wriocommon').utils;
 const BigNumber = require('bignumber.js');
 const Const = require('../src/constant.js');
 const {expect} = require('chai');
@@ -12,12 +12,12 @@ const masterAccount = nconf.get("payment:ethereum:masterAdr");
 const testAccounts = ["0x64b1ca6c22567bdbae74cab3a694d48c7a6b4789",
     "0xf6b20e61a7ae9e4390e9ec34f8322b5287c3cc5a",
     "0x505ab50296f8220353bd751b7560dc7d369ba1bd"];
+const path = require('path');
 
 const wei = Const.WEI;
 const SATOSHI = Const.SATOSHI;
 
-var db;
-var wg;
+var wg,db;
 var converter;
 
 // cache compiled token sources to speedup development
@@ -29,35 +29,15 @@ const saveToCache = async (code,data) => {
     });
 
 };
-/*
-const cacheToken = (code, callback) => {
-    return new Promise((resolve,reject) => {
-        const cache = db.collection('codeCache');
-        cache.findOne({code}, (err,data) => {
-            //console.log(err,data);
-            if (!err && data) {
-                    console.log("Cache hit!");
-                    resolve(JSON.parse(data.data));
-            } else {
-                console.log("Cache miss");
-                callback(code).then((res) => {
-                    console.log(res);
-                    saveToCache(code, res, (err)=>console.log(err));
-                    resolve(res);
-                }).catch(reject);
-            }
-        });
-    });
-};*/
+
 
 const cacheToken = async (code, callback) =>
 {
     const cache = db.collection('codeCache');
     const data = await cache.findOne({code});
-    console.log("Data",data);
     if (data) {
         console.log("Cache hit!");
-        return resolve(JSON.parse(data.data));
+        return JSON.parse(data.data);
     } else {
         console.log("Cache miss");
         const res = await callback();
@@ -68,12 +48,12 @@ const cacheToken = async (code, callback) =>
 };
 
 
-const compileDeploy = async(name) => {
+const compileDeploy = async(path,name) => {
     const web3 = wg.getWeb3();
     console.log("Compiling...");
-    const file = fs.readFileSync(name).toString();
-    const [abi,code] = await cacheToken(file, async(code) => await wg.compileContract(code));
-    console.log("Deploying...");
+    const contractText = fs.readFileSync(path).toString();
+    const [abi,code] = await cacheToken(contractText, async(code) => await wg.compileContract(contractText,name));
+    console.log("Deploying...",typeof abi);
     return {
         address:await wg.deploy(testAccounts[0], code, abi),
         abi: abi
@@ -92,7 +72,7 @@ const startTestRPC = () => new Promise((resolve,reject)=>{
         secure: true,
         logger: console,
         debug:true,
-        blocktime: "0.5",
+        blocktime: "0.1",
         accounts: [
             {secretKey: "0x4749870d2632ff65dccdd61073e69a2e9f32c757e10efbf584cfe93c1d139f1c", balance: 1000000000},
             {secretKey: "0x51389cd120c059bbfd003e325550eace06c1515cbc6c8c7f8735728a54edfdc4", balance: 0},
@@ -110,32 +90,35 @@ const startTestRPC = () => new Promise((resolve,reject)=>{
     });
 });
 
-//startTestRPC();
 
 
-describe("Blockchain unit tests", () => {
-
+describe("Blockchain unit tests", function () {
+    this.slow(60000);
     before(async() => {
-        db = await dbMod.init();
+        const {init} = require('wriocommon').db;
+        await startTestRPC();
+        db = await init();
         wg = new WebGold();
         converter = new CurrencyConverter(30);
     });
 
     after((done)=> {
-        serverObj.close(()=>console.log("TestRPC shutdown"));
-        done();
+        serverObj.close(()=>{
+            console.log("TestRPC shutdown");
+            done();
+        });
+
     });
 
-    it ('should be able to create contract from the abi using EthereumContract.makeContract function', async(done) => {
+    it ('should be able to create contract from the abi using EthereumContract.makeContract function', async() => {
         const abi = [{"constant":false,"inputs":[],"name":"stopPresale","outputs":[{"name":"ok","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"presaleGoing","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"presaleAmount","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function"},{"constant":true,"inputs":[{"name":"","type":"uint256"}],"name":"entries","outputs":[{"name":"ethID","type":"address"},{"name":"email","type":"string"},{"name":"bitcoinSRC","type":"string"},{"name":"bitcoinDEST","type":"string"},{"name":"satoshis","type":"uint256"},{"name":"centiWRG","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"getPresaleNumber","outputs":[{"name":"length","type":"uint256"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"i","type":"uint256"}],"name":"getPresale","outputs":[{"name":"","type":"string"},{"name":"","type":"address"},{"name":"","type":"uint256"},{"name":"","type":"uint256"},{"name":"","type":"string"},{"name":"","type":"string"}],"payable":false,"type":"function"},{"constant":false,"inputs":[{"name":"mail","type":"string"},{"name":"adr","type":"address"},{"name":"satoshis","type":"uint256"},{"name":"centiWRG","type":"uint256"},{"name":"bitcoinSRC","type":"string"},{"name":"bitcoinDEST","type":"string"}],"name":"makePresale","outputs":[{"name":"sufficient","type":"bool"}],"payable":false,"type":"function"},{"constant":true,"inputs":[],"name":"master","outputs":[{"name":"","type":"address"}],"payable":false,"type":"function"},{"constant":false,"inputs":[],"name":"getAmountLeft","outputs":[{"name":"amount","type":"uint256"}],"payable":false,"type":"function"},{"inputs":[],"type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"name":"sender","type":"string"},{"indexed":false,"name":"satoshis","type":"uint256"}],"name":"presaleMade","type":"event"}];
         const contr = await wg.makeContract(testAccounts[0],abi,'testcontract');
         expect(contr.address).to.equal(testAccounts[0]);
-        done();
     });
 
     it ('should be able to compile THX contract', async(done) => {
         try {
-            const {address,abi} = await compileDeploy('./contract/src/THX.sol');
+            const {address,abi} = await compileDeploy(path.join(__dirname,'../contract/src/THX.sol'),'THX');
             wg.token = await wg.makeContract(address,abi,"tokenTest"); // replace webgold token with wg object
             console.log("Deployed contract at address", address);
 
@@ -163,7 +146,7 @@ describe("Blockchain unit tests", () => {
 
     it ('should be able to compile presale contract', async(done) => {
         try {
-            const Contract = await compileDeploy('./contract/src/presale.sol');
+            const Contract = await compileDeploy(path.join(__dirname,'../contract/src/presale.sol'),'Presale');
             console.log(Contract);
             done();
         } catch(e) {

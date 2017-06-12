@@ -17,7 +17,7 @@ process.stderr._write = stderr_write;
 
 var app;
 
-export async function generateFakeSession(userID) {
+async function generateFakeSession(userID) {
     const db = require('wriocommon').db.getInstance();
     let sessions = db.collection('sessions');
     let item = generateFakeSession(userID);
@@ -29,7 +29,7 @@ export async function generateFakeSession(userID) {
  DON'T use in production environment !!!!
  */
 
-export async function clearTestDb() {
+async function clearTestDb() {
     const db = require('wriocommon').db.getInstance();
     var sessions = db.collection('sessions');
     if (db.s.databaseName != "webrunes_test") {
@@ -90,9 +90,14 @@ var createTestDB = async (app) => {
 };
 
 
-export var dbready = async () => {
+var dbready = async () => {
    app = await init_serv();
    return app
 
 };
 
+module.exports = {
+    dbready,
+    generateFakeSession,
+    clearTestDb
+}

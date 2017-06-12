@@ -53,7 +53,7 @@ class Presale {
 
     updateInvoiceData(invoice_data) {
         var that = this;
-        logger.debug("Updating invoice with data ", invoice_data);
+        logger.debug("Updating presale with data ", invoice_data);
         return new Promise((resolve, reject) =>{
             if (this.invoice_id == null) {
                 reject("wrong invoice_id");

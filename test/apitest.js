@@ -8,6 +8,7 @@ const init_serv = require('../src/server/index.js');
 var app;
 
     describe("API unit tests", function () {
+        this.slow(60000);
         before(async ()=>{
             app = await init_serv();
         });

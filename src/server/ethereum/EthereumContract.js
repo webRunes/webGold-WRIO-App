@@ -164,7 +164,7 @@ class EthereumContract {
     }
 
 
-    compileContract(source) {
+    compileContract(source,contractName) {
         return new Promise((resolve, reject) => {
             const solc = require('solc');
             solc.loadRemoteVersion(COMPILER_VER, async (err, solcSnapshot) => {
@@ -173,7 +173,10 @@ class EthereumContract {
                     reject(err);
                 }
                 let compiledContract = solcSnapshot.compile(source, 1);
-                let abi = compiledContract.contracts[contractName].interface;
+                if (compiledContract.errors) {
+                    return reject(compiledContract.errors)
+                }
+                let abi = JSON.parse(compiledContract.contracts[contractName].interface);
                 let bytecode = compiledContract.contracts[contractName].bytecode;
                 resolve([abi, bytecode]);
             });
@@ -193,6 +196,7 @@ class EthereumContract {
                     gas: 1000000
                 }, (e, contract) => {
                     if(!e) {
+                        console.log(contract);
                         if(!contract.address) {
                             console.log("Contract transaction send: TransactionHash: " + contract.transactionHash + " waiting to be mined...");
                         } else {

@@ -1,15 +1,9 @@
-require('babel-core/register');
-
 var gulp = require('gulp');
-var browserify = require('browserify');
-var babel = require('gulp-babel');
-var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var nodemon = require('gulp-nodemon');
 var mocha = require('gulp-mocha');
 var eslint = require('gulp-eslint');
 var util = require('gulp-util');
-var webpack = require('webpack');
 const {dumpError} = require('wriocommon').utils;
 
 function restart_nodemon () {
@@ -58,31 +52,6 @@ gulp.task('lint', function () {
 
 
 
-gulp.task('babel-client',function(callback) {
-    gulp.src('src/client/js/3rdparty/*.*')
-        .on('error',function (err) {
-            console.log("3rd party copy error",err);
-        })
-        .pipe(gulp.dest('app/client/3rdparty'));
-
-    gulp.src('hub/**/*.*')
-        .on('error',function (err) {
-            console.log("hub copy error",err);
-        })
-        .pipe(gulp.dest('app/hub/'));
-
-    webpack(require('./webpack.config.js'),
-        function(err, stats) {
-            if(err) throw new gutil.PluginError("webpack", err);
-            console.log("[webpack]", stats.toString({
-                // output options
-            }));
-        callback();
-    });
-
-});
-
-
 var nodemon_instance;
 
 gulp.task('nodemon', function() {
@@ -105,6 +74,6 @@ gulp.task('nodemon', function() {
 gulp.task('default', []);
 
 gulp.task('watch', ['default', 'nodemon'], function() {
-    gulp.watch(['src/index.js', 'src/server/**/*.*'],restart_nodemon);
+    gulp.watch(['src/server/**/*.*'],restart_nodemon);
 });
 

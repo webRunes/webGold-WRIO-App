@@ -1,8 +1,7 @@
-
-const KeyStore = require('../src/client/js/crypto/keystore');
 const assert = require('assert');
 const should = require('should');
 const {expect} = require('chai');
+require('../src/server/utils/wrio_nconf');
 const {init} = require('wriocommon').db;
 
 describe('Check db models',() => {

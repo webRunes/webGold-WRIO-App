@@ -239,7 +239,7 @@ class BlockChainApi {
     async presaleMake(invoice) {
         const logPresale = !isInTest ?
             PresaleEtherscan :
-            (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST)=> console.log(wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST);
+            (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST)=> console.log("Emulating presale",mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST);
 
         await logPresale (this.webgold, invoice.email, "0x"+invoice.ethID, invoice.amount, converter.satoshiTomilliWRGUsingPresalePrice(invoice.amount), "notImplemented", invoice.address);
     }

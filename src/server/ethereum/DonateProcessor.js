@@ -1,14 +1,13 @@
 const WebGold = require('./ethereum.js');
 const {dumpError} = require('wriocommon').utils;
 const nconf = require('../utils/wrio_nconf');
-const BigNumber = require('bignumber.js');
 const Donation = require('../models/donations.js');
 const WrioUser = require('../models/wriouser.js');
 const logger = require('winston');
 const {calc_percent} = require('../utils/utils.js');
 const Tx = require('ethereumjs-tx');
 const {bufferToHex} = require('ethereumjs-util');
-const Donations = require('../models/donations.js');
+
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
@@ -32,7 +31,6 @@ class DonateProcessor {
         this.from = from;
         this.amount = parseInt(amount) * 100;
         this.userObj = new WrioUser();
-        console.log ("WG",WebGold);
         this.webGold = new WebGold();
     }
 
