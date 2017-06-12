@@ -2,11 +2,11 @@
  * Created by michbil on 05.10.16.
  */
 
-import io from 'socket.io';
-import nconf from './utils/wrio_nconf';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import {login as loginImp} from './common';
+const io = require('socket.io');
+const nconf = require('./utils/wrio_nconf');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const {login as loginImp} = require('./common');
 let {wrioAuth} = loginImp;
 
 var app = null;

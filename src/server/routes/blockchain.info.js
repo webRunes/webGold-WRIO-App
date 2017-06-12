@@ -1,7 +1,9 @@
-import {Router} from 'express';
-import verifyMiddleware from '../utils/recaptcha.js';
-import {callback_handler, payment_history, request_payment, request_presale, get_gap} from "../controllers/blockchain.info.js";
-import {login as loginImp} from '../common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,wrioAuth,restOnly} = loginImp;
+const {Router} = require('express');
+const verifyMiddleware = require('../utils/recaptcha.js');
+const {callback_handler, payment_history, request_payment, request_presale, get_gap} = require('../controllers/blockchain.info.js');
+const {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap,restOnly,wrioAuth} = require('wriocommon').login;
+const db = require('wriocommon').db.getInstance();
+const {dumpError} = require('wriocommon').utils;
 const router = Router();
 
 const useOnlyInProduction = (middleware) => {
@@ -18,4 +20,4 @@ router.post('/request_presale', restOnly, useOnlyInProduction(verifyMiddleware),
 router.get('/get_gap', restOnly, wrioAdmin, get_gap);
 
 
-export default router;
+module.exports = router;

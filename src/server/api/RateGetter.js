@@ -2,10 +2,10 @@
  * Created by michbil on 16.02.16.
  * Bitcoin rate getter, using blockchain.info
  */
-import request from 'superagent';
-import nconf from '../utils/wrio_nconf';
-import logger from 'winston';
-import BigNumber from 'bignumber.js';
+const request = require('superagent');
+const nconf = require('../utils/wrio_nconf');
+const logger = require('winston');
+const BigNumber = require('bignumber.js');
 
 class RateGetter {
 
@@ -64,4 +64,4 @@ class RateGetter {
 
 }
 var rateGetter = new RateGetter();
-export default rateGetter;
+module.exports = rateGetter;

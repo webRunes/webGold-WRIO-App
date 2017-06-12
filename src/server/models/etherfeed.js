@@ -4,14 +4,14 @@
 // Ether amount, sent to users to perform operations
 
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
 
-export default class EtherFeed {
+class EtherFeed {
 
     constructor () {
 
-        this.widgets = db.db.collection('webGold_EtherFeeds');
+        this.widgets = db().collection('webGold_EtherFeeds');
 
     }
 
@@ -80,3 +80,4 @@ export default class EtherFeed {
     }
 
 }
+module.exports = EtherFeed;

@@ -13,4 +13,4 @@ const promisify = (fn) => (...parameters) => new Promise ((resolve,reject) => {
     })
 });
 
-export default promisify;
+module.exports = promisify;

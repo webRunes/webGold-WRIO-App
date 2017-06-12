@@ -5,22 +5,22 @@
  * Created by michbil on 26.09.15.
  */
 
-import WebGold from '../ethereum/ethereum.js';
-import {Router} from 'express';
-import {login as loginImp} from '../common'; let {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap} = loginImp;
-import {db as dbMod} from '../common';var db = dbMod.db;
+const WebGold = require('../ethereum/ethereum.js');
+const {Router} = require('express');
+const {loginWithSessionId,getLoggedInUser,authS2S,wrioAdmin,wrap} = require('wriocommon').login;
+const {dumpError} = require('wriocommon').utils;
 const router = Router();
-import WebRunesUsers from '../models/wriouser';
-import nconf from '../utils/wrio_nconf';
-import BigNumber from 'bignumber.js';
-import Donations from '../models/donations.js';
-import Emissions from '../models/emissions.js';
-import EtherFeeds from '../models/etherfeed.js';
-import Invoices from "../models/invoice.js";
-import Presales from "../models/presale.js";
-import WrioUser from "../models/wriouser.js";
-import logger from 'winston';
-import Const from '../../constant.js';
+const WebRunesUsers = require('../models/wriouser');
+const nconf = require('../utils/wrio_nconf');
+const BigNumber = require('bignumber.js');
+const Donations = require('../models/donations.js');
+const Emissions = require('../models/emissions.js');
+const EtherFeeds = require('../models/etherfeed.js');
+const Invoices = require('../models/invoice.js');
+const Presales = require('../models/presale.js');
+const WrioUser = require('../models/wriouser.js');
+const logger = require('winston');
+const Const = require('../../constant.js');
 
 
 
@@ -34,7 +34,7 @@ let masterAccount = nconf.get("payment:ethereum:masterAdr");
 
 router.get('/master', wrioAdmin, wrap(async (request,response) => {
     logger.debug("Coinadmin admin detected");
-    let webGold = new WebGold(db.db);
+    let webGold = new WebGold();
     let wrgBalance = await webGold.getBalance(masterAccount);
     let ethBalance = await webGold.getEtherBalance(masterAccount);
     let syncing = await webGold.getBlockSync();
@@ -83,8 +83,8 @@ const formatUserData = (webGold) => async (user) => {
 
 router.get('/users', wrioAdmin, wrap(async (request,response) => {
     logger.debug("Coinadmin admin detected");
-    const webGold = new WebGold(db.db);
-    const wrioUsers = new WebRunesUsers(db.db);
+    const webGold = new WebGold();
+    const wrioUsers = new WebRunesUsers();
     const users = await wrioUsers.getAllUsers({temporary:false});
     const wgUsers = users.
         filter((user) => user.wrioID && user.ethereumWallet).
@@ -129,4 +129,4 @@ router.get('/presales', wrioAdmin, wrap(async (request,response) => {
 }));
 
 
-export default router;
+module.exports = router;

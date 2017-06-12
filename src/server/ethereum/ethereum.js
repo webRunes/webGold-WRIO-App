@@ -1,27 +1,24 @@
-import Web3 from 'web3'; var web3 = new Web3();
-import {Promise} from 'es6-promise';
-import {calc_percent} from '../utils/utils';
-import {dumpError} from '../common/utils/utils';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import fs from 'fs';
-import path from 'path';
-import nconf from '../utils/wrio_nconf';
-import BigNumber from 'bignumber.js';
-import WebRunesUsers from '../models/wriouser';
-import EtherFeed from '../models/etherfeed.js';
-import Emissions from '../models/emissions.js';
-import Donation from '../models/donations.js';
-import logger from 'winston';
-import Const from '../../constant.js';
-import {txutils} from 'eth-lightwallet';
-import {formatHex} from './ethutils.js';
-import PendingPaymentProcessor from './PendingPaymentProcessor.js';
-import Tx from 'ethereumjs-tx';
-import ethUtil from 'ethereumjs-util';
-import CurrencyConverter from '../../currency.js';
-import EthereumContract from './EthereumContract.js';
-import ServerSideSigner from './ServerSideSigner.js';
-import promisify from '../utils/promisify.js';
+const Web3 = require('web3'); var web3 = new Web3();
+const {calc_percent} = require('../utils/utils');
+const {dumpError} = require('wriocommon').utils;
+const fs = require('fs');
+const path = require('path');
+const nconf = require('nconf');
+const BigNumber = require('bignumber.js');
+const WebRunesUsers = require('../models/wriouser');
+const EtherFeed = require('../models/etherfeed.js');
+const Emissions = require('../models/emissions.js');
+const Donation = require('../models/donations.js');
+const logger = require('winston');
+const Const = require('../../constant.js');
+const {txutils} = require('eth-lightwallet');
+const {formatHex} = require('./ethutils.js');
+const Tx = require('ethereumjs-tx');
+const ethUtil = require('ethereumjs-util');
+const CurrencyConverter = require('../../currency.js');
+const EthereumContract = require('./EthereumContract.js');
+const ServerSideSigner = require('./ServerSideSigner.js');
+const promisify = require('../utils/promisify.js');
 
 const converter = new CurrencyConverter();
 const wei = Const.WEI;
@@ -43,7 +40,8 @@ if (!masterKey) {
 var instance = null;
 
 class WebGold extends EthereumContract {
-    constructor(db) {
+    constructor() {
+        const db = require('wriocommon').db.getInstance();
         super(db);
         if (!db) {
             throw  new Error("No db specified");
@@ -58,12 +56,14 @@ class WebGold extends EthereumContract {
 
 
     initWG(db) {
-        const provider = ServerSideSigner(nconf.get('payment:ethereum:host'),nconf.get('payment:ethereum:masterAdr'),nconf.get('payment:ethereum:masterKey'));
+        const provider = ServerSideSigner(
+            nconf.get('payment:ethereum:host'),
+            nconf.get('payment:ethereum:masterAdr'),
+            nconf.get('payment:ethereum:masterKey'));
         this.setProvider(provider);
         this.token = this.contractInit('THX');
         this.presaleContract = this.contractInit('presale');
         this.users = new WebRunesUsers(db);
-        this.pp = new PendingPaymentProcessor();
 
         var event = this.token.CoinTransfer({}, '', async (error, result) => {
             if (error) {
@@ -83,7 +83,7 @@ class WebGold extends EthereumContract {
             var wrioUsers = new WebRunesUsers();
             var user = await wrioUsers.getByEthereumWallet(receiver);
             logger.info("WRG transfer finished, from: "+sender+" to: "+ receiver);
-            await this.processPendingPayments(user);
+           // await this.processPendingPayments(user);
 
         } catch (e) {
             logger.error("Processing payment failed",e);
@@ -91,9 +91,9 @@ class WebGold extends EthereumContract {
         }
     }
 
-    async processPendingPayments(user) {
+  /*  async processPendingPayments(user) {
         return await this.pp.process(user,this);
-    }
+    }*/
 
 
 
@@ -411,9 +411,7 @@ class WebGold extends EthereumContract {
 }
 
 
-
-
-export default WebGold;
+module.exports = WebGold;
 
 
 

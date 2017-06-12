@@ -1,15 +1,13 @@
-import WebGold from './ethereum.js';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import {utils} from '../common'; const dumpError = utils.dumpError;
-import nconf from '../utils/wrio_nconf';
-import BigNumber from 'bignumber.js';
-import Donation from '../models/donations.js';
-import WrioUser from "../models/wriouser.js";
-import logger from 'winston';
-import {calc_percent} from '../utils/utils.js';
-import Tx from 'ethereumjs-tx';
-import {bufferToHex} from 'ethereumjs-util';
-import Donations from '../models/donations.js';
+const WebGold = require('./ethereum.js');
+const {dumpError} = require('wriocommon').utils;
+const nconf = require('../utils/wrio_nconf');
+const Donation = require('../models/donations.js');
+const WrioUser = require('../models/wriouser.js');
+const logger = require('winston');
+const {calc_percent} = require('../utils/utils.js');
+const Tx = require('ethereumjs-tx');
+const {bufferToHex} = require('ethereumjs-util');
+
 
 let MAX_DEBT = -500*100; // maximum allowed user debt to perfrm operations
 
@@ -26,15 +24,14 @@ Donate processor can return 3 states
  */
 
 
-export default class DonateProcessor {
+class DonateProcessor {
 
     constructor(to,from,amount) {
         this.to = to;
         this.from = from;
         this.amount = parseInt(amount) * 100;
         this.userObj = new WrioUser();
-
-        this.webGold = new WebGold(db.db);
+        this.webGold = new WebGold();
     }
 
     async verifyDonateParameters() {
@@ -183,12 +180,12 @@ export default class DonateProcessor {
 
 }
 
-export class TransactionSigner {
+class TransactionSigner {
 
     constructor (signedTx, sourceTx) {
         this.tx = signedTx;
         this.sourceTx = sourceTx
-        this.webGold = new WebGold(db.db);
+        this.webGold = new WebGold();
     }
 
     async compareTxS(signed,source) {
@@ -234,7 +231,7 @@ export class TransactionSigner {
  * @constructor
  */
 
-export function UnSignTransaction (tx) {
+function UnSignTransaction (tx) {
     var tx = new Tx(tx);
     tx.validate();
     tx.v = new Buffer([0x1c]); // refer to https://github.com/ethereumjs/ethereumjs-tx/blob/master/index.js
@@ -243,3 +240,9 @@ export function UnSignTransaction (tx) {
     return bufferToHex(tx.serialize()).replace('0x','');
 
 }
+
+module.exports = {
+    DonateProcessor,
+    TransactionSigner,
+    UnSignTransaction
+};

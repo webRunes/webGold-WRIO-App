@@ -1,8 +1,9 @@
 /**
  * Created by michbil on 25.10.16.
  */
-import BigNumber from 'bignumber.js';
-import Const from './constant.js';
+const BigNumber = require('bignumber.js');
+const Const = require('./constant.js');
+const nconf = require('nconf');
 
 const SATOSHI = Const.SATOSHI;
 
@@ -20,7 +21,6 @@ class CurrencyConverter {
 
     _constructor (grammPrice) {
         if (typeof window === 'undefined') {
-            const nconf = require('./server/utils/wrio_nconf').default;
             const rate = nconf.get('payment:grammPriceUSD');
             this.presalePrice = nconf.get('payment:presaleBTCPrice');
             if (!rate) {
@@ -117,4 +117,4 @@ class CurrencyConverter {
 
 }
 
-export default CurrencyConverter;
+module.exports = CurrencyConverter;

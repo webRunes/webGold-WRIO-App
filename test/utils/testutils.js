@@ -1,13 +1,13 @@
-import nconf from '../../src/server/utils/wrio_nconf';
-import request from 'supertest';
-import assert from 'assert';
-import should from 'should';
+const nconf = require('../../src/server/utils/wrio_nconf');
+const request = require('supertest');
+const assert = require('assert');
+const should = require('should');
 
-import {db as dbMod} from '../../src/server/common';var db = dbMod.db;
-import Invoices from '../../src/server/models/invoice.js'
-import Users from '../../src/server/models/wriouser.js'
-import fixtures from './fixtures.js';
-import init_serv from "../../src/server/index.js";
+const Invoices = require('../../src/server/models/invoice.js');
+const Users = require('../../src/server/models/wriouser.js');
+const fixtures = require('./fixtures.js');
+const init_serv = require('../../src/server/index.js');
+const {ObjectID} = require('mongodb');
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -15,9 +15,11 @@ var stdout_write = process.stdout._write,
 process.stdout._write = stdout_write;
 process.stderr._write = stderr_write;
 
+var app;
 
-export async function generateFakeSession(userID) {
-    let sessions = db.db.collection('sessions');
+async function generateFakeSession(userID) {
+    const db = require('wriocommon').db.getInstance();
+    let sessions = db.collection('sessions');
     let item = generateFakeSession(userID);
     await sessions.insertOne(item)
 }
@@ -27,9 +29,10 @@ export async function generateFakeSession(userID) {
  DON'T use in production environment !!!!
  */
 
-export async function clearTestDb() {
-    var sessions = db.db.collection('sessions');
-    if (db.db.s.databaseName != "webrunes_test") {
+async function clearTestDb() {
+    const db = require('wriocommon').db.getInstance();
+    var sessions = db.collection('sessions');
+    if (db.s.databaseName != "webrunes_test") {
         throw new Error("Wipe can be made only on test db");
     }
     await sessions.remove({});
@@ -63,7 +66,7 @@ var createTestDB = async (app) => {
     await clearTestDb();
 
     var user = await users.create({
-        "_id": db.ObjectID(testObjId),
+        "_id": ObjectID(testObjId),
         "wrioID": testID,
         "titterID": "186910661",
         "lastName": "John Doe",
@@ -87,9 +90,14 @@ var createTestDB = async (app) => {
 };
 
 
-export var dbready = async () => {
+var dbready = async () => {
    app = await init_serv();
    return app
 
 };
 
+module.exports = {
+    dbready,
+    generateFakeSession,
+    clearTestDb
+}

@@ -1,15 +1,9 @@
-import nconf from '../src/server/utils/wrio_nconf';
-import init_serv from "../src/server/index.js";
-import request from 'supertest';
-import assert from 'assert';
-import should from 'should';
+const nconf = require('../src/server/utils/wrio_nconf');
+const request = require('supertest');
+const assert = require('assert');
+const should = require('should');
+const {ObjectID}  = require('mongodb');
 
-import {db as dbMod} from '../src/server/common';var db = dbMod.db;
-import Invoices from '../src/server/models/invoice.js'
-import Presale from '../src/server/models/presale.js'
-import Users from '../src/server/models/wriouser.js'
-import apitest from "./apitest"
-import {generateFakeSession,clearTestDb} from "./utils/testutils.js"
 
 var stdout_write = process.stdout._write,
     stderr_write = process.stderr._write;
@@ -34,10 +28,17 @@ let testID = '1234567890';
 let address = "30450221008949f0cb400094ad2b5eb3";
 let destination = 'b388ab8935022079656090d7f6bac4c9';
 var invoiceID;
+let db,generateFakeSession,clearTestDb;
 
 describe("Blockchain unit tests", function() {
     before(async () => {
-       app = await init_serv();
+        const init_serv = require('../src/server/index.js');
+        const Presale = require('../src/server/models/presale.js');
+        const Users = require('../src/server/models/wriouser.js');
+        var {generateFakeSession,clearTestDb} = require('./utils/testutils.js');
+
+        app = await init_serv();
+        db = require('wriocommon').db.getInstance();
         //var invoice = new Invoices();
         var invoice = new Presale();
         var users = new Users();
@@ -47,7 +48,7 @@ describe("Blockchain unit tests", function() {
         await clearTestDb();
 
         var user = await users.create({
-            "_id": db.ObjectID(testObjId),
+            "_id": ObjectID(testObjId),
             "wrioID": testID,
             "titterID": "186910661",
             "lastName": "John Doe",
@@ -65,17 +66,16 @@ describe("Blockchain unit tests", function() {
 
         });
 
-        app.override_session.sid = "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW";
-        await generateFakeSession(user._id);
 
         console.log(invoiceID);
-
     });
-    it ("should fail with blockchain callback with wrong secret", (done) => {
+   it ("should fail with blockchain callback with wrong secret", (done) => {
         request(app)
             .get('/api/blockchain/callback?secret=fffddsdf')
             .expect(403,done);
     });
+
+
 
     it ("should fail with blockchain callback with no nonce",function (done){
         let secret = nconf.get("payment:blockchain_v2:secret");

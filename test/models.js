@@ -1,16 +1,16 @@
-
-import KeyStore from '../src/client/js/crypto/keystore';
-import assert from 'assert';
-import should from 'should';
-import {expect} from 'chai';
-import noncetracker from '../src/server/models/noncetracker.js';
+const assert = require('assert');
+const should = require('should');
+const {expect} = require('chai');
+require('../src/server/utils/wrio_nconf');
+const {init} = require('wriocommon').db;
 
 describe('Check db models',() => {
 
-    before(()=>{
-    });
 
     it('should generate seed using entropy string',async () => {
+        const noncetracker = require('../src/server/models/noncetracker.js');
+
+        await init();
        let nt = new noncetracker();
        await nt.create('0x12345',0);
        await nt.create('0x12345',1);

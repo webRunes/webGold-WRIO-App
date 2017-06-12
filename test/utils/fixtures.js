@@ -3,7 +3,7 @@
  */
 
 
-export function generateSession(userID) {
+module.exports = function generateSession(userID) {
     return {
         _id: "--QGt2nm4GYtw3a5uIRoFQgmy2-fWvaW",
             expires: new Date(909090909090990),

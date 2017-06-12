@@ -3,8 +3,8 @@
  * Etherscan lightweight API's
  */
 
-import nconf from '../utils/wrio_nconf';
-import request from 'superagent';
+const nconf = require('../utils/wrio_nconf');
+const request = require('superagent');
 
 const net = 'api'; // 'api'
 
@@ -38,8 +38,8 @@ const getGasPrice = async () => {
 };
 
 const masterAccount = nconf.get("payment:ethereum:masterAdr");
-import {db as dbMod} from '../common';var init = dbMod.init;
-import {dumpError} from '../common/utils/utils.js';
+const db = require('wriocommon').db.getInstance();
+const {dumpError} = require('wriocommon').utils;
 const sign = require('ethjs-signer').sign;
 
 const presale = async (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST) => {
@@ -49,4 +49,4 @@ const presale = async (wg, mail, adr, satoshis, milliWRG,bitcoinSRC, bitcoinDEST
     console.log("Signing",signedTx);
     console.log(await sendRawTX(signedTx));
 };
-export default presale;
+module.exports = presale;

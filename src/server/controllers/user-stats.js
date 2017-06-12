@@ -2,15 +2,14 @@
  * Created by michbil on 06.12.15.
  */
 
-import {Promise} from 'es6-promise';
-import {db as dbMod} from '../common';var db = dbMod.db;
-import WebRunesUsers from '../models/wriouser';
-import Donations from '../models/donations.js';
-import Emissions from '../models/emissions.js';
-import EtherFeeds from '../models/etherfeed.js';
-import Invoices from "../models/invoice.js";
-import WrioUser from "../models/wriouser.js";
-import logger from 'winston';
+const db = require('wriocommon').db.getInstance();
+const WebRunesUsers = require('../models/wriouser');
+const Donations = require('../models/donations.js');
+const Emissions = require('../models/emissions.js');
+const EtherFeeds = require('../models/etherfeed.js');
+const Invoices = require('../models/invoice.js');
+const WrioUser = require('../models/wriouser.js');
+const logger = require('winston');
 
 var decodeUserNames = async (names) => {
     var nameHash = {};
@@ -34,9 +33,9 @@ var getUserNames = async (names)=> {
 
 };
 
-export const prepayments = async (request,response) => {
+const prepayments = async (request,response) => {
     var user = request.user;
-    var Users = new WrioUser(db.db);
+    var Users = new WrioUser(db);
 
     // search in User arrays for prepayments designated for us
 
@@ -94,7 +93,7 @@ export const prepayments = async (request,response) => {
     }));
 };
 
-export const donations = async (request,response) => {
+const donations = async (request,response) => {
     var user = request.user;
     var d = new Donations();
     var query = {
@@ -125,3 +124,4 @@ export const donations = async (request,response) => {
     response.send(data);
 
 };
+module.exports = {prepayments,donations};

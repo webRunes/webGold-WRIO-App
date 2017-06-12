@@ -2,10 +2,10 @@
  * Created by michbil on 31.10.16.
  */
 
-import request from 'superagent';
-import nconf from '../utils/wrio_nconf';
-import logger from 'winston';
-import {utils} from '../common'; const dumpError = utils.dumpError;
+const request = require('superagent');
+const nconf = require('../utils/wrio_nconf');
+const logger = require('winston');
+const {dumpError} = require('wriocommon').utils;
 
 /**
  * Verify captcha request to Google servers
@@ -57,4 +57,4 @@ const verifyMiddleware = async (request,response,next) => {
 };
 
 
-export default verifyMiddleware;
+module.exports = verifyMiddleware;

@@ -4,14 +4,15 @@
 // Pre payments with 0 balance
 
 
-import logger from 'winston';
-import {db as dbMod} from '../common';var db = dbMod.db;
+const logger = require('winston');
+const db = require('wriocommon').db.getInstance;
+const {dumpError} = require('wriocommon').utils;
 
-export default class PrePayments {
+class PrePayments {
 
     constructor () {
 
-        this.widgets = db.db.collection('webGold_PrePayments');
+        this.widgets = db().collection('webGold_PrePayments');
 
     }
 
@@ -98,3 +99,4 @@ export default class PrePayments {
     }
 
 }
+module.exports = PrePayments;

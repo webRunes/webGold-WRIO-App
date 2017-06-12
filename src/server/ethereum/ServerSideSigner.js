@@ -17,4 +17,4 @@ const provider = (url, address, privatekey) => new SignerProvider(url, {
 });
 
 
-export default provider;
+module.exports = provider;

@@ -1,10 +1,10 @@
-import request from 'superagent';
-import nconf from '../utils/wrio_nconf';
-import uuid from 'node-uuid';
-import User from '../models/wriouser.js';
-import logger from 'winston';
-import BlockChainApi from '../api/blockchainApi.js';
-import {dumpError} from '../common/utils/utils.js'
+const request = require('superagent');
+const nconf = require('../utils/wrio_nconf');
+const uuid = require('node-uuid');
+const User = require('../models/wriouser.js');
+const logger = require('winston');
+const BlockChainApi = require('../api/blockchainApi.js');
+const {dumpError} = require('wriocommon').utils;
 
 /**
  * Blockchain.info callback handler
@@ -12,7 +12,7 @@ import {dumpError} from '../common/utils/utils.js'
  * @param response
  */
 
-export const callback_handler = async (request,response) => {
+const callback_handler = async (request,response) => {
     try {
         var blockchain = new BlockChainApi();
         await blockchain.handle_callback(request,response);
@@ -28,7 +28,7 @@ export const callback_handler = async (request,response) => {
  * @param response
  */
 
-export const payment_history = async (request,response) => {
+const payment_history = async (request,response) => {
 
     var userID = request.user;
     var blockchain = new BlockChainApi();
@@ -42,7 +42,7 @@ export const payment_history = async (request,response) => {
  * @param req
  * @param response
  */
-export const request_payment = (req,response) =>{
+const request_payment = (req,response) =>{
     logger.debug("Request payment is called");
     var blockchain = new BlockChainApi();
 
@@ -78,7 +78,7 @@ export const request_payment = (req,response) =>{
  * @returns {*}
  */
 
-export const request_presale = (req,response) => { // TODO add anti-spam protection
+const request_presale = (req,response) => { // TODO add anti-spam protection
     logger.debug("Request payment is called");
     var blockchain = new BlockChainApi();
 
@@ -107,7 +107,7 @@ export const request_presale = (req,response) => { // TODO add anti-spam protect
  * Get current adress gap for bitcoin addresses
  */
 
-export const get_gap = (req,response) => {
+const get_gap = (req,response) => {
     logger.debug("Request payment is called");
     var blockchain = new BlockChainApi();
 
@@ -119,3 +119,4 @@ export const get_gap = (req,response) => {
     });
 
 };
+module.exports = {callback_handler,payment_history,request_payment,request_presale,get_gap};
