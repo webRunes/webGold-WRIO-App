@@ -96,7 +96,7 @@ function setup_routes(db) {
     const UserStatsRoute = require('./routes/user-stats.js');
 
     const DOMAIN = nconf.get("db:workdomain");
-    const staticDomain = {domain: (DOMAIN === '.wrioos.local') ? '//localhost:3033/' : '//wrioos.local/'};
+    const staticDomain = {domain: (DOMAIN === '.wrioos.local') ? '//localhost:3033/' : '//wrioos.com/'};
     
     app.get('/coinadmin',     (req, res) => res.render('admin.ejs',staticDomain));
     app.get('/transactions',  (req, res) => res.render('transactions.ejs',staticDomain));
