@@ -1,7 +1,6 @@
 <html>
 <head>
     <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="/assets/3rdparty/qrcode.min.js"></script>
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://default.wrioos.com/css/webrunes.css" rel="stylesheet">
     <title>Webgold debug/admin interface</title>
@@ -135,39 +134,9 @@
     </style>
 </head>
 <body>
-
-<div id="sidebar-wrapper">
-    <ul class="sidebar-nav">
-        <li class="sidebar-brand">
-            <a href="#">
-                WRG general status
-            </a>
-        </li>
-        <li>
-            <a href="#/balances">Balances</a>
-        </li>
-        <li>
-            <a href="#/emissions">Emissions</a>
-        </li>
-        <li>
-            <a href="#/donations">Donations</a>
-        </li>
-        <li>
-            <a href="#/etherfeeds">Ether feeds</a>
-        </li>
-        <li>
-            <a href="#/invoices">BlockChain Invoices</a>
-        </li>
-        <li>
-            <a href="#/presales">WRG Presales</a>
-        </li>
-    </ul>
-</div>
-
-<div id="main" class="container-fluid" style="width:60%;"></div>
-
-<script src="localhost:3033/common.js"></script>
-<script src="localhost:3033/admin.js"></script>
+<div id="main"></div>
+<script src="http://localhost:3033/common.js"></script>
+<script src="http://localhost:3033/admin.js"></script>
 
 </body>
 </html>
