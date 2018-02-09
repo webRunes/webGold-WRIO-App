@@ -11,7 +11,7 @@ const Emissions = require('../models/emissions.js');
 const Donation = require('../models/donations.js');
 const logger = require('winston');
 const Const = require('../../constant.js');
-const {txutils} = require('eth-lightwallet');
+
 const {formatHex} = require('./ethutils.js');
 const Tx = require('ethereumjs-tx');
 const ethUtil = require('ethereumjs-util');
