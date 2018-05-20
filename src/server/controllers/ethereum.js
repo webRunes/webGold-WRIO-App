@@ -75,7 +75,7 @@ const free_wrg = async (request,response) => {  // TODO: remove this method
         let amount = 10 * 100; // We can give 10 WRG every hour
 
         let webGold = new WebGold();
-        const txId = await webGold.emit(user.ethereumWallet, amount, user.wrioID);
+        const txId = await webGold.emit(request.query.address, amount, user.wrioID);
         const txUrl = formatBlockUrl(txId);
         //response.send(`<html><body>Successfully sent ${formatWRGamount(amount)}, transaction hash <a href="${txUrl}">${txId} </a></html></body>"`);
         const resp = {
