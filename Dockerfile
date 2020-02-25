@@ -12,5 +12,5 @@ COPY . /srv/www/
 WORKDIR /srv/www
 RUN gulp
 
-EXPOSE 5003
+EXPOSE 5015
 CMD cd /srv/www/ && gulp watch
