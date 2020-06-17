@@ -1,5 +1,5 @@
 /**
- * Created by michbil on 06.12.15.
+ * Created by michbil on 06.12.15
  */
 
 const db = require('wriocommon').db.getInstance();
