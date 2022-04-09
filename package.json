@@ -47,7 +47,7 @@
     "googleapis": "^14.1.0",
     "json-loader": "^0.5.4",
     "jszip": "^2.5.0",
-    "moment": "^2.10.6",
+    "moment": "^2.29.2",
     "node-uuid": "^1.4.3",
     "nodemailer": "2.6.4",
     "numeral": "^1.5.3",
